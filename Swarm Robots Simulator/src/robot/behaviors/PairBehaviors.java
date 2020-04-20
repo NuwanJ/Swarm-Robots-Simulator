@@ -13,4 +13,6 @@ public interface PairBehaviors {
     
     public void comeCloser(double angle, int dist);
     
+    public void rotateToRobot(double angle, int dist);
+    
 }

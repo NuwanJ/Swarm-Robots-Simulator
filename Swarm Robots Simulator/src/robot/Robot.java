@@ -3,7 +3,6 @@ package robot;
 import communication.Communication;
 import communication.Message;
 import communication.MessageType;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -20,8 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import robot.behaviors.PairBehaviors;
+import robot.ledstript.LedStript;
 import robot.sensors.IRSensor;
-import robot.sensors.SharpReadings;
+import robot.behaviors.SupportiveFunctions;
 import robot.sensors.SharpSensor;
 import utility.Utility;
 import view.Field;
@@ -30,7 +30,7 @@ import view.Field;
  *
  * @author Nadun
  */
-public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrain, SharpReadings,
+public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrain, SupportiveFunctions,
         ActionListener, Communication, PairBehaviors {
 
     protected double angle;
@@ -40,6 +40,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private boolean forward = true;
     private SharpSensor sharp;
     private IRSensor iRSensor;
+    private LedStript ledStript;
     private BufferedImage image;
     private int id;
     
@@ -59,6 +60,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         sharp = new SharpSensor(this);
         iRSensor = new IRSensor(Constants.IR_MAX_COVERAGE, this);
+        ledStript = new LedStript(this);
 
         this.id = nextId;
 
@@ -80,8 +82,16 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         setY(y);
     }
 
-    public void setLedColor(Color ledColor) {
+    public void swithOnLedStript(Color ledColor) {
         this.ledColor = ledColor;
+    }
+    
+    public void swithOffLedStript() {
+        this.ledColor = null;
+    }
+
+    public Color getLedColor() {
+        return ledColor;
     }
 
     public IRSensor getiRSensor() {
@@ -99,12 +109,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         TexturePaint roboImage = new TexturePaint(image, frame);
 
         Color color = g2d.getColor();
-//        
-        //g2d.setStroke(new BasicStroke(5));
-        //g2d.setColor(Color.GREEN);
-        //g2d.draw(this);
-        //g2d.setStroke(new BasicStroke(1));
-        //g2d.setColor(color);
+
         
         //g2d.draw(this.getBounds());
         g2d.setPaint(roboImage);
@@ -114,6 +119,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         sharp.draw(g2d);
         iRSensor.draw(g2d);
+        ledStript.draw(g2d);
     }
 
     public void setX(double x) {
@@ -311,13 +317,13 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
-    public double measureDistance() {
+    public double findDistance() {
         return sharp.readDistance();
     }
 
     @Override
     public void avoidObstacles() {
-        double distance = measureDistance();
+        double distance = findDistance();
         if (distance < 50 && distance > 0) {
             moveStop();
             randomTurn(90, 120);
@@ -381,8 +387,13 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
-    public Color readColor() {
-        return null;
+    public Color findColor() {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public void rotateToRobot(double angle, int dist) {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     public class WheelThread implements Runnable {

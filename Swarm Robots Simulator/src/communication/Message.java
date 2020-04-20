@@ -29,6 +29,11 @@ public class Message {
         return sender;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%d : %s", sender.getId(), type.toString());
+    }
+
     
     
 }

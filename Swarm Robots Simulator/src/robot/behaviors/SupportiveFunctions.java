@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package robot.sensors;
+package robot.behaviors;
 
 import java.awt.Color;
 
@@ -11,10 +11,10 @@ import java.awt.Color;
  *
  * @author Nadun
  */
-public interface SharpReadings {
+public interface SupportiveFunctions {
     
-    public double measureDistance();
+    public double findDistance();
     
-    public Color readColor();
+    public Color findColor();
     
 }
