@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,10 +38,10 @@ public class Simulator {
     }
 
     public void run() {
-        
-        field.start();
+       
         ArrayList<Robot> robots = field.getSwarm().getRobots();
 
+        ArrayList<Thread> threads = new ArrayList<>();
         for (Robot robot : robots) {
             Thread t = new Thread() {
 
@@ -71,6 +70,13 @@ public class Simulator {
             t.start();
             
         }
+//        
+//        for (Thread thread : threads) {
+//            thread.start();
+//           
+//        }
+      
+        field.start();
     }
 
 }

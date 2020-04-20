@@ -12,7 +12,7 @@ package utility;
  */
 public class Constants {
     
-    public final static int ROBOT_SPEED = 90;
+    public final static int ROBOT_SPEED = 85;
     public final static int ROBOT_RADIUS = 20;
     
     public final static int OBJECT_WIDTH = 20;
@@ -23,6 +23,6 @@ public class Constants {
     public final static int SHARP_MAX_DISTANCE = 100;
     public final static int SHARP_MAX_RANGE = 15;
     
-    public final static int IR_MAX_COVERAGE = 100;
+    public final static int IR_MAX_COVERAGE = 120;
     
 }

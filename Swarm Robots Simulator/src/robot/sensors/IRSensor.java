@@ -24,7 +24,7 @@ public class IRSensor extends Ellipse2D.Double {
     private double maxCoverage; // max radius
     private Message broadcastMsg;
     private Message recieveMsg;
-    
+
     private Robot robot;
 
     private boolean send, recieve;
@@ -48,9 +48,9 @@ public class IRSensor extends Ellipse2D.Double {
         update();
 
         Color color = g2d.getColor();
-//        g2d.setColor(Color.lightGray);
-//        g2d.draw(this);
-        
+        g2d.setColor(Color.lightGray);
+        g2d.draw(this);
+
         for (Robot r : Simulator.field.getRobots()) {
 
             if (r == robot) {
@@ -62,10 +62,13 @@ public class IRSensor extends Ellipse2D.Double {
             areaShape.intersect(areaRobot);
 
             if (!areaShape.isEmpty()) {
-//                g2d.setColor(Color.yellow);
-//                g2d.draw(areaShape);
+                g2d.setColor(Color.yellow);
+                g2d.draw(areaShape);
                 recieveMsg = r.getiRSensor().getBroadcastMsg();
-            } 
+                if (recieveMsg != null) {
+                    System.out.println(robot.getId() + " -> " + recieveMsg);
+                }
+            }
         }
         g2d.setColor(color);
 
@@ -91,7 +94,6 @@ public class IRSensor extends Ellipse2D.Double {
         this.recieveMsg = recieveMsg;
     }
 
-    
     public void setBroadcastMsg(Message broadcastMsg) {
         this.broadcastMsg = broadcastMsg;
     }
@@ -102,7 +104,6 @@ public class IRSensor extends Ellipse2D.Double {
         public void run() {
             while (send) {
 
-                
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException ex) {

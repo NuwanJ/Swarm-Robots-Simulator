@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
@@ -7,11 +8,11 @@ import view.Simulator;
  *
  * @author Nadun
  */
-public class Example1 {
+public class LEDStriptTest {
 
     public static void main(String[] args) {
 
-        Swarm swarm = new Swarm("Example 1") {
+        Swarm swarm = new Swarm("LED Stript Test") {
             @Override
             public void create() {
 
@@ -23,7 +24,13 @@ public class Example1 {
                         public void loop() {
                             moveRandom();
                             avoidObstacles();
-
+                            
+                            double d = findDistance();
+                            //System.out.println(getId() + " - " + d);
+//                            
+                            if(d > 0 && d < 55) {
+                                swithOnLedStript(Color.yellow);
+                            }
                         }
 
                     });

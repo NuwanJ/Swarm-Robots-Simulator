@@ -29,7 +29,7 @@ public class Field extends JPanel implements ActionListener {
     
     private Rectangle2D.Double obstacle = new Rectangle2D.Double(400, 100, 60, 60);
 
-    private final Timer timer = new Timer(10, this);
+    private final Timer timer = new Timer(15, this);
 
     long start = 0;
     int collisions = 0;
@@ -71,9 +71,9 @@ public class Field extends JPanel implements ActionListener {
         
         boundary.draw(g2d);
         
-        g2d.setColor(Color.GREEN);
-        g2d.fill(obstacle);
-        g2d.setColor(color);
+//        g2d.setColor(Color.GREEN);
+//        g2d.fill(obstacle);
+//        g2d.setColor(color);
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -126,6 +126,7 @@ public class Field extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         repaint();
+        //revalidate();
     }
 
 }
