@@ -10,9 +10,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.PathIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import robot.Robot;
+import utility.Utility;
 import view.Simulator;
 
 /**
@@ -26,6 +28,8 @@ public class IRSensor extends Ellipse2D.Double {
     private Message recieveMsg;
 
     private Robot robot;
+    
+    public double slope;
 
     private boolean send, recieve;
 
@@ -48,8 +52,8 @@ public class IRSensor extends Ellipse2D.Double {
         update();
 
         Color color = g2d.getColor();
-        g2d.setColor(Color.lightGray);
-        g2d.draw(this);
+//        g2d.setColor(Color.lightGray);
+//        g2d.draw(this);
 
         for (Robot r : Simulator.field.getRobots()) {
 
@@ -62,16 +66,39 @@ public class IRSensor extends Ellipse2D.Double {
             areaShape.intersect(areaRobot);
 
             if (!areaShape.isEmpty()) {
-                g2d.setColor(Color.yellow);
-                g2d.draw(areaShape);
+//                g2d.setColor(Color.yellow);
+//                g2d.draw(areaShape);
                 recieveMsg = r.getiRSensor().getBroadcastMsg();
                 if (recieveMsg != null) {
-                    System.out.println(robot.getId() + " -> " + recieveMsg);
+                    slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
+                    //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);
+                    //r.moveStop();
                 }
             }
         }
         g2d.setColor(color);
 
+    }
+    
+    private double minDistanceFromSharpTo(Area area) {
+
+        double minDist = java.lang.Double.MAX_VALUE;
+
+        PathIterator iterator = area.getPathIterator(null);
+        double[] coords = new double[6];
+        while (!iterator.isDone()) {
+            int type = iterator.currentSegment(coords);
+            double x = coords[0];
+            double y = coords[1];
+            if (type != PathIterator.SEG_CLOSE) {
+                double calculatedDist = Utility.getDistance(robot.getCenterX(), robot.getCenterY(), x, y);
+                if (minDist > calculatedDist) {
+                    minDist = calculatedDist;
+                }
+            }
+            iterator.next();
+        }
+        return minDist;
     }
 
     public double getMaxCoverage() {

@@ -13,10 +13,12 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import robot.Robot;
 import utility.Constants;
 import utility.Utility;
 import view.Boundary;
+import view.Obstacle;
 import view.Simulator;
 
 /**
@@ -27,12 +29,14 @@ public class SharpSensor extends Arc2D.Double {
 
     private Robot robot;
     private double distance;
+    
     private Color color;
 
     public SharpSensor(Robot robot) {
         super(Arc2D.PIE);
         this.robot = robot;
         update();
+        color = Color.WHITE;
     }
 
     public void update() {
@@ -62,7 +66,7 @@ public class SharpSensor extends Arc2D.Double {
 
         Boundary boundary = Simulator.field.getBoundary();
 
-        boolean borderHit = false;
+        boolean hit = false;
         for (Rectangle2D.Double line : boundary.getBorders()) {
 
             Area areaShape = new Area(createTransformedShape);
@@ -72,30 +76,37 @@ public class SharpSensor extends Arc2D.Double {
             if (!areaShape.isEmpty()) {
                 distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
                 //System.out.println(distance);
-                borderHit = true;
+                hit = true;
                 break;
             } else {
                 distance = 0;
             }
         }
 
-//        if (!borderHit) {
-//            Area areaShape = new Area(createTransformedShape);
-//            Area areaRobot = new Area(Simulator.field.getObstacle().getBounds2D());
-//            areaShape.intersect(areaRobot);
-//
-//            if (!areaShape.isEmpty()) {
-//                distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
-//                color = Color.green;
-//                //System.out.println("in");
-//                borderHit = true;
-//            } else {
-//                distance = 0;
-//                color = Color.green;
-//            }
-//        }
+        if (!hit) {
 
-        if (!borderHit) {
+            ArrayList<Obstacle> obstacles = Simulator.field.getObstacles();
+
+            for (Obstacle obstacle : obstacles) {
+                Area areaShape = new Area(createTransformedShape);
+                Area areaRobot = new Area(obstacle.getBounds2D());
+                areaShape.intersect(areaRobot);
+
+                if (!areaShape.isEmpty()) {
+                    distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
+                    color = obstacle.getColor();
+                    
+                    hit = true;
+                } else {
+                    distance = 0;
+                    color = Color.WHITE;
+                    
+                }
+            }
+
+        }
+
+        if (!hit) {
             for (Robot r : Simulator.field.getRobots()) {
 
                 if (r == robot) {
@@ -144,6 +155,10 @@ public class SharpSensor extends Arc2D.Double {
 
     public double readDistance() {
         return distance;
+    }
+    
+    public Color readColor() {
+        return color;
     }
 
 }

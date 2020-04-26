@@ -24,7 +24,7 @@ public class Boundary {
 
     public void draw(Graphics2D g2d) {
         Color color = g2d.getColor();
-        g2d.setColor(Color.red);
+        g2d.setColor(Color.BLACK);
         for (Rectangle2D.Double line : borders) {
             g2d.draw(line);
         }

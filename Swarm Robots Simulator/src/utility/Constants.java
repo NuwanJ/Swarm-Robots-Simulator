@@ -12,7 +12,7 @@ package utility;
  */
 public class Constants {
     
-    public final static int ROBOT_SPEED = 85;
+    public final static int ROBOT_SPEED = 86;
     public final static int ROBOT_RADIUS = 20;
     
     public final static int OBJECT_WIDTH = 20;

@@ -57,5 +57,15 @@ public class Utility {
         }
         return RANDOM.nextInt((max - min) + 1) + min;
     }
+    
+    public static double getSlope(double x1, double y1, double x2, double y2) {
+        // using long to avoid possible overflows when multiplying
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+        
+        double toDegrees = Math.toDegrees(Math.atan(dy/dx));
+
+        return toDegrees;
+    }
 
 }

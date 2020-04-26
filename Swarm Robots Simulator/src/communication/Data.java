@@ -3,16 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package robot.behaviors;
+package communication;
 
 /**
  *
  * @author Nadun
  */
-public interface PairBehaviors {
-    
-    public void comeCloser(double angle, int dist);
-    
-    public void rotateToRobot();
+public interface Data {
     
 }

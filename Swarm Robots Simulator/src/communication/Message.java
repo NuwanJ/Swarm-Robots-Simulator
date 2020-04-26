@@ -15,6 +15,7 @@ public class Message {
     
     private MessageType type;
     private Robot sender;
+    private Data data;
 
     public Message(MessageType type, Robot sender) {
         this.type = type;
@@ -27,6 +28,14 @@ public class Message {
 
     public Robot getSender() {
         return sender;
+    }
+
+    public void setData(Data data) {
+        this.data = data;
+    }
+
+    public Data getData() {
+        return data;
     }
 
     @Override
