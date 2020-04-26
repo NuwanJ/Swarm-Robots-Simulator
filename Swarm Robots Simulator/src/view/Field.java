@@ -9,7 +9,6 @@ import java.awt.HeadlessException;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
@@ -22,12 +21,10 @@ import utility.Constants;
  */
 public class Field extends JPanel implements ActionListener {
 
-    private ArrayList<Object> objects;
+    private ArrayList<Obstacle> obstacles;
     private Swarm swarm;
     private ArrayList<Robot> robots;
     private Boundary boundary;
-    
-    private Rectangle2D.Double obstacle = new Rectangle2D.Double(400, 100, 60, 60);
 
     private final Timer timer = new Timer(15, this);
 
@@ -35,18 +32,20 @@ public class Field extends JPanel implements ActionListener {
     int collisions = 0;
 
     public Field() throws HeadlessException {
-        this.objects = new ArrayList<>();
+        this.obstacles = new ArrayList<>();
 
         this.boundary = new Boundary(0, 0, Constants.FEILD_WIDTH - 17, Constants.FEILD_HEIGHT - 40);
 
     }
 
-    public Rectangle2D.Double getObstacle() {
-        return obstacle;
+    public ArrayList<Obstacle> getObstacles() {
+        return obstacles;
+    }
+
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
     }
     
-    
-
     public Field(Color color) throws HeadlessException, IOException {
         this();
         setBackground(color);
@@ -55,10 +54,7 @@ public class Field extends JPanel implements ActionListener {
     public void parseSwarm(Swarm swarm) {
         this.swarm = swarm;
         this.robots = swarm.getRobots();
-    }
-
-    public void addObject(Object object) {
-        objects.add(object);
+        this.obstacles = swarm.getObstacles();
     }
 
     @Override
@@ -71,9 +67,11 @@ public class Field extends JPanel implements ActionListener {
         
         boundary.draw(g2d);
         
-//        g2d.setColor(Color.GREEN);
-//        g2d.fill(obstacle);
-//        g2d.setColor(color);
+
+        // draw obtacles
+        for (Obstacle obstacle : obstacles) {
+            obstacle.draw(g2d);
+        }
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -103,10 +101,6 @@ public class Field extends JPanel implements ActionListener {
 
     public Swarm getSwarm() {
         return swarm;
-    }
-
-    public ArrayList<Object> getObjects() {
-        return objects;
     }
 
     public ArrayList<Robot> getRobots() {

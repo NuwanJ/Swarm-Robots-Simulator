@@ -11,7 +11,9 @@ package communication;
  */
 public interface Communication {
     
-    public void broadcastMessage(MessageType header);
+    public void broadcastMessage(Message message);
+    
+    public void broadcastMessage(MessageType message);
     
     public Message recieveMessage();
     

@@ -2,6 +2,7 @@ package swarm;
 
 import robot.Robot;
 import java.util.ArrayList;
+import view.Obstacle;
 
 /**
  *
@@ -10,12 +11,14 @@ import java.util.ArrayList;
 public abstract class Swarm {
 
     private ArrayList<Robot> robots;
+    private ArrayList<Obstacle> obstacles;
     
     private String name;
 
     public Swarm(String name) {
         this.name = name;
         robots = new ArrayList<>();
+        obstacles = new ArrayList<>();
         create();
     }
     
@@ -31,6 +34,14 @@ public abstract class Swarm {
 
     public String getName() {
         return name;
+    }
+
+    public ArrayList<Obstacle> getObstacles() {
+        return obstacles;
+    }
+    
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
     }
 
 }

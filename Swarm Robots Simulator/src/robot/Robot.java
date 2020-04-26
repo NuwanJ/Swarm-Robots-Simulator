@@ -1,5 +1,6 @@
 package robot;
 
+import communication.ColorData;
 import communication.Communication;
 import communication.Message;
 import communication.MessageType;
@@ -36,7 +37,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     protected double angle;
 
     private Thread wheelThread, randomMoveThread;
-    private boolean wheelStop = true;
+    public boolean wheelStop = true;
     private boolean forward = true;
     private SharpSensor sharp;
     private IRSensor iRSensor;
@@ -44,6 +45,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private BufferedImage image;
     private int id;
     
+    public boolean rotationOff = false;
+
     private Color ledColor;
 
     private static int nextId = 0;
@@ -65,10 +68,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         this.id = nextId;
 
         nextId++;
-        
+
 //        wheelThread = new Thread();
 //        wheelThread.start();
-
     }
 
     public Robot() {
@@ -85,7 +87,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void swithOnLedStript(Color ledColor) {
         this.ledColor = ledColor;
     }
-    
+
     public void swithOffLedStript() {
         this.ledColor = null;
     }
@@ -110,7 +112,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         Color color = g2d.getColor();
 
-        
         //g2d.draw(this.getBounds());
         g2d.setPaint(roboImage);
         g2d.rotate(Math.toRadians(angle), getCenterX(), getCenterY());
@@ -213,8 +214,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
             }
         }
-        
-            
+
     }
 
     @Override
@@ -363,6 +363,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
+    public void broadcastMessage(Message message) {
+        iRSensor.setBroadcastMsg(message);
+    }
+    
+    @Override
     public void broadcastMessage(MessageType header) {
         iRSensor.setBroadcastMsg(new Message(header, this));
     }
@@ -374,11 +379,10 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void comeCloser(double heading, int dist) {
-        
-        if(heading > 0) {
-            angularTurn(heading);		
-        }
-        else if(heading > 0) {
+
+        if (heading > 0) {
+            angularTurn(heading);
+        } else if (heading > 0) {
             angularTurn(3600 - heading);
         }
         moveForwardDistance(dist);
@@ -388,12 +392,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public Color findColor() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return sharp.readColor();
     }
 
     @Override
-    public void rotateToRobot(double angle, int dist) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void rotateToRobot() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public class WheelThread implements Runnable {

@@ -3,16 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package robot.behaviors;
+package communication;
+
+import java.awt.Color;
 
 /**
  *
  * @author Nadun
  */
-public interface PairBehaviors {
-    
-    public void comeCloser(double angle, int dist);
-    
-    public void rotateToRobot();
-    
+public class ColorData extends Color implements Data {
+
+    public ColorData(Color c) {
+        super(c.getRed(), c.getGreen(), c.getBlue());
+    }
+
 }

@@ -7,25 +7,22 @@ import view.Simulator;
  *
  * @author Nadun
  */
-public class Example3 {
+public class Example1_AvoidBoundray {
 
     public static void main(String[] args) {
 
-        Swarm swarm = new Swarm("Example 3") {
+        Swarm swarm = new Swarm("Avoid Boundray") {
             @Override
             public void create() {
 
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < 4; i++) {
 
-                    join(new Robot(200, 100, 90) {
+                    join(new Robot() {
 
                         @Override
                         public void loop() {
-                            
-                            moveForward(3000);
-                            turnLeftAngle(180);
-                            moveForward(3000);
-                            turnRightAngle(180);
+                            moveRandom();
+                            avoidObstacles();
                         }
 
                     });
