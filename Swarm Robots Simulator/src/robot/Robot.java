@@ -45,6 +45,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private BufferedImage image;
     private int id;
     
+    public enum State {
+            SEARCHING,
+            INCLUSTER,
+            AGGREGATE
+        }      
     public boolean rotationOff = false;
 
     private Color ledColor;
@@ -399,7 +404,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void rotateToRobot() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     public class WheelThread implements Runnable {
 
         @Override

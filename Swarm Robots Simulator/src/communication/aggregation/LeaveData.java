@@ -12,8 +12,8 @@ public class LeaveData implements Data{
     
     public LeaveData(int clusterId) {
         this.clusterId = clusterId;             
-    }
-    
+    }  
+        
     public int getClusterID() {
         return this.clusterId;   
     }   

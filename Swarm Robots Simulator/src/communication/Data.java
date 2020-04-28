@@ -10,5 +10,5 @@ package communication;
  * @author Nadun
  */
 public interface Data {
-    
+                
 }
