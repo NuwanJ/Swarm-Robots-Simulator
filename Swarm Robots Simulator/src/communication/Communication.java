@@ -15,6 +15,6 @@ public interface Communication {
     
     public void broadcastMessage(MessageType message);
     
-    public Message recieveMessage();
+    public Message recieveMessage(int iRIndex);
     
 }

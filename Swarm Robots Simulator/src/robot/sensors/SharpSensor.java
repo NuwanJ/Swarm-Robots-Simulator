@@ -27,7 +27,7 @@ import view.Simulator;
  */
 public class SharpSensor extends Arc2D.Double {
 
-    private Robot robot;
+    private final Robot robot;
     private double distance;
 
     private Color color;

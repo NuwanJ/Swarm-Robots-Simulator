@@ -16,6 +16,7 @@ public enum MessageType {
     Disperse, DisperseAck,
     PositionInfo, PositionInfoAck,
     ColorExchange, Join,
-    Pulse, PulseFeedback
+    Pulse, PulseFeedback, Leave,
+    Update, Info    
     
 }

@@ -17,7 +17,7 @@ public class Example2_AvoidObstacleMiddle {
             @Override
             public void create() {
 
-                for (int i = 0; i < 15; i++) {
+                for (int i = 0; i < 5; i++) {
 
                     join(new Robot() {
 

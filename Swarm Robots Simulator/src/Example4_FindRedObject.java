@@ -5,6 +5,7 @@ import communication.MessageType;
 import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
+import utility.Settings;
 import view.Obstacle;
 import view.Simulator;
 
@@ -46,7 +47,13 @@ public class Example4_FindRedObject {
                                 broadcastMessage(MessageType.Pulse);
                             }
 
-                            Message recieveMessage = recieveMessage();
+                            Message recieveMessage = null;
+                            int n = Settings.NUM_OF_IR_SENSORS;
+                            for (int j = 0; j < n; j++) {
+                                if(recieveMessage(j) != null) {
+                                    recieveMessage = recieveMessage(j);
+                                }
+                            }
 
                             if (recieveMessage != null && recieveMessage.getType() == MessageType.ColorExchange) {
                                 Message message = new Message(MessageType.ColorExchange, this);

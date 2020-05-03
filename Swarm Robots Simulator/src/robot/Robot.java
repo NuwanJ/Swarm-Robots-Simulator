@@ -15,6 +15,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -39,11 +40,17 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public boolean wheelStop = true;
     private boolean forward = true;
     private SharpSensor sharp;
-    private IRSensor iRSensor;
+    private ArrayList<IRSensor> iRSensors;
     private LedStript ledStript;
     private BufferedImage image;
     private int id;
-    
+
+    public enum State {
+
+        SEARCHING,
+        INCLUSTER,
+        AGGREGATE
+    }
     public boolean rotationOff = false;
 
     private Color ledColor;
@@ -51,6 +58,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private static int nextId = 0;
 
     public Robot(double x, double y, double angle) {
+
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
 
@@ -61,7 +69,13 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         }
 
         sharp = new SharpSensor(this);
-        iRSensor = new IRSensor(this);
+        iRSensors = new ArrayList<>();
+
+        int n = Settings.NUM_OF_IR_SENSORS;
+        for (int i = 0; i < n; i++) {
+            iRSensors.add(new IRSensor(this, i * 360 / n));
+        }
+
         ledStript = new LedStript(this);
 
         this.id = nextId;
@@ -95,34 +109,36 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         return ledColor;
     }
 
-    public IRSensor getiRSensor() {
-        return iRSensor;
+    public ArrayList<IRSensor> getiRSensors() {
+        return iRSensors;
     }
-
+    
     public int getId() {
         return id;
     }
 
     public void draw(Graphics2D gd) {
-        
+
         Graphics2D g2d = (Graphics2D) gd.create();
-        
+
         Rectangle frame = new Rectangle((int) x, (int) y,
                 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
 
         TexturePaint roboImage = new TexturePaint(image, frame);
 
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.draw(g2d);
+        }
 
-        //g2d.draw(this.getBounds());
         g2d.setPaint(roboImage);
         g2d.rotate(Math.toRadians(angle), getCenterX(), getCenterY());
         g2d.fill(this);
         g2d.rotate(Math.toRadians(-angle), getCenterX(), getCenterY());
 
         sharp.draw(g2d);
-        iRSensor.draw(g2d);
+
         ledStript.draw(g2d);
-        
+
         g2d.dispose();
     }
 
@@ -149,7 +165,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void loop() {
-        
+
     }
 
     @Override
@@ -368,17 +384,23 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void broadcastMessage(Message message) {
-        iRSensor.setBroadcastMsg(message);
-    }
-    
-    @Override
-    public void broadcastMessage(MessageType header) {
-        iRSensor.setBroadcastMsg(new Message(header, this));
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.setBroadcastMsg(message);
+        }
+
     }
 
     @Override
-    public Message recieveMessage() {
-        return iRSensor.getRecieveMsg();
+    public void broadcastMessage(MessageType header) {
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.setBroadcastMsg(new Message(header, this));
+        }
+
+    }
+
+    @Override
+    public Message recieveMessage(int index) {
+        return iRSensors.get(index).getRecieveMsg();
     }
 
     @Override

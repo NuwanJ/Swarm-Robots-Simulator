@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,6 +6,7 @@
  */
 package utility;
 
+import communication.aggregation.PulseFBData;
 import java.awt.AlphaComposite;
 import java.awt.geom.Point2D;
 import java.util.Random;
@@ -71,5 +73,48 @@ public class Utility {
 
         return toDegrees;
     }
-
+    
+    //---------------------------------aggregation functions------------------------------------------------------------
+     public static PulseFBData getMax(PulseFBData[] inputArray){ 
+        double pMax = inputArray[0].getJoiingProb();
+        int maxProbIndex = 0;
+        for(int i=1;i < inputArray.length;i++){ 
+            if(inputArray[i].getJoiingProb() > pMax){ 
+                //pMax = inputArray[i].getJoiingProb();
+                maxProbIndex = i;
+            } 
+        } 
+        return inputArray[maxProbIndex]; 
+    }    
+    
+    public static double getJoiningProb(int clusterSize) {
+        double joiningProb;
+        double o_max = 2;
+        double robot_diameter = 1;
+        double o_des = robot_diameter/4;
+        double v = 20;
+        double deltaT = 0.1;
+        double arenaArea = 40;
+        double r_m = (1.20*o_des*Math.pow(clusterSize, 0.48))/2;
+        
+        if(clusterSize == 1) {
+            joiningProb = (2*o_max*v*deltaT)/arenaArea;
+        } else {
+            joiningProb = (2*(o_max + r_m - (o_des/2))*v*deltaT)/arenaArea;
+        }
+        return joiningProb;
+    } 
+     
+    public static double getLeavingProb(int clusterSize) {
+        double leavingProb;
+        double shrinkProb = 0.9; //use testing and adjust the value
+        if(clusterSize < 6) {
+            leavingProb = clusterSize * shrinkProb;
+        } else {
+            leavingProb = Math.PI* (1.20*Math.pow(clusterSize, 0.48) - 1) * shrinkProb;
+        }
+        return leavingProb;
+    }
+    
+   //------------------------------------------------------------------------------------------------------------------- 
 }
