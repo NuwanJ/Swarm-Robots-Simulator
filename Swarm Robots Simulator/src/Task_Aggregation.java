@@ -10,7 +10,6 @@ import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
 import communication.MessageType;
-import java.awt.Color;
 import java.util.*; 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -154,7 +153,7 @@ public class Task_Aggregation {
                                             clusterId = maxClusterId;
                                             myState = State.INCLUSTER;  
                                             Message joingMsg = new Message(MessageType.Join, this);
-                                            joingMsg.setData(new JoinData(probMaxData.getSenderId()));
+//                                            joingMsg.setData(new JoinData(probMaxData.getSenderId()));
                                             broadcastMessage(joingMsg);                                           
                                          }
                                      } else {

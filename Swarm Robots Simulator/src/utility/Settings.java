@@ -23,11 +23,13 @@ public class Settings {
     public final static int SHARP_MAX_DISTANCE = 100;
     public final static int SHARP_MAX_RANGE = 15;
     
-    public final static int IR_MAX_DISTANCE = 120;
-    public final static int IR_MAX_RANGE = 120;
+    public final static int NUM_OF_IR_SENSORS = 4;
+    
+    public final static int IR_MAX_DISTANCE = 80;
+    public final static int IR_MAX_RANGE = 20;
     
     public final static boolean VISIBLE_SHARP = true;
-    public final static boolean VISIBLE_IR = false;
+    public final static boolean VISIBLE_IR = true;
     public final static boolean VISIBLE_IR_INTERSECTION = true;
     
 }

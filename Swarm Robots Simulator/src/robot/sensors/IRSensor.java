@@ -8,9 +8,12 @@ package robot.sensors;
 import communication.Message;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import robot.Robot;
@@ -22,48 +25,64 @@ import view.Simulator;
  *
  * @author Nadun
  */
-public class IRSensor extends Ellipse2D.Double {
+public class IRSensor extends Arc2D.Double {
 
     private double maxDistance; // max radius
     private Message broadcastMsg;
     private Message recieveMsg;
-    private Robot robot;
+    private final Robot robot;
     private double slope;
     private boolean send, recieve;
+    private Shape transformedShape;
+    private double angle;
 
     private final Color SHARP_COLOR = new Color(255, 223, 163);
 
-    public IRSensor(Robot robot) {
-        this.maxDistance = Settings.IR_MAX_DISTANCE;
+    public IRSensor(Robot robot, double angle) {
+        super(Arc2D.PIE);
         this.robot = robot;
+        this.angle = angle;
         update();
     }
 
     public void update() {
 
-        double x_ = robot.getCenterX() - maxDistance;
-        double y_ = robot.getCenterY() - maxDistance;
+        double dx = Settings.ROBOT_RADIUS * Math.sin(angle);
+        double dy = Settings.ROBOT_RADIUS * Math.cos(angle);
 
-        setFrame(x_, y_, 2 * maxDistance, 2 * maxDistance);
+        double maxDist = Settings.IR_MAX_DISTANCE + Settings.ROBOT_RADIUS;
 
+        double x_ = robot.getX() - maxDist + Settings.ROBOT_RADIUS;
+        double y_ = robot.getY() - maxDist + Settings.ROBOT_RADIUS;
+
+        setFrame(x_, y_, 2 * maxDist, 2 * maxDist);
+
+        setAngleStart(90 - Settings.IR_MAX_RANGE - angle);
+        setAngleExtent(2 * Settings.IR_MAX_RANGE);
+    }
+
+    public Shape getTransformedShape() {
+        return transformedShape;
     }
 
     public void draw(Graphics2D gd) {
         update();
 
         Graphics2D g2d = (Graphics2D) gd.create();
-        
-        if (Settings.VISIBLE_IR) {
-            g2d.setColor(Color.lightGray);
-            g2d.draw(this);
-        }
 
-        //g2d.setColor(SHARP_COLOR);
+        g2d.setColor(Color.lightGray);
+
         if (Settings.VISIBLE_IR) {
             g2d.setComposite(Utility.alphaCompositeVisible);
         } else {
             g2d.setComposite(Utility.alphaCompositeHidden);
         }
+
+        AffineTransform at = new AffineTransform();
+        at.rotate(Math.toRadians(robot.getAngle()), robot.getCenterX(), robot.getCenterY());
+
+        transformedShape = at.createTransformedShape(this);
+        g2d.fill(transformedShape);
 
         for (Robot r : Simulator.field.getRobots()) {
 
@@ -71,22 +90,33 @@ public class IRSensor extends Ellipse2D.Double {
                 continue;
             }
 
-            Area areaShape = new Area(this);
-            Area areaRobot = new Area(r.getiRSensor());
-            areaShape.intersect(areaRobot);
+            ArrayList<IRSensor> irSensors = r.getiRSensors();
 
-            if (!areaShape.isEmpty()) {
-                if (Settings.VISIBLE_IR_INTERSECTION) {
-                    g2d.setColor(Color.yellow);
-                    g2d.draw(areaShape);
+            for (IRSensor irSensor : irSensors) {
+                
+                Area areaShape = new Area(transformedShape);
+                
+                Shape robotShape = irSensor.getTransformedShape();
+                if (robotShape == null) {
+                    continue;
                 }
-                recieveMsg = r.getiRSensor().getBroadcastMsg();
-                if (recieveMsg != null) {
-                    slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
+                Area areaRobot = new Area(robotShape);
+                areaShape.intersect(areaRobot);
+
+                if (!areaShape.isEmpty()) {
+                    if (Settings.VISIBLE_IR_INTERSECTION) {
+                        g2d.setColor(Color.yellow);
+                        g2d.draw(areaShape);
+                    }
+                    recieveMsg = irSensor.getBroadcastMsg();
+                    if (recieveMsg != null) {
+                        slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
                     //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);
-                    //r.moveStop();
+                        //r.moveStop();
+                    }
                 }
             }
+
         }
         g2d.dispose();
 

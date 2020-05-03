@@ -35,41 +35,41 @@ public class RotateToRobotTest {
                             } else {
                                 moveRandom();
                                 avoidObstacles();
-                                Message recieveMessage = recieveMessage();
-                                if (recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
-                                    double a = getiRSensor().getSlope();
-                                    System.out.println(getId() + "-> " + a);
-                                    double alpha = angle % 360;
-                                    
-                                    if(alpha < 0 && -alpha > 180) {
-                                        alpha = 360 + alpha;
-                                    }
-                                    
-                                    else if(alpha > 0 && alpha > 180) {
-                                        alpha = alpha - 360;
-                                    }
-                                    
-                                    boolean up = recieveMessage.getSender().getCenterY() > getCenterY();
-                                    moveStop();
-                                    if (!rotationOff) {
-                                        if (a > 0) {
-                                            double beta = 90 - a;
-                                            if (up) {
-                                                angularTurn(beta - alpha);
-                                            } else {
-                                                angularTurn(beta - alpha);
-                                            }
-                                        } else {
-                                            double beta = -90 - a;
-                                            if (up) {
-                                                angularTurn(beta - alpha);
-                                            } else {
-                                                angularTurn(beta - alpha);
-                                            }
-                                        }
-                                    }
-                                    rotationOff = true;
-                                }
+//                                Message recieveMessage = recieveMessage();
+//                                if (recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
+//                                    double a = getiRSensor().getSlope();
+//                                    System.out.println(getId() + "-> " + a);
+//                                    double alpha = angle % 360;
+//                                    
+//                                    if(alpha < 0 && -alpha > 180) {
+//                                        alpha = 360 + alpha;
+//                                    }
+//                                    
+//                                    else if(alpha > 0 && alpha > 180) {
+//                                        alpha = alpha - 360;
+//                                    }
+//                                    
+//                                    boolean up = recieveMessage.getSender().getCenterY() > getCenterY();
+//                                    moveStop();
+//                                    if (!rotationOff) {
+//                                        if (a > 0) {
+//                                            double beta = 90 - a;
+//                                            if (up) {
+//                                                angularTurn(beta - alpha);
+//                                            } else {
+//                                                angularTurn(beta - alpha);
+//                                            }
+//                                        } else {
+//                                            double beta = -90 - a;
+//                                            if (up) {
+//                                                angularTurn(beta - alpha);
+//                                            } else {
+//                                                angularTurn(beta - alpha);
+//                                            }
+//                                        }
+//                                    }
+//                                    rotationOff = true;
+//                               }
                             }
 
                             //System.out.println(getId() + " - " + d);
