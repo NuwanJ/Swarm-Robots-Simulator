@@ -1,38 +1,37 @@
 
-import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
-import view.Obstacle;
 import view.Simulator;
 
 /**
  *
  * @author Nadun
  */
-public class Example2_AvoidObstacleMiddle {
+public class Test {
 
     public static void main(String[] args) {
 
-        Swarm swarm = new Swarm("Obstacle in middle ") {
+        Swarm swarm = new Swarm("Testing..") {
             @Override
             public void create() {
-
-                for (int i = 0; i < 15; i++) {
-
+                for (int i = 0; i < 1; i++) {
+                    
                     join(new Robot() {
-
+                        
+                        
+                        
                         @Override
                         public void loop() {
-                            moveForward();
+                            moveRandom();
                             avoidObstacles();
                         }
 
                     });
+                    
+                    
                 }
             }
         };
-        
-        swarm.addObstacle(new Obstacle(450, 200, 70, 70, Color.RED));
 
         Simulator simulator = new Simulator(swarm);
         simulator.run();

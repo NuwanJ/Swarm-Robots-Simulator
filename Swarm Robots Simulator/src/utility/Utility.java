@@ -5,6 +5,7 @@
  */
 package utility;
 
+import java.awt.AlphaComposite;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
@@ -13,6 +14,9 @@ import java.util.Random;
  * @author Nadun
  */
 public class Utility {
+    
+    public static AlphaComposite alphaCompositeHidden = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0);
+    public static AlphaComposite alphaCompositeVisible = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
 
     private final static Random RANDOM = new Random();
 

@@ -1,6 +1,5 @@
 package robot;
 
-import communication.ColorData;
 import communication.Communication;
 import communication.Message;
 import communication.MessageType;
@@ -11,7 +10,7 @@ import java.awt.TexturePaint;
 import robot.behaviors.BasicBehaviors;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import utility.Constants;
+import utility.Settings;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -52,7 +51,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private static int nextId = 0;
 
     public Robot(double x, double y, double angle) {
-        super(x, y, 2 * Constants.ROBOT_RADIUS, 2 * Constants.ROBOT_RADIUS);
+        super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
 
         try {
@@ -62,7 +61,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         }
 
         sharp = new SharpSensor(this);
-        iRSensor = new IRSensor(Constants.IR_MAX_COVERAGE, this);
+        iRSensor = new IRSensor(this);
         ledStript = new LedStript(this);
 
         this.id = nextId;
@@ -76,8 +75,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public Robot() {
         this(0, 0, 0);
 
-        int x = Utility.randomInRange(20, Constants.FEILD_WIDTH - 5 * Constants.ROBOT_RADIUS);
-        int y = Utility.randomInRange(20, Constants.FEILD_HEIGHT - 5 * Constants.ROBOT_RADIUS);
+        int x = Utility.randomInRange(20, Settings.FEILD_WIDTH - 5 * Settings.ROBOT_RADIUS);
+        int y = Utility.randomInRange(20, Settings.FEILD_HEIGHT - 5 * Settings.ROBOT_RADIUS);
         this.angle = Utility.randomInRange(-360, 360);
 
         setX(x);
@@ -104,13 +103,15 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         return id;
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D gd) {
+        
+        Graphics2D g2d = (Graphics2D) gd.create();
+        
         Rectangle frame = new Rectangle((int) x, (int) y,
-                2 * Constants.ROBOT_RADIUS, 2 * Constants.ROBOT_RADIUS);
+                2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
 
         TexturePaint roboImage = new TexturePaint(image, frame);
 
-        Color color = g2d.getColor();
 
         //g2d.draw(this.getBounds());
         g2d.setPaint(roboImage);
@@ -121,6 +122,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         sharp.draw(g2d);
         iRSensor.draw(g2d);
         ledStript.draw(g2d);
+        
+        g2d.dispose();
     }
 
     public void setX(double x) {
@@ -146,6 +149,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void loop() {
+        
     }
 
     @Override
@@ -156,11 +160,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             double xdelta = Math.sin(Math.toRadians(angle));
             double ydelta = Math.cos(Math.toRadians(angle));
 //            int R = 200; 
-//            if(x + xdelta >= Constants.FEILD_WIDTH || x + xdelta <= 0) {
+//            if(x + xdelta >= Settings.FEILD_WIDTH || x + xdelta <= 0) {
 //                turnRightAngle(180 - 2*angle);
 //            }
 //            
-//            if(y - ydelta >= Constants.FEILD_HEIGHT || y - ydelta <= 0) {
+//            if(y - ydelta >= Settings.FEILD_HEIGHT || y - ydelta <= 0) {
 //                turnRightAngle(180 - 2*angle);
 //            }
 
@@ -175,7 +179,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 break;
             }
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -196,7 +200,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 break;
             }
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -247,7 +251,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 break;
             }
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -265,7 +269,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 break;
             }
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -277,7 +281,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         for (int i = 0; i < angle; i++) {
             this.angle++;
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -289,7 +293,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         for (int i = 0; i < angle; i++) {
             this.angle--;
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -343,7 +347,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
             d++;
             try {
-                Thread.sleep(100 - Constants.ROBOT_SPEED);
+                Thread.sleep(100 - Settings.ROBOT_SPEED);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -413,7 +417,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 y -= forward ? ydelta : -ydelta;
 
                 try {
-                    Thread.sleep(100 - Constants.ROBOT_SPEED);
+                    Thread.sleep(100 - Settings.ROBOT_SPEED);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -433,7 +437,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
                 turnRightAngle(randomAngle);
 
                 try {
-                    Thread.sleep(100 - Constants.ROBOT_SPEED);
+                    Thread.sleep(100 - Settings.ROBOT_SPEED);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
                 }

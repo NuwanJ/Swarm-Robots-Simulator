@@ -1,7 +1,6 @@
 
 import communication.Message;
 import communication.MessageType;
-import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
@@ -11,6 +10,7 @@ import view.Simulator;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
  *
  * @author Nadun
@@ -23,7 +23,7 @@ public class RotateToRobotTest {
             @Override
             public void create() {
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 2; i++) {
 
                     join(new Robot() {
 
@@ -31,27 +31,40 @@ public class RotateToRobotTest {
                         public void loop() {
 
                             if (getId() == 0) {
-                                //broadcastMessage(MessageType.FollowMe);
+                                broadcastMessage(MessageType.FollowMe);
                             } else {
                                 moveRandom();
                                 avoidObstacles();
                                 Message recieveMessage = recieveMessage();
                                 if (recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
-                                    double a = getiRSensor().slope;
+                                    double a = getiRSensor().getSlope();
+                                    System.out.println(getId() + "-> " + a);
+                                    double alpha = angle % 360;
+                                    
+                                    if(alpha < 0 && -alpha > 180) {
+                                        alpha = 360 + alpha;
+                                    }
+                                    
+                                    else if(alpha > 0 && alpha > 180) {
+                                        alpha = alpha - 360;
+                                    }
+                                    
                                     boolean up = recieveMessage.getSender().getCenterY() > getCenterY();
                                     moveStop();
                                     if (!rotationOff) {
                                         if (a > 0) {
+                                            double beta = 90 - a;
                                             if (up) {
-                                                angularTurn((90 - angle % 360 + a) % 360);
+                                                angularTurn(beta - alpha);
                                             } else {
-
+                                                angularTurn(beta - alpha);
                                             }
                                         } else {
+                                            double beta = -90 - a;
                                             if (up) {
-                                                angularTurn((90 - angle % 360 + a) % 360);
+                                                angularTurn(beta - alpha);
                                             } else {
-
+                                                angularTurn(beta - alpha);
                                             }
                                         }
                                     }
