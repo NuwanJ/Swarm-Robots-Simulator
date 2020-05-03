@@ -11,9 +11,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import utility.Constants;
+import utility.Settings;
 
 /**
  *
@@ -28,13 +30,14 @@ public class Field extends JPanel implements ActionListener {
 
     private final Timer timer = new Timer(15, this);
 
+    public static Color color = new Color(240, 240, 240);
+
     long start = 0;
     int collisions = 0;
 
     public Field() throws HeadlessException {
         this.obstacles = new ArrayList<>();
-
-        this.boundary = new Boundary(0, 0, Constants.FEILD_WIDTH - 17, Constants.FEILD_HEIGHT - 40);
+        this.boundary = new Boundary(0, 0, Settings.FEILD_WIDTH - 17, Settings.FEILD_HEIGHT - 40);
 
     }
 
@@ -45,7 +48,7 @@ public class Field extends JPanel implements ActionListener {
     public void addObstacle(Obstacle obstacle) {
         this.obstacles.add(obstacle);
     }
-    
+
     public Field(Color color) throws HeadlessException, IOException {
         this();
         setBackground(color);
@@ -62,11 +65,6 @@ public class Field extends JPanel implements ActionListener {
         super.paint(g);
 
         Graphics2D g2d = (Graphics2D) g;
-        
-        Color color = g2d.getColor();
-        
-        boundary.draw(g2d);
-        
 
         // draw obtacles
         for (Obstacle obstacle : obstacles) {
@@ -74,12 +72,14 @@ public class Field extends JPanel implements ActionListener {
         }
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        boundary.draw(g2d);
 
+        //robots.get(0).draw(g2d);
+        //robots.get(1).draw(g2d);
+        
         for (Robot r : robots) {
             r.draw(g2d);
         }
-        
-        
 
 //        long end = System.currentTimeMillis();
 //        if (end - start >= 30000) {
@@ -96,7 +96,6 @@ public class Field extends JPanel implements ActionListener {
 //                }
 //            }
 //        }
-
     }
 
     public Swarm getSwarm() {

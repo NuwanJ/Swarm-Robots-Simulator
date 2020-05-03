@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,7 +6,7 @@
  */
 package utility;
 
-import communication.aggregation.PulseFBData;
+import java.awt.AlphaComposite;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
@@ -14,6 +15,9 @@ import java.util.Random;
  * @author Nadun
  */
 public class Utility {
+    
+    public static AlphaComposite alphaCompositeHidden = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0);
+    public static AlphaComposite alphaCompositeVisible = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
 
     private final static Random RANDOM = new Random();
 

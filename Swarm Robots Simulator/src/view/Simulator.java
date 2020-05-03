@@ -3,7 +3,7 @@ package view;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utility.Constants;
+import utility.Settings;
 import javax.swing.JFrame;
 import robot.Robot;
 import swarm.Swarm;
@@ -23,13 +23,13 @@ public class Simulator {
         field = new Field();
         field.parseSwarm(swarm);
         field.setLocation(0, 0);
-        field.setSize(Constants.FEILD_WIDTH, Constants.FEILD_HEIGHT);
+        field.setSize(Settings.FEILD_WIDTH, Settings.FEILD_HEIGHT);
 
         jf = new JFrame();
         jf.setLayout(null);
         
         jf.add(field);
-        jf.setSize(Constants.FEILD_WIDTH, Constants.FEILD_HEIGHT);
+        jf.setSize(Settings.FEILD_WIDTH, Settings.FEILD_HEIGHT);
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.setLocationRelativeTo(null);
         jf.setVisible(true);
