@@ -1,3 +1,4 @@
+
 package robot;
 
 import communication.Communication;
@@ -44,11 +45,19 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private BufferedImage image;
     private int id;
     
+          
+    public enum State {
+            SEARCHING,
+            INCLUSTER,
+            AGGREGATE
+        }      
     public boolean rotationOff = false;
 
     private Color ledColor;
 
     private static int nextId = 0;
+          
+         
 
     public Robot(double x, double y, double angle) {
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
