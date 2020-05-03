@@ -10,7 +10,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import robot.Robot;
-import utility.Constants;
+import utility.Settings;
 
 /**
  *
@@ -40,7 +40,7 @@ public class LedStript extends Ellipse2D.Double {
             this.color = robot.getLedColor();
         }
 
-        setFrame(x_, y_, 2 * Constants.ROBOT_RADIUS, 2 * Constants.ROBOT_RADIUS);
+        setFrame(x_, y_, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
     }
 
     public void draw(Graphics2D g2d) {

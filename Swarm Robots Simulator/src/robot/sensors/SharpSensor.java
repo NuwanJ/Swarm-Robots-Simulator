@@ -15,7 +15,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import robot.Robot;
-import utility.Constants;
+import utility.Settings;
 import utility.Utility;
 import view.Boundary;
 import view.Obstacle;
@@ -29,8 +29,10 @@ public class SharpSensor extends Arc2D.Double {
 
     private Robot robot;
     private double distance;
-    
+
     private Color color;
+
+    private final Color SHARP_COLOR = new Color(255, 223, 163);
 
     public SharpSensor(Robot robot) {
         super(Arc2D.PIE);
@@ -41,22 +43,28 @@ public class SharpSensor extends Arc2D.Double {
 
     public void update() {
 
-        double x_ = robot.getX() - Constants.SHARP_MAX_DISTANCE + Constants.ROBOT_RADIUS;
-        double y_ = robot.getY() - Constants.SHARP_MAX_DISTANCE;
+        double x_ = robot.getX() - Settings.SHARP_MAX_DISTANCE + Settings.ROBOT_RADIUS;
+        double y_ = robot.getY() - Settings.SHARP_MAX_DISTANCE;
 
-        setFrame(x_, y_, 2 * Constants.SHARP_MAX_DISTANCE, 2 * Constants.SHARP_MAX_DISTANCE);
+        setFrame(x_, y_, 2 * Settings.SHARP_MAX_DISTANCE, 2 * Settings.SHARP_MAX_DISTANCE);
 
-        setAngleStart(360 + 90 - Constants.SHARP_MAX_RANGE);
-        setAngleExtent(2 * Constants.SHARP_MAX_RANGE);
+        setAngleStart(360 + 90 - Settings.SHARP_MAX_RANGE);
+        setAngleExtent(2 * Settings.SHARP_MAX_RANGE);
 
         distance = 0;
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D gd) {
         update();
 
-        Color color1 = g2d.getColor();
-        g2d.setColor(new Color(255, 223, 163));
+        Graphics2D g2d = (Graphics2D) gd.create();
+
+        g2d.setColor(SHARP_COLOR);
+        if (Settings.VISIBLE_SHARP) {
+            g2d.setComposite(Utility.alphaCompositeVisible);
+        } else {
+            g2d.setComposite(Utility.alphaCompositeHidden);
+        }
 
         AffineTransform at = new AffineTransform();
         at.rotate(Math.toRadians(robot.getAngle()), robot.getCenterX(), robot.getCenterY());
@@ -74,8 +82,7 @@ public class SharpSensor extends Arc2D.Double {
             areaShape.intersect(areaLine);
 
             if (!areaShape.isEmpty()) {
-                distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
-                //System.out.println(distance);
+                distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
                 hit = true;
                 break;
             } else {
@@ -93,14 +100,14 @@ public class SharpSensor extends Arc2D.Double {
                 areaShape.intersect(areaRobot);
 
                 if (!areaShape.isEmpty()) {
-                    distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
+                    distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
                     color = obstacle.getColor();
-                    
+
                     hit = true;
                 } else {
                     distance = 0;
                     color = Color.WHITE;
-                    
+
                 }
             }
 
@@ -118,7 +125,7 @@ public class SharpSensor extends Arc2D.Double {
                 areaShape.intersect(areaRobot);
 
                 if (!areaShape.isEmpty()) {
-                    distance = minDistanceFromSharpTo(areaShape) - Constants.ROBOT_RADIUS;
+                    distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
                     color = Color.green;
                     //System.out.println("in");
                     break;
@@ -128,7 +135,8 @@ public class SharpSensor extends Arc2D.Double {
                 }
             }
         }
-        g2d.setColor(color1);
+        //g2d.setColor(color1);
+        g2d.dispose();
 
     }
 
@@ -156,7 +164,7 @@ public class SharpSensor extends Arc2D.Double {
     public double readDistance() {
         return distance;
     }
-    
+
     public Color readColor() {
         return color;
     }
