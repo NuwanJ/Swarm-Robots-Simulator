@@ -1,3 +1,4 @@
+
 package communication.aggregation;
 
 import communication.Data;
@@ -19,3 +20,4 @@ public class LeaveData implements Data{
     }   
    
 }
+
