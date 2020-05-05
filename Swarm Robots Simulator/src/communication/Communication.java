@@ -17,4 +17,6 @@ public interface Communication {
     
     public Message recieveMessage(int iRIndex);
     
+    public void resetReceivers(int index);
+    
 }

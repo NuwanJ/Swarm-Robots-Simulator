@@ -402,6 +402,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public Message recieveMessage(int index) {
         return iRSensors.get(index).getRecieveMsg();
     }
+    
+    @Override
+    public void resetReceivers(int index) {      
+           iRSensors.get(index).setRecieveMsg(null);         
+    }
 
     @Override
     public void comeCloser(double heading, int dist) {
