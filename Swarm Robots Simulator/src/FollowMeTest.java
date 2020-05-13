@@ -1,7 +1,10 @@
 
+import communication.AngleData;
 import communication.Message;
 import communication.MessageType;
+import java.util.ArrayList;
 import robot.Robot;
+import robot.sensors.IRSensor;
 import swarm.Swarm;
 import view.Simulator;
 
@@ -10,73 +13,61 @@ import view.Simulator;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Nadun
  */
-public class RotateToRobotTest {
+public class FollowMeTest {
 
     public static void main(String[] args) {
 
-        Swarm swarm = new Swarm("Pair Communication Test") {
+        Swarm swarm = new Swarm("Follow Me Test") {
             @Override
             public void create() {
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 4; i++) {
 
                     join(new Robot() {
+
+                        double a = 0;
 
                         @Override
                         public void loop() {
 
-                            if (getId() == 0) {
-                                broadcastMessage(MessageType.FollowMe);
-                            } else {
-                                moveRandom();
-                                avoidObstacles();
-//                                Message recieveMessage = recieveMessage();
-//                                if (recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
-//                                    double a = getiRSensor().getSlope();
-//                                    System.out.println(getId() + "-> " + a);
-//                                    double alpha = angle % 360;
-//                                    
-//                                    if(alpha < 0 && -alpha > 180) {
-//                                        alpha = 360 + alpha;
-//                                    }
-//                                    
-//                                    else if(alpha > 0 && alpha > 180) {
-//                                        alpha = alpha - 360;
-//                                    }
-//                                    
-//                                    boolean up = recieveMessage.getSender().getCenterY() > getCenterY();
-//                                    moveStop();
-//                                    if (!rotationOff) {
-//                                        if (a > 0) {
-//                                            double beta = 90 - a;
-//                                            if (up) {
-//                                                angularTurn(beta - alpha);
-//                                            } else {
-//                                                angularTurn(beta - alpha);
-//                                            }
-//                                        } else {
-//                                            double beta = -90 - a;
-//                                            if (up) {
-//                                                angularTurn(beta - alpha);
-//                                            } else {
-//                                                angularTurn(beta - alpha);
-//                                            }
-//                                        }
-//                                    }
-//                                    rotationOff = true;
-//                               }
-                            }
+                            Message message = new Message(MessageType.FollowMe, this);
+                            message.setData(new AngleData(angle % 360));
 
-                            //System.out.println(getId() + " - " + d);
-//                            
-//                            if (d > 0 && d < 55) {
-//                                swithOnLedStript(Color.yellow);
-//                            }
+                            if (getId() == 0) {
+                                broadcastMessage(message);
+                                moveRandom();
+                            } else {
+                                
+                                moveRandom();
+                                Message recieveMessage = null;
+                                ArrayList<IRSensor> irSensors = getiRSensors();
+                                int ir = 0, i = 0;
+                                for (IRSensor irSensor : irSensors) {
+                                    Message m = irSensor.getRecieveMsg();
+                                    if (m != null) {
+                                        recieveMessage = m;
+                                        ir = i;
+                                        break;
+                                    }
+                                    i++;
+                                }
+                                
+                                if(recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
+                                    
+                                    AngleData data = (AngleData) recieveMessage.getData();
+                                    angle = data.getAngle();
+                                }
+                                
+                           
+                                moveForward();
+                            }
+                            
+                            avoidObstacles();
+
                         }
 
                     });

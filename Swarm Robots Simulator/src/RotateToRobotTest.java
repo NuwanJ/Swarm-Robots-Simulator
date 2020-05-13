@@ -1,7 +1,9 @@
 
 import communication.Message;
 import communication.MessageType;
+import java.util.ArrayList;
 import robot.Robot;
+import robot.sensors.IRSensor;
 import swarm.Swarm;
 import view.Simulator;
 
@@ -23,7 +25,7 @@ public class RotateToRobotTest {
             @Override
             public void create() {
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 4; i++) {
 
                     join(new Robot() {
 
@@ -31,12 +33,24 @@ public class RotateToRobotTest {
                         public void loop() {
 
                             if (getId() == 0) {
-                                broadcastMessage(MessageType.FollowMe);
+                                broadcastMessage(MessageType.ComeCloser);
                             } else {
                                 moveRandom();
                                 avoidObstacles();
-//                                Message recieveMessage = recieveMessage();
-//                                if (recieveMessage != null && recieveMessage.getType() == MessageType.FollowMe) {
+                                Message recieveMessage = null;
+                                ArrayList<IRSensor> irSensors = getiRSensors();
+                                int ir = 0, i = 0;
+                                for (IRSensor irSensor : irSensors) {
+                                    Message m = irSensor.getRecieveMsg();
+                                    if(m != null) {
+                                        recieveMessage = m;
+                                        ir = i;
+                                        break;
+                                    }
+                                    i++;
+                                }
+                                
+                                if (recieveMessage != null && recieveMessage.getType() == MessageType.ComeCloser) {
 //                                    double a = getiRSensor().getSlope();
 //                                    System.out.println(getId() + "-> " + a);
 //                                    double alpha = angle % 360;
@@ -50,8 +64,8 @@ public class RotateToRobotTest {
 //                                    }
 //                                    
 //                                    boolean up = recieveMessage.getSender().getCenterY() > getCenterY();
-//                                    moveStop();
-//                                    if (!rotationOff) {
+                                    moveStop();
+                                    if (!rotationOff) {
 //                                        if (a > 0) {
 //                                            double beta = 90 - a;
 //                                            if (up) {
@@ -67,16 +81,17 @@ public class RotateToRobotTest {
 //                                                angularTurn(beta - alpha);
 //                                            }
 //                                        }
-//                                    }
-//                                    rotationOff = true;
-//                               }
+                                        
+                                       
+                                        
+                                        angularTurn(ir * 90);
+                                        moveForwardDistance(80);
+                                        
+                                    }
+                                    rotationOff = true;
+                               }
                             }
 
-                            //System.out.println(getId() + " - " + d);
-//                            
-//                            if (d > 0 && d < 55) {
-//                                swithOnLedStript(Color.yellow);
-//                            }
                         }
 
                     });
