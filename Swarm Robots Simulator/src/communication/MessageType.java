@@ -13,7 +13,7 @@ package communication;
  */
 public enum MessageType {
     
-    FollowMe, GoAway, 
+    FollowMe, GoAway, ComeCloser,
     Disperse, DisperseAck,
     PositionInfo, PositionInfoAck,
     ColorExchange, Join,

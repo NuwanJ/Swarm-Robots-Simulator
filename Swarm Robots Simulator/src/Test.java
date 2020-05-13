@@ -15,20 +15,24 @@ public class Test {
             @Override
             public void create() {
                 for (int i = 0; i < 1; i++) {
-                    
+
                     join(new Robot() {
-                        
-                        
-                        
+                        int state = 0;
+
                         @Override
                         public void loop() {
-                            moveRandom();
                             avoidObstacles();
+                            if (state == 0) {
+                                moveForwardDistance(100);
+                                state = 1;
+                            } else {
+                                moveStop();
+                            }
+
                         }
 
                     });
-                    
-                    
+
                 }
             }
         };
