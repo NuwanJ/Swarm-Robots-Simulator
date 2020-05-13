@@ -14,6 +14,7 @@ import communication.MessageType;
 import java.util.*; 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import utility.Settings;
 
 public class Task_Aggregation {  
          
@@ -23,166 +24,249 @@ public class Task_Aggregation {
             @Override
             public void create() {
                 
-                for (int i = 0; i < 2; i++) {                  
+                for (int i = 0; i < 3; i++) {                  
                     
                     join(new Robot() {
                         
-                        State myState = State.SEARCHING;
+                        Robot.State myState = Robot.State.SEARCHING;
                         int clusterId = getId();
-                        int clusterSize = 0;
+                        int clusterSize = 1;
                         HashMap<Integer, Long> waitingMap = new HashMap<>();
-                        PulseFBData joiningArray[] = new PulseFBData[4];                        
-                        int noOfRobots = 2; // change this
+                        int n = Settings.NUM_OF_IR_SENSORS;
+                        PulseFBData joiningArray[] = new PulseFBData[n];                        
+                        int noOfRobots = 3; // change this
+                        boolean moveHoldFlag = true;
+                        int count = 0;
+                        double joiningProbArray[] = new double[n];
+                        int probSendersArray[] = new int[n];
+                        int clusterIdArray[] = new int[n];                        
                         
-                        public void receiveMessages(Message receiveMsg) {   
-                            int i = 0;
-                            //for all receivers iterate(i)--> {
+                        public void receiveMessages() {   
+                           
+                            Message receiveMsg = null;                           
+                            
+                            for (int i = 0; i < n; i++) {
+                                receiveMsg = recieveMessage(i);
+                                
                                 if (receiveMsg != null) { 
+                                    
                                     if(receiveMsg.getType() == MessageType.Pulse) {
-                                         Message leaveMsg = new Message(MessageType.PulseFeedback, this);
-                                         leaveMsg.setData(new PulseFBData(clusterId, this.getId(),
-                                                 receiveMsg.getSender().getId(), Utility.getJoiningProb(clusterSize)));
-                                         broadcastMessage(leaveMsg);
-                                         moveStop();
+                                        moveStop();
+                                        moveHoldFlag = false;
+                                        PulseData newData = (PulseData)receiveMsg.getData();
+                                        if(newData.getClusterId() != clusterId) { 
+                                            if(receiveMsg.getSender().getId() > this.getId() || 
+                                                myState != Robot.State.SEARCHING) {                                             
+                                                MessageHandler.sendPulseFBMsg(this, clusterId, 
+                                                receiveMsg.getSender().getId(), (double)clusterSize/noOfRobots);
+                                                long waitingTime = System.currentTimeMillis();
+//                                                while((System.currentTimeMillis() - waitingTime) < 2) {}
+                                                moveHoldFlag = true;
+                                            } else {
+//                                                while(true) {
+//                                                    if(recieveMessage(i).getType() == MessageType.PulseFeedback) {
+//                                                        break;
+//                                                    }
+//                                                }
+                                            } 
+                                            
+                                        }                                                                                                                 
                                     }
-                                    else if (receiveMsg.getType() == MessageType.PulseFeedback) {     
+                                    else if (receiveMsg.getType() == MessageType.PulseFeedback) {                                       
                                         PulseFBData newData = (PulseFBData)receiveMsg.getData();
-                                        if(newData.getReceiverId() == this.getId()){
-                                            joiningArray[i] = newData;   
+                                        if(newData.getReceiverId() == this.getId()){  
+                                            moveStop();
+                                            moveHoldFlag = false;
+                                            System.out.println("Robot: " + this.getId() + " - Received Pulse FB Msg");
+                                            joiningProbArray[i] = newData.getJoiingProb();
+                                            probSendersArray[i] = newData.getSenderId();
+                                            clusterIdArray[i] = newData.getClusterID();                                            
                                         }                                                                            
                                     }
-                                    else if (receiveMsg.getType() == MessageType.Join) {
-                                        JoinData newData = (JoinData)receiveMsg.getData();                                        
+                                    else if (receiveMsg.getType() == MessageType.GoAway) {                                        
+                                        GoAwayData newData = (GoAwayData)receiveMsg.getData();
+                                        if(newData.getreceiverId() == this.getId()){
+                                            System.out.println("Robot: " + this.getId() + " - Received GoAway Msg");
+                                            moveHoldFlag = true;
+                                        }
+                                    }
+                                    else if (receiveMsg.getType() == MessageType.Join) {   
+                                        JoinData newData = (JoinData)receiveMsg.getData(); 
                                         if(this.getId() == newData.getreceiverId()) {
+                                             if(myState == State.SEARCHING) {
+                                                myState = State.INCLUSTER;
+                                             }                                        
+                                            System.out.println("Robot: " + this.getId() + " - Received Joining Msg");                                        
                                             clusterSize = clusterSize + 1;
                                             if(clusterSize == noOfRobots) {
-                                                myState = State.AGGREGATE;
+                                                myState = Robot.State.AGGREGATE;
                                                 moveStop();
+                                                System.out.println("Robot: " + this.getId() + " - Aggregated");
                                             }
+                                            
                                             Message infoMsg = new Message(MessageType.Info, this);
                                             infoMsg.setData(new InfoData(receiveMsg.getSender().getId(),
                                                                     clusterId, clusterSize));
                                             broadcastMessage(infoMsg);                                           
-                                            if(myState == State.INCLUSTER) {
-                                                Message clusterUpdateMsg = new Message(MessageType.Update, this);
-                                                clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, clusterSize));
-                                                broadcastMessage(clusterUpdateMsg); 
+                                            if(myState == Robot.State.INCLUSTER) {
+                                                System.out.println("Robot: " + this.getId() + " - Sending update Msg"); 
+                                                
+                                                MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
                                             }
                                         }
                                     }
-                                    else if (receiveMsg.getType() == MessageType.Update && myState == State.INCLUSTER) {
+                                    else if (receiveMsg.getType() == MessageType.Update &&
+                                            myState == Robot.State.INCLUSTER) {                                       
                                         ClusterUpdateData newData = (ClusterUpdateData)receiveMsg.getData();  
                                         if (newData.getClusterID() == clusterId) {
+                                            System.out.println("Robot: " + this.getId() + " - Received Update Msg");
                                             int updatedClusterSize = newData.getNewClusterSize();
                                             if(updatedClusterSize == noOfRobots) {
-                                                myState = State.AGGREGATE;
+                                                myState = Robot.State.AGGREGATE;
                                                 moveStop();
                                             } else if(updatedClusterSize == 1) {
-                                                myState = State.SEARCHING;
+                                                myState = Robot.State.SEARCHING;
+                                                 moveHoldFlag = true;
                                             } else {
                                                 clusterSize = updatedClusterSize;
                                             }
+                                            System.out.println("Robot: " + this.getId() + " - Sending Update Msg");
                                             broadcastMessage(receiveMsg);
                                         }
+                                        
                                     }
-                                    else if (receiveMsg.getType() == MessageType.Info) {
+                                    else if (receiveMsg.getType() == MessageType.Info) {                                        
                                         InfoData newData = (InfoData)receiveMsg.getData();
                                         if (this.getId() == newData.getreceiverId()) {
-                                            if (myState == State.SEARCHING) {
-                                                myState = State.INCLUSTER;
+                                            System.out.println("Robot: " + this.getId() + " - Received Info Msg");
+                                            if (myState == Robot.State.SEARCHING) {
+                                                myState = Robot.State.INCLUSTER;
                                             }
                                             clusterSize = newData.getClusterSize();
                                         }
                                     }
-                                    else if (receiveMsg.getType() == MessageType.Leave) {
+                                    else if (receiveMsg.getType() == MessageType.Leave) {                                       
                                         LeaveData newData = (LeaveData)receiveMsg.getData();
                                         if (clusterId == newData.getClusterID()) {
+                                            System.out.println("Robot: " + this.getId() + " - Received Leaving Msg");
                                             clusterId = this.getId();
-                                            myState = State.SEARCHING;
-                                            moveRandom();
-                                            avoidObstacles();
-                                            try {
-                                                Thread.sleep(2000);
-                                            } catch (InterruptedException ex) {
-                                                Logger.getLogger(Task_Aggregation.class.getName()).
-                                                        log(Level.SEVERE, null, ex);
-                                            }
+                                            myState = Robot.State.SEARCHING;
+                                            moveHoldFlag = true;
+//                                            moveRandom();
+//                                            avoidObstacles();
+//                                            try {
+//                                                Thread.sleep(2000);
+//                                            } catch (InterruptedException ex) {
+//                                                Logger.getLogger(Task_Aggregation.class.getName()).
+//                                                        log(Level.SEVERE, null, ex);
+//                                            }
                                         }
                                     }
-                                    
+                                   resetReceivers(i);
                                 }
-                             //}   
+                                
+                             }   
+                             
                         }
                         
                         @Override
-                        public void loop() {
-                            if(myState == State.SEARCHING) {
-                                moveRandom();
-                                avoidObstacles();
-                                broadcastMessage(new Message(MessageType.Pulse, this));
-                                joiningArray = new PulseFBData[4];
-                                try {                                    
-                                    Thread.sleep(50);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(Task_Aggregation.class.getName()).log(Level.SEVERE, null, ex);
-                                } 
-                                PulseFBData probMaxData;
-                                double pMax = 0.00; 
-                                int maxClusterId = 0;
-                                try {
-                                    probMaxData = Utility.getMax(joiningArray);
-                                    pMax = probMaxData.getJoiingProb();                             
-                                    maxClusterId = probMaxData.getClusterID(); 
-                                } catch (NullPointerException ex) {
-                                    Logger.getLogger(ex.toString());
-                                }
-                                boolean flag = true;
-                                if( pMax != 0 ) {
-                                     for (Map.Entry waitingElement : waitingMap.entrySet()) { 
-                                        int keyId = (int)waitingElement.getKey(); 
-                                        int value = (int)waitingElement.getValue();
-                                        if(keyId == maxClusterId ) {
-                                            flag = false; 
+                        public void loop() {    
+                            System.out.printf("Robot: %d | State: %s | ClusterId: %d | ClusterSize: %d \n",
+                                    getId(), myState, clusterId, clusterSize);
+                            if(myState == Robot.State.SEARCHING) {
+                                if(moveHoldFlag) {
+                                    moveRandom();
+                                    avoidObstacles();
+                                    MessageHandler.sendPulseMsg(this, clusterId);
+                                    //for(int j=0; j<10; j++) {
+                                        receiveMessages();  
+                                    //}
+                                    
+                                    //joiningArray = new PulseFBData[n]; 
+                                    Arrays.fill(joiningProbArray, 0.00);
+                                    Arrays.fill(probSendersArray, 0);
+                                    Arrays.fill(clusterIdArray, 0);                                                                                                    
+                                } else {  
+                                    //for(int j=0; j<10; j++) {
+                                        receiveMessages();  
+                                    //}                                 
+                                    double pMax = 0.00;  
+                                    int pMaxSenderId = 0;
+                                    int maxClusterId = 0;                                
+                                    pMax = Utility.getMax(joiningProbArray);   
+                                    int pMaxId = Utility.getMaxProbSendersId(joiningProbArray, pMax);
+                                    pMaxSenderId = probSendersArray[pMaxId];
+                                    maxClusterId = clusterIdArray[pMaxId]; 
+                                   
+                                    boolean flag = true;
+                                    if( pMax != 0 ) {
+                                        double randomProb = Math.random();
+                                        System.out.println("PMax: " + pMax + "/ Random probability: " + randomProb);
+                                        for (Map.Entry waitingElement : waitingMap.entrySet()) { 
+                                            int keyId = (int)waitingElement.getKey(); 
+                                            long value = (long)waitingElement.getValue();
+                                            if((System.currentTimeMillis()-value) > 5) {
+                                                waitingMap.remove(keyId);
+                                            } 
                                         }
-                                        if((System.currentTimeMillis()-value) > 20) {
-                                            waitingMap.remove(keyId);
-                                        } 
-                                     }
-                                     if( flag == true ) {
-                                         if(Math.random() < pMax) {
-                                             //comeCloser();
-                                            clusterId = maxClusterId;
-                                            myState = State.INCLUSTER;  
-                                            Message joingMsg = new Message(MessageType.Join, this);
-//                                            joingMsg.setData(new JoinData(probMaxData.getSenderId()));
-                                            broadcastMessage(joingMsg);                                           
-                                         }
-                                     } else {
-                                         waitingMap.put(maxClusterId, System.currentTimeMillis());
-                                     }                                     
-                                }
-                                //receiveMessages(aggregate, recieveMessage());
-                                
-                            } else if(myState == State.INCLUSTER) {
-                                if(Math.random() < Utility.getLeavingProb(clusterSize)) {
-                                    if(clusterId == this.getId()) {
-                                        try {                                            
-                                            Message leaveMsg = new Message(MessageType.Leave, this);
-                                            leaveMsg.setData(new LeaveData(clusterId));
-                                            broadcastMessage(leaveMsg);
-                                            Thread.sleep(500);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(Task_Aggregation.class.getName()).log(Level.SEVERE, null, ex);
+                                        for (Map.Entry waitingElement : waitingMap.entrySet()) { 
+                                            int keyId = (int)waitingElement.getKey();                                             
+                                            if(keyId == maxClusterId ) {
+                                                flag = false; 
+                                                MessageHandler.sendGoAwayMsg(this, pMaxSenderId);                                                 
+                                                moveHoldFlag = true;
+                                            }                                            
                                         }
-                                    } else {
-                                        Message clusterUpdateMsg = new Message(MessageType.Update, this);
-                                        clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, (clusterSize-1)));
-                                        broadcastMessage(clusterUpdateMsg); 
+                                        if( flag == true ) {
+                                            if(randomProb < pMax) {
+                                                 //comeCloser();
+                                                clusterId = maxClusterId;
+                                                myState = Robot.State.INCLUSTER; 
+                                                clusterSize = clusterSize + 1;
+                                                moveStop();
+                                                moveHoldFlag = false;
+                                                MessageHandler.sendJoinMsg(this, pMaxSenderId);                                                
+                                            }
+                                        } else {
+                                            MessageHandler.sendGoAwayMsg(this, pMaxSenderId);
+                                            waitingMap.put(maxClusterId, System.currentTimeMillis());
+                                        }                                     
                                     }
-                                    myState = State.SEARCHING;
-                                    clusterId = getId();
+                                    
                                 }
-                            }                        
+                            } 
+                            
+                            else if(myState == Robot.State.INCLUSTER) {
+                                //for(int j=0; j<10; j++) {
+                                    receiveMessages();  
+                                //}
+                                
+                              
+                                double leavingProb = (1-((double)clusterSize/(noOfRobots)))*0.2;
+                                if(Math.random() < leavingProb) {  
+                                    clusterSize = clusterSize - 1;                                    
+                                    if(clusterId == this.getId()) {                                       
+                                        MessageHandler.sendLeaveMsg(this, clusterId);
+                                    } else {                                        
+                                        MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
+                                        waitingMap.put(clusterId, System.currentTimeMillis());                                        
+                                    }
+                                    long leavedTime = System.currentTimeMillis();
+//                                    while((System.currentTimeMillis() - leavedTime) < 3) {
+//                                        moveRandom();
+//                                        avoidObstacles(); 
+//                                    }
+                                    moveHoldFlag = true;
+                                    myState = Robot.State.SEARCHING;
+                                    clusterId = getId();
+                                    
+                                }
+                                MessageHandler.sendPulseMsg(this, clusterId);
+                            }  
+                            
+                            else if(myState == Robot.State.INCLUSTER) {
+                                 MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
+                            }
                         }
                         
                         
@@ -198,4 +282,3 @@ public class Task_Aggregation {
      
    
 }
-

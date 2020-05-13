@@ -18,6 +18,6 @@ public enum MessageType {
     PositionInfo, PositionInfoAck,
     ColorExchange, Join,
     Pulse, PulseFeedback, Leave,
-    Update, Info    
+    Update, Info  
     
 }
