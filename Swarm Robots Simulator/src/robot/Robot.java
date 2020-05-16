@@ -459,8 +459,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         public void run() {
             while (!wheelStop) {
 
-                moveForwardDistance(150);
-                int randomAngle = Utility.randomInRange(0, 30);
+                moveForwardDistance(10);
+                int randomAngle = Utility.randomInRange(0, 3);
                 turnRightAngle(randomAngle);
 
                 try {
