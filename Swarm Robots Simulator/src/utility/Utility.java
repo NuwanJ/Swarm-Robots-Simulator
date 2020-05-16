@@ -75,26 +75,35 @@ public class Utility {
     }
     
     //---------------------------------aggregation functions------------------------------------------------------------
-     public static PulseFBData getMax(PulseFBData[] inputArray){ 
-        double pMax = inputArray[0].getJoiingProb();
-        int maxProbIndex = 0;
+     public static double getMax(double[] inputArray){ 
+        double pMax = inputArray[0];        
         for(int i=1;i < inputArray.length;i++){ 
-            if(inputArray[i].getJoiingProb() > pMax){ 
-                //pMax = inputArray[i].getJoiingProb();
-                maxProbIndex = i;
+            if(inputArray[i] > pMax){ 
+                pMax = inputArray[i];                
             } 
         } 
-        return inputArray[maxProbIndex]; 
+        return pMax; 
     }    
+    
+     public static int getMaxProbSendersId(double[] inputArray, double pMax){ 
+         int maxId = 0;
+          for(int i=1;i < inputArray.length;i++){ 
+              if(inputArray[i] == pMax) {
+                  maxId = i;
+              }
+          }
+          return maxId;
+     }
+     
     
     public static double getJoiningProb(int clusterSize) {
         double joiningProb;
-        double o_max = 2;
-        double robot_diameter = 1;
+        double o_max = 80;
+        double robot_diameter = 40;
         double o_des = robot_diameter/4;
-        double v = 20;
+        double v = 86;
         double deltaT = 0.1;
-        double arenaArea = 40;
+        double arenaArea = 600000;
         double r_m = (1.20*o_des*Math.pow(clusterSize, 0.48))/2;
         
         if(clusterSize == 1) {
