@@ -23,7 +23,7 @@ public class Aggregation_Final {
             @Override
             public void create() {
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 2; i++) {
 
                     join(new Robot() {
 
@@ -33,7 +33,7 @@ public class Aggregation_Final {
                         HashMap<Integer, Long> waitingMap = new HashMap<>();
                         int n = Settings.NUM_OF_IR_SENSORS;
                         PulseFBData joiningArray[] = new PulseFBData[n];
-                        int noOfRobots = 3; // change this
+                        int noOfRobots = 2; // change this
                         boolean moveHoldFlag = true;
                         boolean amIJoining = false;
                         boolean pulseFlag = true;
@@ -148,15 +148,15 @@ public class Aggregation_Final {
                                                     || myState != Robot.State.SEARCHING) {
 
                                                 receiverReset();
-                                                //long referenceTime = System.currentTimeMillis();
+                                                long referenceTime = System.currentTimeMillis();
                                                 System.out.printf("Robot:{%d}- Sending Pulse FeedBack Msg to Robot:{%d}\n", getId(), receiveMsg.getSender().getId());
-                                                // while ((System.currentTimeMillis() - referenceTime) < 20) {
-                                                MessageHandler.sendPulseFBMsg(this, clusterId,
-                                                        receiveMsg.getSender().getId(), (double) clusterSize / noOfRobots, clusterSize);
-                                                //}
+                                                while ((System.currentTimeMillis() - referenceTime) < 20) {
+                                                    MessageHandler.sendPulseFBMsg(this, clusterId,
+                                                            receiveMsg.getSender().getId(), (double) clusterSize / noOfRobots, clusterSize);
+                                                }
                                                 //System.out.printf("Joining wait reciver index : %d\n", i);
                                                 for (int j = 0; j < n; j++) {
-                                                    Message rMsg = waitForAMsg(MessageType.Join, j, 200);
+                                                    Message rMsg = waitForAMsg(MessageType.Join, j, 300);
                                                     if (rMsg != null) {
                                                         checkMsgFlag = false;
                                                         executeOnJoin(rMsg);
@@ -171,7 +171,7 @@ public class Aggregation_Final {
                                                 Arrays.fill(clusterSizeArray, 0);
                                                 //receiverReset();
                                                 for (int j = 0; j < n; j++) {
-                                                    Message rMsg = waitForAMsg(MessageType.PulseFeedback, j, 100);
+                                                    Message rMsg = waitForAMsg(MessageType.PulseFeedback, j, 200);
                                                     if (rMsg != null) {
                                                         executeOnPF(rMsg, j);
                                                     }
