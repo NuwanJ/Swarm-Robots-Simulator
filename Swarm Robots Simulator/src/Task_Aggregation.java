@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import utility.Settings;
-
+/*
 public class Task_Aggregation {  
          
       public static void main(String[] args) {              
@@ -422,3 +422,4 @@ public class Task_Aggregation {
     }  
      
 }
+*/
