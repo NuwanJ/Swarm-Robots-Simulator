@@ -11,8 +11,6 @@ import swarm.Swarm;
 import view.Simulator;
 import communication.MessageType;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import utility.Settings;
 
 public class Test_Aggregation {
@@ -85,8 +83,8 @@ public class Test_Aggregation {
                         }
 
                         public void printRobotStatus() {
-                            System.out.printf("Robot: %d | State: %s | ClusterId: %d | ClusterSize: %d \n",
-                                    getId(), myState, clusterId, clusterSize);
+                            console.log(String.format("Robot: %d | State: %s | ClusterId: %d | ClusterSize: %d \n",
+                                    getId(), myState, clusterId, clusterSize));
                         }
 
                         public void receiverReset() {
@@ -108,7 +106,7 @@ public class Test_Aggregation {
                                 if (myState == Robot.State.SEARCHING) {
                                     myState = Robot.State.INCLUSTER;
                                 }
-                                System.out.println("Robot: " + this.getId() + " - Received Joining Msg");
+                                console.log("Received Joining Msg");
                                 clusterSize = clusterSize + 1;
                                 if (clusterSize == noOfRobots) {
                                     myState = Robot.State.AGGREGATE;
@@ -117,7 +115,7 @@ public class Test_Aggregation {
                                 }
 
                                 long referenceTime = System.currentTimeMillis();
-                                System.out.printf("Robot:{%d}- Sending Info Msg to Robot:{%d}\n", getId(), receiveMsg.getSender().getId());
+                                console.log(String.format("Sending Info Msg to Robot:{%d}", receiveMsg.getSender().getId()));
                                 while ((System.currentTimeMillis() - referenceTime) < 1000) {
                                     Message infoMsg = new Message(MessageType.Info, this);
                                     infoMsg.setData(new InfoData(receiveMsg.getSender().getId(),
@@ -126,8 +124,8 @@ public class Test_Aggregation {
                                 }
 
                                 if (myState == Robot.State.INCLUSTER) {
-                                System.out.println("Robot: " + this.getId() + " - Sending update Msg");
-                                     MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
+                                    console.log("Sending update Msg");
+                                    MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
                                 }
                                 printRobotStatus();
                                 wait(1000);
@@ -138,7 +136,7 @@ public class Test_Aggregation {
                             PulseFBData newData = (PulseFBData) receiveMsg.getData();
                             if (newData.getReceiverId() == this.getId()) {
                                 //amIJoining = true;
-                                System.out.println("Robot: " + this.getId() + " - Received Pulse FB Msg");
+                                console.log("Received Pulse FB Msg");
                                 joiningProbArray[index] = newData.getJoiingProb();
                                 probSendersArray[index] = newData.getSenderId();
                                 clusterIdArray[index] = newData.getClusterID();
@@ -151,7 +149,7 @@ public class Test_Aggregation {
                             if (this.getId() == newData.getreceiverId()) {
                                 clusterId = newData.getClusterId();
                                 clusterSize = newData.getClusterSize();
-                                System.out.println("Robot: " + this.getId() + " - Received Info Msg");
+                                console.log("Received Info Msg");
                                 if (clusterSize == noOfRobots) {
                                     myState = Robot.State.AGGREGATE;
                                     moveStop();
@@ -179,17 +177,17 @@ public class Test_Aggregation {
                                         resetReceivers(i);
                                         //System.out.printf("Robot:{%d} cluster_id:%d Receiving clusterID:%d \n", getId(), clusterId, newData.getClusterId());
                                         if (newData.getClusterId() != clusterId) {
-                                            System.out.printf("Robot:{%d}- Received Pulse Msg from Robot:{%d}\n", getId(), receiveMsg.getSender().getId());
+                                            console.log(String.format("Received Pulse Msg from Robot:{%d}", receiveMsg.getSender().getId()));
                                             if ((receiveMsg.getSender().getId() - this.getId()) > 0
                                                     || myState != Robot.State.SEARCHING) {
 
                                                 //checkMsgFlag = false;
                                                 receiverReset();
                                                 long referenceTime = System.currentTimeMillis();
-                                                System.out.printf("Robot:{%d}- Sending Pulse FeedBack Msg to Robot:{%d}\n", getId(), receiveMsg.getSender().getId());
+                                                console.log(String.format("Sending Pulse FeedBack Msg to Robot:{%d}", receiveMsg.getSender().getId()));
                                                 while ((System.currentTimeMillis() - referenceTime) < 100) {
                                                     MessageHandler.sendPulseFBMsg(this, clusterId,
-                                                            receiveMsg.getSender().getId(), (double) clusterSize / noOfRobots);
+                                                            receiveMsg.getSender().getId(), (double) clusterSize / noOfRobots, clusterSize);
                                                 }
 
                                                 Message rMsg = waitForAMsg(MessageType.Join, i, 2000);
@@ -217,7 +215,7 @@ public class Test_Aggregation {
                                             && myState == Robot.State.INCLUSTER) {
                                         ClusterUpdateData newData = (ClusterUpdateData) receiveMsg.getData();
                                         if (newData.getClusterID() == clusterId) {
-                                            System.out.println("Robot: " + this.getId() + " - Received Update Msg");
+                                            console.log("Received Update Msg");
                                             int updatedClusterSize = newData.getNewClusterSize();
                                             if (updatedClusterSize == noOfRobots) {
                                                 myState = Robot.State.AGGREGATE;
@@ -230,7 +228,7 @@ public class Test_Aggregation {
                                             } else {
                                                 clusterSize = updatedClusterSize;
                                             }
-                                            System.out.println("Robot: " + this.getId() + " - Forwaring Update Msg");
+                                            console.log("Forwaring Update Msg");
                                             printRobotStatus();
                                             long referenceTime = System.currentTimeMillis();
                                             while ((System.currentTimeMillis() - referenceTime) < 400) {
@@ -252,7 +250,7 @@ public class Test_Aggregation {
                                     else if (receiveMsg.getType() == MessageType.Leave) {
                                         LeaveData newData = (LeaveData) receiveMsg.getData();
                                         if (clusterId == newData.getClusterID()) {
-                                            System.out.println("Robot: " + this.getId() + " - Received Leaving Msg");
+                                            console.log("Received Leaving Msg");
                                             clusterId = this.getId();
                                             myState = Robot.State.SEARCHING;
                                             moveHoldFlag = true;
@@ -281,7 +279,7 @@ public class Test_Aggregation {
                             //System.out.printf("Robot:{%d} went here MaxProb-%f\n", getId(), pMax);
                             if (pMax != 0) {
                                 double randomProb = Math.random();
-                                System.out.println("PMax: " + pMax + "/ Random probability: " + randomProb);
+                                console.log("PMax: " + pMax + "/ Random probability: " + randomProb);
 //                                        for (Map.Entry waitingElement : waitingMap.entrySet()) {
 //                                            int keyId = (int) waitingElement.getKey();
 //                                            long value = (long) waitingElement.getValue();
@@ -347,16 +345,16 @@ public class Test_Aggregation {
                                 }
                                 double leavingProb = (1 - ((double) clusterSize / (noOfRobots))) * leavingFactor;
                                 double randomProb = Math.random();
-                                System.out.printf("Robot:{%d} Leaving_Prob-%f   random_Prob-%f \n", getId(), leavingProb, randomProb);
+                                console.log(String.format("Leaving_Prob-%f   random_Prob-%f \n", leavingProb, randomProb));
                                 if (randomProb < leavingProb) {
                                     clusterSize = clusterSize - 1;
                                     long referenceTime = System.currentTimeMillis();
                                     while ((System.currentTimeMillis() - referenceTime) < 400) {
                                         if (clusterId == this.getId()) {
-                                            System.out.printf("Robot:{%d}- Sending Leave Cluster Disclosure Msg\n", getId());
+                                            console.log("Sending Leave Cluster Disclosure Msg");
                                             MessageHandler.sendLeaveMsg(this, clusterId);
                                         } else {
-                                            System.out.printf("Robot:{%d}- Sending Me Leaving and Cluster Update Msg\n", getId());
+                                            console.log("Sending Me Leaving and Cluster Update Msg");
                                             MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize);
                                             //waitingMap.put(clusterId, System.currentTimeMillis());
                                         }
