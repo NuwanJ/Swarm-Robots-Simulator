@@ -19,7 +19,7 @@ public class MessageHandler {
     private static final Logger LOGGER = Logger.getLogger(MessageHandler.class.getName());
     
     public static void sendPulseMsg(Robot robot, int clusterId) {        
-        System.out.printf("Robot:{%d}- Sending Pulse Msg\n", robot.getId());
+        //System.out.printf("Robot:{%d}- Sending Pulse Msg\n", robot.getId());
         Message pulse = new Message(MessageType.Pulse, robot);
         pulse.setData(new PulseData(clusterId));
         robot.broadcastMessage(pulse);         
@@ -40,23 +40,23 @@ public class MessageHandler {
     }
     
     public static void sendLeaveMsg(Robot robot, int clusterId) {        
-        System.out.printf("Robot:{%d}- Sending Leave Cluster Disclosure Msg\n", robot.getId());
+//        System.out.printf("Robot:{%d}- Sending Leave Cluster Disclosure Msg\n", robot.getId());
         Message leaveMsg = new Message(MessageType.Leave, robot);
         leaveMsg.setData(new LeaveData(clusterId));
         robot.broadcastMessage(leaveMsg);
     }
     
     public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize) {        
-        System.out.printf("Robot:{%d}- Sending Me Leaving and Cluster Update Msg\n", robot.getId());
+//        System.out.printf("Robot:{%d}- Sending Me Leaving and Cluster Update Msg\n", robot.getId());
         Message clusterUpdateMsg = new Message(MessageType.Update, robot);
         clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize));
         robot.broadcastMessage(clusterUpdateMsg);
     }
     
-    public static void sendPulseFBMsg(Robot robot, int clusterId, int senderId, double joiningProb) {        
-        System.out.printf("Robot:{%d}- Sending Pulse FeedBack Msg\n", robot.getId());
+    public static void sendPulseFBMsg(Robot robot, int clusterId, int senderId, double joiningProb, int clusterSize) {        
+//        System.out.printf("Robot:{%d}- Sending Pulse FeedBack Msg\n", robot.getId());
         Message pulseFBMsg = new Message(MessageType.PulseFeedback, robot);
-        pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), senderId, joiningProb));
+        pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), senderId, 0.8, clusterSize));
         robot.broadcastMessage(pulseFBMsg);                                  
     }
     

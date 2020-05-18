@@ -15,7 +15,7 @@ public class PulseData implements Data {
     
     private int clusterId;
     
-    public PulseData(int dummyId) {
+    public PulseData(int clusterId) {
         this.clusterId = clusterId;
     }
     
