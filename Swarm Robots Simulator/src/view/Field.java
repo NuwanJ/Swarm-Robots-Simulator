@@ -11,8 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import utility.Settings;
@@ -51,7 +49,6 @@ public class Field extends JPanel implements ActionListener {
 
     public Field(Color color) throws HeadlessException, IOException {
         this();
-        setBackground(color);
     }
 
     public void parseSwarm(Swarm swarm) {

@@ -5,6 +5,17 @@
  */
 package robot.console;
 
+import java.awt.Point;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JViewport;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.DefaultCaret;
+import view.Simulator;
+
 /**
  *
  * @author Nadun
@@ -15,12 +26,26 @@ public class Console extends javax.swing.JFrame {
 
     /**
      * Creates new form Console
+     *
      * @param id
      */
     public Console(int id) {
         this.id = id;
+        setLookAndFeel();
         initComponents();
         this.titleLabel.setText("Robot " + id);
+
+        DefaultCaret caret = (DefaultCaret) loggerArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+    }
+
+    private void setLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        } catch (ClassNotFoundException | InstantiationException |
+                IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(Simulator.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void log(String message) {
@@ -38,7 +63,7 @@ public class Console extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         titleLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        scrollPane = new javax.swing.JScrollPane();
         loggerArea = new javax.swing.JTextArea();
         clearBtn = new javax.swing.JButton();
 
@@ -50,11 +75,14 @@ public class Console extends javax.swing.JFrame {
         titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         titleLabel.setText("Robot ID");
 
+        loggerArea.setEditable(false);
         loggerArea.setColumns(20);
+        loggerArea.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
         loggerArea.setRows(5);
-        jScrollPane1.setViewportView(loggerArea);
+        scrollPane.setViewportView(loggerArea);
 
         clearBtn.setText("Clear");
+        clearBtn.setFocusPainted(false);
         clearBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearBtnActionPerformed(evt);
@@ -69,7 +97,7 @@ public class Console extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                    .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(clearBtn)))
@@ -81,10 +109,10 @@ public class Console extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(titleLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(clearBtn)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(12, 12, 12))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -109,8 +137,8 @@ public class Console extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearBtn;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea loggerArea;
+    private javax.swing.JScrollPane scrollPane;
     private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
 }
