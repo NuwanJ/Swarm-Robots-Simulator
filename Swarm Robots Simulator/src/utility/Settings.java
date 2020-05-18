@@ -32,4 +32,6 @@ public class Settings {
     public final static boolean VISIBLE_IR = true;
     public final static boolean VISIBLE_IR_INTERSECTION = true;
     
+    public final static boolean CONSOLE_LOGGER = false;
+    
 }
