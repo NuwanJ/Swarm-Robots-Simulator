@@ -414,12 +414,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
     
     @Override
-    public void processMessage(MessageType type){
-        if(type == MessageType.Pulse){
-            moveStop();
-            angularTurn(45);
-            
-        }
+    public void processMessage(Message message){
+        
     }
 
     @Override

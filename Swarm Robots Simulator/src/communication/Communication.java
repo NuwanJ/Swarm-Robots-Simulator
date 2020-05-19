@@ -19,6 +19,6 @@ public interface Communication {
     
     public void resetReceivers(int index);
     
-    public void processMessage(MessageType type);
+    public void processMessage(Message message);
     
 }
