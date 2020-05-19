@@ -7,7 +7,6 @@ package communication.aggregation;
 
 import communication.*;
 import robot.Robot;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -25,15 +24,15 @@ public class MessageHandler {
         robot.broadcastMessage(pulse);         
     }
     
-    public static void sendGoAwayMsg(Robot robot, int senderId) {        
-        System.out.printf("Robot:{%d}- Sending GoAway Msg\n", robot.getId());
+    public static void sendGoAwayMsg(Robot robot, int senderId) {   
+        robot.console.log("Sending GoAway Msg");
         Message goAway = new Message(MessageType.GoAway, robot);
         goAway.setData(new GoAwayData(senderId));
         robot.broadcastMessage(goAway); 
     }
      
-    public static void sendJoinMsg(Robot robot, int senderId) {        
-        System.out.printf("Robot:{%d}- Sending Join Msg   Sender ID: %d\n", robot.getId(), senderId);
+    public static void sendJoinMsg(Robot robot, int senderId) {  
+        robot.console.log(String.format("Sending Join Msg   Sender ID: %d", senderId));
         Message joingMsg = new Message(MessageType.Join, robot);
         joingMsg.setData(new JoinData(senderId));
         robot.broadcastMessage(joingMsg);

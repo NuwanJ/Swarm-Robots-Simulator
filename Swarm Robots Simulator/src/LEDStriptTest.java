@@ -18,17 +18,22 @@ public class LEDStriptTest {
             @Override
             public void create() {
 
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 2; i++) {
 
                     join(new Robot() {
 
                         @Override
                         public void loop() {
-                            Message pulse = new Message(MessageType.Pulse, this);
-                            broadcastMessage(pulse);
-                            moveRandom();
-                            avoidObstacles();
                             
+      
+                            double d = findDistance();
+                            //System.out.println(getId() + " - " + d);
+//                            
+                            if(d > 0 && d < 55) {
+                                swithOnLedStript(Color.yellow);
+                            }
+                            
+                            console.log("Angle " + angle);
                         }
 
                     });

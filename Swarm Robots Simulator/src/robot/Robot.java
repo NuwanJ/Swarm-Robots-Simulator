@@ -23,6 +23,7 @@ import robot.behaviors.PairBehaviors;
 import robot.ledstript.LedStript;
 import robot.sensors.IRSensor;
 import robot.behaviors.SupportiveFunctions;
+import robot.console.Console;
 import robot.sensors.SharpSensor;
 import utility.Utility;
 import view.Field;
@@ -44,6 +45,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private LedStript ledStript;
     private BufferedImage image;
     private int id;
+    public Console console;
 
     public enum State {
 
@@ -81,6 +83,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         this.id = nextId;
 
         nextId++;
+        
+        this.console = new Console(id);
+        this.console.setVisible(Settings.CONSOLE_LOGGER);
 
 //        wheelThread = new Thread();
 //        wheelThread.start();

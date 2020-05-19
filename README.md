@@ -1,2 +1,2 @@
 # Swarm-Robots-Simulator
-This is a virtual robot hardware programmer to simulate swarm robots behaviors.
+This is a programmable robot hardware simulator for swarm robots behaviors.
