@@ -412,6 +412,15 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void resetReceivers(int index) {      
            iRSensors.get(index).setRecieveMsg(null);         
     }
+    
+    @Override
+    public void processMessage(MessageType type){
+        if(type == MessageType.Pulse){
+            moveStop();
+            angularTurn(45);
+            
+        }
+    }
 
     @Override
     public void comeCloser(double heading, int dist) {

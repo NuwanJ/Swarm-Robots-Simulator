@@ -3,6 +3,7 @@
  *
  * @author Tharuka
  */
+/*
 import communication.aggregation.*;
 import communication.Message;
 import utility.Utility;
@@ -390,3 +391,4 @@ public class Test_Aggregation {
     }
 
 }
+*/

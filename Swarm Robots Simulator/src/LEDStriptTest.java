@@ -1,4 +1,6 @@
 
+import communication.Message;
+import communication.MessageType;
 import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
@@ -22,9 +24,8 @@ public class LEDStriptTest {
 
                         @Override
                         public void loop() {
-                            moveRandom();
-                            avoidObstacles();
                             
+      
                             double d = findDistance();
                             //System.out.println(getId() + " - " + d);
 //                            
