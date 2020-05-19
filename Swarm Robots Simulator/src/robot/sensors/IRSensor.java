@@ -112,10 +112,10 @@ public class IRSensor extends Arc2D.Double {
                     recieveMsg = irSensor.getBroadcastMsg();
                     
                     if (recieveMsg != null) {
-                        robot.processMessage(recieveMsg);
+                        //robot.processMessage(recieveMsg);
                         slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
                     //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
-                    }
+                    } 
                     
                 }
             }

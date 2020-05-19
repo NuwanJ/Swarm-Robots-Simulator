@@ -5,6 +5,8 @@
  */
 package communication;
 
+import robot.Robot;
+
 /**
  *
  * @author Nadun
@@ -14,6 +16,10 @@ public interface Communication {
     public void broadcastMessage(Message message);
     
     public void broadcastMessage(MessageType message);
+    
+    public void sendMessage(MessageType message, Robot receiver, Data data);
+    
+    public void sendMessage(MessageType message, Robot receiver);
     
     public Message recieveMessage(int iRIndex);
     
