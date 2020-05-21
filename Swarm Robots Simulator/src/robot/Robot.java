@@ -1,6 +1,7 @@
 package robot;
 
 import communication.Communication;
+import communication.Data;
 import communication.Message;
 import communication.MessageType;
 import java.awt.Color;
@@ -83,7 +84,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         this.id = nextId;
 
         nextId++;
-        
+
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
 
@@ -117,7 +118,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public ArrayList<IRSensor> getiRSensors() {
         return iRSensors;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -400,26 +401,36 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         for (IRSensor iRSensor : iRSensors) {
             iRSensor.setBroadcastMsg(new Message(header, this));
         }
+    }
 
+    @Override
+    public void sendMessage(MessageType message, Robot receiver, Data data) {
+        Message msg = new Message(message, this, receiver);
+        msg.setData(data);
+        broadcastMessage(msg);
+    }
+
+    @Override
+    public void sendMessage(MessageType message, Robot receiver) {
+        sendMessage(message, receiver, null);
     }
 
     @Override
     public Message recieveMessage(int index) {
         return iRSensors.get(index).getRecieveMsg();
     }
-    
+
     @Override
-    public void resetReceivers(int index) {      
-           iRSensors.get(index).setRecieveMsg(null);         
+    public void resetReceivers(int index) {
+        iRSensors.get(index).setRecieveMsg(null);
     }
-    
+
     @Override
-    public void processMessage(MessageType type){
-        if(type == MessageType.Pulse){
-            moveStop();
-            angularTurn(45);
-            
-        }
+    public synchronized void processMessage(Message message) {
+
+        Robot sender = message.getSender();
+        MessageType type = message.getType();
+        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override

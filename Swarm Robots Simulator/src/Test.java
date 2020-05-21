@@ -1,4 +1,6 @@
 
+import communication.Message;
+import communication.MessageType;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
@@ -14,20 +16,39 @@ public class Test {
         Swarm swarm = new Swarm("Testing..") {
             @Override
             public void create() {
-                for (int i = 0; i < 1; i++) {
 
+                for (int i = 0; i < 3; i++) {
                     join(new Robot() {
-                        int state = 0;
+
+                        @Override
+                        public synchronized void processMessage(Message message) {
+                            super.processMessage(message);
+
+                            Robot receiver = message.getReceiver();
+                            Robot sender = message.getSender();
+                            MessageType type = message.getType();
+
+                            switch (type) {
+                                case Pulse:
+                                    /* your code here */
+                                    sendMessage(MessageType.PulseFeedback, receiver);
+                                    break;
+                                case PulseFeedback:
+                                    if (receiver != null && receiver.getId() == getId()) {
+                                        /* your code here */
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
 
                         @Override
                         public void loop() {
+                            Message pulse = new Message(MessageType.Pulse, this);
+                            broadcastMessage(pulse);
+                            moveRandom();
                             avoidObstacles();
-                            if (state == 0) {
-                                moveForwardDistance(100);
-                                state = 1;
-                            } else {
-                                moveStop();
-                            }
 
                         }
 

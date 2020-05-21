@@ -15,11 +15,18 @@ public class Message {
     
     private MessageType type;
     private Robot sender;
+    private Robot receiver;
     private Data data;
 
     public Message(MessageType type, Robot sender) {
         this.type = type;
         this.sender = sender;
+    }
+    
+    public Message(MessageType type, Robot sender, Robot receiver) {
+        this.type = type;
+        this.sender = sender;
+        this.receiver = receiver;
     }
 
     public MessageType getType() {
@@ -28,6 +35,10 @@ public class Message {
 
     public Robot getSender() {
         return sender;
+    }
+
+    public Robot getReceiver() {
+        return receiver;
     }
 
     public void setData(Data data) {
