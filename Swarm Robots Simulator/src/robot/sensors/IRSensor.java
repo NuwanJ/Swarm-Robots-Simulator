@@ -6,7 +6,6 @@
 package robot.sensors;
 
 import communication.Message;
-import communication.MessageType;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -112,7 +111,7 @@ public class IRSensor extends Arc2D.Double {
                     recieveMsg = irSensor.getBroadcastMsg();
                     
                     if (recieveMsg != null) {
-                        //robot.processMessage(recieveMsg);
+                        robot.processMessage(recieveMsg);
                         slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
                     //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
                     } 

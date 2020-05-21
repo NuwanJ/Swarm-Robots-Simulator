@@ -48,9 +48,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private int id;
     public Console console;
 
-    // if true a message is being processed by any IR receiver, otherwise false
-    private boolean isMessageProcessing;
-
     public enum State {
 
         SEARCHING,
@@ -76,7 +73,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         sharp = new SharpSensor(this);
         iRSensors = new ArrayList<>();
-        isMessageProcessing = false;
 
         int n = Settings.NUM_OF_IR_SENSORS;
         for (int i = 0; i < n; i++) {
@@ -431,31 +427,10 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public synchronized void processMessage(Message message) {
-        if (!isMessageProcessing) {
-            isMessageProcessing = true;
 
-            Robot receiver = message.getReceiver();
-            Robot sender = message.getSender();
-            MessageType type = message.getType();
-
-            console.log(String.format("Received %s Msg from %d", type, sender.getId()));
-            switch (type) {
-                case Pulse:
-                    moveStop();
-                    sendMessage(MessageType.PulseFeedback, receiver);
-                    break;
-                case PulseFeedback:
-                    if (receiver != null && receiver.getId() == this.id) {
-                        moveStop();
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            isMessageProcessing = false;
-        }
-
+        Robot sender = message.getSender();
+        MessageType type = message.getType();
+        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override
