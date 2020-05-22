@@ -427,10 +427,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public synchronized void processMessage(Message message) {
-
-        Robot sender = message.getSender();
-        MessageType type = message.getType();
-        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
+//        Robot sender = message.getSender();
+//        MessageType type = message.getType();
+//        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override

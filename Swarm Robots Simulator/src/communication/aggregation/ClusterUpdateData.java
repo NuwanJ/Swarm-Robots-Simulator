@@ -13,19 +13,26 @@ import communication.Data;
  * @author Tharuka
  */
 public class ClusterUpdateData implements Data {
+
     private int clusterId;
-    private int newClusterSize;    
-    
-    public ClusterUpdateData(int clusterId,int newClusterSize) {
+    private int newClusterSize;  
+    private int receiverId;
+
+    public ClusterUpdateData(int clusterId, int newClusterSize, int receiverId) {   
         this.clusterId = clusterId;
-        this.newClusterSize = newClusterSize;        
-    }
-    
+        this.newClusterSize = newClusterSize;
+        this.receiverId = receiverId;
+    } 
+
     public int getClusterID() {
-        return this.clusterId;   
+        return this.clusterId;
     }
-    
-     public int getNewClusterSize() {
-        return this.newClusterSize;   
+
+    public int getNewClusterSize() {
+        return this.newClusterSize;
+    }
+
+    public int getReceiverId() {
+        return this.receiverId;
     }
 }

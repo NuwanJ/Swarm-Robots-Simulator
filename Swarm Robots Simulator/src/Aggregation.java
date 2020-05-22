@@ -118,8 +118,10 @@ public class Aggregation {
 
                                 case PulseFeedback:
                                     PulseFBData pulseFBData = (PulseFBData) message.getData();
-                                    if (pulseFBFlag && pulseFBData.getReceiverId() == getId()) {
-
+                                    if (pulseFBFlag && pulseFBData.getReceiverId() == getId() 
+                                            && myState == State.SEARCHING) {
+                                        moveStop();
+                                        moveHoldFlag = false;
                                         console.log(String.format("Received %s Message from %d", type,
                                                 pulseFBData.getSenderId()));
                                         double joiningProb = pulseFBData.getJoiingProb();
@@ -189,16 +191,12 @@ public class Aggregation {
                                     GoAwayData goAwayData = (GoAwayData) message.getData();
                                     if (myState == State.SEARCHING && goAwayFlag && goAwayData.getreceiverId() == this.getId()) {
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
-                                        moveHoldFlag = true;
-                                        pulseFlag = true;
+//                                        moveHoldFlag = true;
+//                                        pulseFlag = true;
                                         pulseFBFlag = true;
-                                        receiverReset();
+//                                        receiverReset();
                                         goAwayFlag = false;
-                                        long leavedTime = System.currentTimeMillis();
-                                        while ((System.currentTimeMillis() - leavedTime) < 1400) {
-                                            moveRandom();
-                                            avoidObstacles();
-                                        }
+                                        freeMove(1500);
                                     }
                                     break;
 
@@ -209,7 +207,7 @@ public class Aggregation {
 
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
                                         int updatedClusterSize = updateData.getNewClusterSize();
-                                        if(updatedClusterSize < clusterSize && clusterMembers.containsKey(sender.getId()) {
+                                        if (updatedClusterSize < clusterSize && clusterMembers.containsKey(sender.getId())) {
                                             clusterMembers.remove(sender.getId());
                                         }
                                         if (updatedClusterSize == noOfRobots) {
@@ -218,7 +216,7 @@ public class Aggregation {
                                             myState = Robot.State.SEARCHING;
                                             freeMove(2000);
                                         }
-                                        clusterSize = updatedClusterSize;                                        
+                                        clusterSize = updatedClusterSize;
                                         printRobotStatus();
 
                                     }
