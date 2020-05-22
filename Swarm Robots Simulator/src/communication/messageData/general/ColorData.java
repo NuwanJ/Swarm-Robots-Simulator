@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package communication;
+package communication.messageData.general;
 
 import java.awt.Color;
-
+import communication.Data;
 /**
  *
- * @author Nadun
+ * @author Nadun, Mahendra, Tharuka
  */
 public class ColorData extends Color implements Data {
 
