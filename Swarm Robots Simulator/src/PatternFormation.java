@@ -18,7 +18,7 @@ import view.Simulator;
  * @author Mahendra, Nadun, Tharuka
  */
         
-/*
+
 public class PatternFormation {
     public static void main(String[] args){
         Swarm swarm = new Swarm("Pattern-Formation"){
@@ -60,4 +60,3 @@ public class PatternFormation {
         simulator.run();
     }
 }
-*/
