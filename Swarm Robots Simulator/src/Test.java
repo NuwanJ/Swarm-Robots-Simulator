@@ -21,8 +21,8 @@ public class Test {
                     join(new Robot() {
 
                         @Override
-                        public synchronized void processMessage(Message message) {
-                            super.processMessage(message);
+                        public synchronized void processMessage(Message message, int sensorId) {
+                            super.processMessage(message, sensorId);
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();

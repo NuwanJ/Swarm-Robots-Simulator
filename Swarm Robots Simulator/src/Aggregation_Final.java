@@ -19,13 +19,16 @@ public class Aggregation_Final {
 
     public static void main(String[] args) {
 
+        double[][] pos = {{100, 100}, {300, 450}, {700, 100}};
+
         Swarm swarm = new Swarm("Aggregate") {
+
             @Override
             public void create() {
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 3; i++) {
 
-                    join(new Robot() {
+                    join(new Robot(pos[i][0], pos[i][1]) {
 
                         Robot.State myState = Robot.State.SEARCHING;
                         int clusterId = this.getId();
