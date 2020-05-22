@@ -76,7 +76,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         int n = Settings.NUM_OF_IR_SENSORS;
         for (int i = 0; i < n; i++) {
-            iRSensors.add(new IRSensor(this, i * 360 / n));
+            iRSensors.add(new IRSensor(i, this, i * 360 / n));
         }
 
         ledStript = new LedStript(this);
@@ -87,18 +87,28 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
+       
 
 //        wheelThread = new Thread();
 //        wheelThread.start();
     }
 
-    public Robot() {
+    public Robot(double x, double y) {
         this(0, 0, 0);
+
+        this.angle = Utility.randomInRange(-360, 360);
+
+        setX(x);
+        setY(y);
+    }
+    
+    public Robot() {
+        this(0, 0);
 
         int x = Utility.randomInRange(20, Settings.FEILD_WIDTH - 5 * Settings.ROBOT_RADIUS);
         int y = Utility.randomInRange(20, Settings.FEILD_HEIGHT - 5 * Settings.ROBOT_RADIUS);
         this.angle = Utility.randomInRange(-360, 360);
-
+        
         setX(x);
         setY(y);
     }
@@ -426,7 +436,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
-    public synchronized void processMessage(Message message) {
+    public synchronized void processMessage(Message message, int sensorId) {
 //        Robot sender = message.getSender();
 //        MessageType type = message.getType();
 //        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
