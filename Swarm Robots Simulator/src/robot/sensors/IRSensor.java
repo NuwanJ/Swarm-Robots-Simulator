@@ -35,13 +35,15 @@ public class IRSensor extends Arc2D.Double {
     private boolean send, recieve;
     private Shape transformedShape;
     private double angle;
+    private int id;
 
     private final Color SHARP_COLOR = new Color(255, 223, 163);
 
-    public IRSensor(Robot robot, double angle) {
+    public IRSensor(int id, Robot robot, double angle) {
         super(Arc2D.PIE);
         this.robot = robot;
         this.angle = angle;
+        this.id = id;
         update();
     }
 
@@ -111,7 +113,7 @@ public class IRSensor extends Arc2D.Double {
                     recieveMsg = irSensor.getBroadcastMsg();
                     
                     if (recieveMsg != null) {
-                        robot.processMessage(recieveMsg);
+                        robot.processMessage(recieveMsg, id);
                         slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
                     //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
                     } 
