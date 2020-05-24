@@ -88,7 +88,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
        
-
 //        wheelThread = new Thread();
 //        wheelThread.start();
     }
@@ -437,10 +436,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public synchronized void processMessage(Message message, int sensorId) {
-
-        Robot sender = message.getSender();
-        MessageType type = message.getType();
-        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
+//        Robot sender = message.getSender();
+//        MessageType type = message.getType();
+//        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override
