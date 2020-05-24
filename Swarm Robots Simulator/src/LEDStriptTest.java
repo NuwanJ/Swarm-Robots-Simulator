@@ -42,6 +42,6 @@ public class LEDStriptTest {
         };
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }

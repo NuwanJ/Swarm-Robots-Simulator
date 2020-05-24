@@ -100,6 +100,6 @@ public class RotateToRobotTest {
         };
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }

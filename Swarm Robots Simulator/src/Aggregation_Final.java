@@ -328,7 +328,7 @@ public class Aggregation_Final {
 
         Simulator simulator = new Simulator(swarm);
 
-        simulator.run();
+        simulator.start();
     }
 
 }

@@ -74,6 +74,6 @@ public class Example4_FindRedObject {
         swarm.addObstacle(new Obstacle(450, 200, 70, 70, Color.RED));
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }
