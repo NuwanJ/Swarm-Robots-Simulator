@@ -12,10 +12,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
-import java.awt.geom.PathIterator;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import robot.Robot;
 import configs.Settings;
 import helper.Utility;
@@ -95,9 +92,9 @@ public class IRSensor extends Arc2D.Double {
             ArrayList<IRSensor> irSensors = r.getiRSensors();
 
             for (IRSensor irSensor : irSensors) {
-                
+
                 Area areaShape = new Area(transformedShape);
-                
+
                 Shape robotShape = irSensor.getTransformedShape();
                 if (robotShape == null) {
                     continue;
@@ -111,40 +108,19 @@ public class IRSensor extends Arc2D.Double {
                         g2d.draw(areaShape);
                     }
                     recieveMsg = irSensor.getBroadcastMsg();
-                    
+
                     if (recieveMsg != null) {
                         robot.processMessage(recieveMsg, id);
                         slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
-                    //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
-                    } 
-                    
+                        //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
+                    }
+
                 }
             }
 
         }
         g2d.dispose();
 
-    }
-
-    private double minDistanceFromSharpTo(Area area) {
-
-        double minDist = java.lang.Double.MAX_VALUE;
-
-        PathIterator iterator = area.getPathIterator(null);
-        double[] coords = new double[6];
-        while (!iterator.isDone()) {
-            int type = iterator.currentSegment(coords);
-            double x = coords[0];
-            double y = coords[1];
-            if (type != PathIterator.SEG_CLOSE) {
-                double calculatedDist = Utility.getDistance(robot.getCenterX(), robot.getCenterY(), x, y);
-                if (minDist > calculatedDist) {
-                    minDist = calculatedDist;
-                }
-            }
-            iterator.next();
-        }
-        return minDist;
     }
 
     public double getMaxCoverage() {
@@ -173,38 +149,6 @@ public class IRSensor extends Arc2D.Double {
 
     public double getSlope() {
         return -slope;
-    }
-
-    class SenderThread extends Thread {
-
-        @Override
-        public void run() {
-            while (send) {
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(IRSensor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
-    }
-
-    class ReceiverThread extends Thread {
-
-        @Override
-        public void run() {
-            while (recieve) {
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(IRSensor.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
     }
 
 }

@@ -31,7 +31,7 @@ public class Test {
                             switch (type) {
                                 case Pulse:
                                     /* your code here */
-                                    sendMessage(MessageType.PulseFeedback, receiver);
+                                    //sendMessage(MessageType.PulseFeedback, receiver);
                                     break;
                                 case PulseFeedback:
                                     if (receiver != null && receiver.getId() == getId()) {
@@ -45,9 +45,9 @@ public class Test {
 
                         @Override
                         public void loop() {
-                            Message pulse = new Message(MessageType.Pulse, this);
-                            broadcastMessage(pulse);
-                            moveRandom();
+                            //Message pulse = new Message(MessageType.Pulse, this);
+                            //broadcastMessage(pulse);
+                            moveForward();
                             avoidObstacles();
 
                         }
