@@ -15,34 +15,34 @@ import swarm.Swarm;
  * @author Nadun
  */
 public class Simulator {
-    
+
     public static Field field;
     private JFrame jf;
     private boolean running;
-    
+
     public Simulator(Swarm swarm) {
-        
+
         setLookAndFeel();
-        
+
         field = new Field(this);
         field.parseSwarm(swarm);
         field.setLocation(0, 0);
         field.setSize(Settings.FEILD_WIDTH, Settings.FEILD_HEIGHT);
-        
+
         jf = new JFrame();
         jf.setLayout(null);
-        
+
         jf.add(field);
         jf.setSize(Settings.FEILD_WIDTH, Settings.FEILD_HEIGHT);
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.setLocationRelativeTo(null);
-        
+
         jf.setTitle(swarm.getName());
-        
+
         jf.addMouseListener(field);
-        
+
     }
-    
+
     private void setLookAndFeel() {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -51,28 +51,34 @@ public class Simulator {
             Logger.getLogger(Simulator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public boolean isRunning() {
         return running;
     }
-    
+
     public void setRunning(boolean running) {
         this.running = running;
-        
-        ArrayList<Robot> robots = field.getSwarm().getRobots();
-        
-        for (Robot robot : robots) {
-            robot.moveStop();
+
+        if (!running) {
+            ArrayList<Robot> robots = field.getSwarm().getRobots();
+
+            for (Robot robot : robots) {
+                robot.moveStop();
+            }
+            field.stop();
+        } else {
+            run();
         }
+        
     }
-    
-    protected void run() {
-        
+
+    private void run() {
+
         ArrayList<Robot> robots = field.getSwarm().getRobots();
-        
+
         for (Robot robot : robots) {
             Thread t = new Thread() {
-                
+
                 @Override
                 public void run() {
                     while (running) {
@@ -83,19 +89,19 @@ public class Simulator {
                             Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    
+
                 }
-                
+
             };
             t.start();
-            
+
         }
         field.start();
     }
-    
+
     public void start() {
         jf.setVisible(true);
-        running = true;
+        running = false;
     }
-    
+
 }

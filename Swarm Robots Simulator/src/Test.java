@@ -47,7 +47,7 @@ public class Test {
                         public void loop() {
                             //Message pulse = new Message(MessageType.Pulse, this);
                             //broadcastMessage(pulse);
-                            moveForward();
+                            moveRandom();
                             avoidObstacles();
 
                         }
