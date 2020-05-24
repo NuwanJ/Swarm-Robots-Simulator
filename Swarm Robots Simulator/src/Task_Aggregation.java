@@ -341,7 +341,9 @@ public class Task_Aggregation {
                                     if (msg != null) {
                                         clusterId = maxClusterId;
                                         executeOnInfo(msg);
+
                                                     //receiveMessages();
+
                                         //myState = Robot.State.INCLUSTER; 
                                         //clusterSize = clusterSize + 1;      
                                     }
@@ -375,7 +377,9 @@ public class Task_Aggregation {
                                     Arrays.fill(clusterIdArray, 0);
                                 }
 
+
                                //checkForJoining(); 
+
                             } else if (myState == Robot.State.INCLUSTER) {
                                 //for(int j=0; j<10; j++) {
                                 receiveMessages();
