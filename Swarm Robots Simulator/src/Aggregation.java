@@ -1,14 +1,15 @@
 
 import communication.Message;
+import communication.MessageHandler;
 import communication.MessageType;
 import communication.messageData.aggregation.*;
+import configs.Settings;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import robot.Robot;
 import robot.console.Console;
 import swarm.Swarm;
-import configs.Settings;
 import view.Simulator;
 
 /**
@@ -350,6 +351,6 @@ public class Aggregation {
 
         Simulator simulator = new Simulator(swarm);
 
-        simulator.run();
+        simulator.start();
     }
 }
