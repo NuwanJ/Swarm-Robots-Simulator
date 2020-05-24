@@ -10,7 +10,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import robot.Robot;
-import utility.Settings;
+import configs.Settings;
 
 /**
  *

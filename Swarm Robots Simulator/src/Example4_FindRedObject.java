@@ -5,7 +5,7 @@ import communication.MessageType;
 import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
-import utility.Settings;
+import configs.Settings;
 import view.Obstacle;
 import view.Simulator;
 

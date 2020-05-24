@@ -10,14 +10,14 @@ import communication.messageData.aggregation.PulseData;
 import communication.messageData.aggregation.InfoData;
 import communication.messageData.aggregation.LeaveData;
 import communication.Message;
-import utility.Utility;
+import helper.Utility;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
 import communication.MessageType;
 import communication.MessageHandler;
 import java.util.*;
-import utility.Settings;
+import configs.Settings;
 
 public class Task_Aggregation {
 

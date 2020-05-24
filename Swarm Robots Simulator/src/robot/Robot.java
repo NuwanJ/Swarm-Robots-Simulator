@@ -11,7 +11,7 @@ import java.awt.TexturePaint;
 import robot.behaviors.BasicBehaviors;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import utility.Settings;
+import configs.Settings;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -26,7 +26,7 @@ import robot.sensors.IRSensor;
 import robot.behaviors.SupportiveFunctions;
 import robot.console.Console;
 import robot.sensors.SharpSensor;
-import utility.Utility;
+import helper.Utility;
 import view.Field;
 
 /**
