@@ -26,15 +26,15 @@ public class Aggregation {
 
     public static void main(String[] args) {
 
+        double[][] pos = {{100, 100}, {300, 450}, {700, 100}};
+
         Swarm swarm = new Swarm("Testing..") {
-//            int [][] posArray = {{50,50},{50,100}, {150, 40}};
-//            int [] angArray = {30, 60, 160};
-//            posArray[i][0], posArray[i][1], angArray[i]
+
             @Override
             public void create() {
 
                 for (int i = 0; i < 3; i++) {
-                    join(new Robot() {
+                    join(new Robot(pos[i][0], pos[i][1]) {
                         Robot.State myState = Robot.State.SEARCHING;
                         int clusterId = this.getId();
                         int clusterSize = 1;
@@ -57,7 +57,12 @@ public class Aggregation {
                         boolean infoFlag = true;
                         boolean goAwayFlag = true;
                         boolean aggreeCounterFlag = true;
+                        boolean inClusterCounterFlag = true;
+                        boolean leaveFlag = true;
 
+                        //time flags
+//                        long joinTime = 0;
+//                        long infoTime = 0;
                         public void wait(int miliSec) {
                             long referenceTime = System.currentTimeMillis();
                             while ((System.currentTimeMillis() - referenceTime) < miliSec) {
@@ -89,8 +94,8 @@ public class Aggregation {
                         }
 
                         @Override
-                        public synchronized void processMessage(Message message) {
-                            super.processMessage(message);
+                        public synchronized void processMessage(Message message, int sensorId) {
+                            super.processMessage(message, sensorId);
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();
@@ -98,28 +103,48 @@ public class Aggregation {
 
                             switch (type) {
                                 case Pulse:
-                                    moveStop();
-                                    moveHoldFlag = false;
-                                    goAwayFlag = true;
-                                    PulseData pulseData = (PulseData) message.getData();
-
-                                    if (pulseFlag && pulseData.getClusterId() != clusterId && !(clusterMembers.containsKey(sender.getId()))
-                                            && ((sender.getId() - getId()) > 0 || myState != Robot.State.SEARCHING)) {
-
-                                        console.log(String.format("Received %s Message from %d", type, sender.getId()));
-                                        MessageHandler.sendPulseFBMsg(this, clusterId,
-                                                sender.getId(), (double) clusterSize / noOfRobots, clusterSize);
-                                        receiverReset();
+                                    if (pulseFlag) {
+                                        moveStop();
+                                        moveHoldFlag = false;
+                                        goAwayFlag = true;
                                         pulseFlag = false;
-                                        pulseFBFlag = false;
+                                        pulseFBFlag = true;
+                                        joinFlag = true;
+                                        infoFlag = true;
+                                        PulseData pulseData = (PulseData) message.getData();
+
+                                        if (pulseData.getClusterId() != clusterId && !(clusterMembers.containsKey(sender.getId()))
+                                                && ((sender.getId() - getId()) > 0 || myState != Robot.State.SEARCHING)) {
+                                            //checking other receivers for messages and delete if same msg came more than 1 receivers
+//                                            Message receiveMsg = null;
+//                                            for (int i = 0; i < n; i++) {
+//                                                if (i != sensorId) {
+//                                                    receiveMsg = recieveMessage(i);
+//                                                    PulseData additionalData = (PulseData) receiveMsg.getData();
+//                                                    
+//                                                }
+//                                            }
+                                            if (myState == Robot.State.INCLUSTER) {
+                                                leaveFlag = false;
+                                            }
+
+                                            receiverReset();
+                                            console.log(String.format("Received %s Message from %d", type, sender.getId()));
+//                                            joinTime = System.currentTimeMillis();
+                                            pulseFBFlag = false;
+                                            MessageHandler.sendPulseFBMsg(this, clusterId,
+                                                    sender.getId(), (double) clusterSize / noOfRobots, clusterSize);
+                                        }
+
                                     }
 
                                     break;
 
                                 case PulseFeedback:
                                     PulseFBData pulseFBData = (PulseFBData) message.getData();
-                                    if (pulseFBFlag && pulseFBData.getReceiverId() == getId() 
+                                    if (pulseFBFlag && pulseFBData.getReceiverId() == getId()
                                             && myState == State.SEARCHING) {
+                                        receiverReset();
                                         moveStop();
                                         moveHoldFlag = false;
                                         console.log(String.format("Received %s Message from %d", type,
@@ -128,16 +153,15 @@ public class Aggregation {
                                         if (joiningProb != 0) {
                                             double randomProb = Math.random();
                                             console.log("PMax: " + joiningProb + "/ Random probability: " + randomProb);
-
                                             if (randomProb < joiningProb) {
                                                 pulseFlag = false;
                                                 pulseFBFlag = false;
+//                                                infoTime = System.currentTimeMillis();
                                                 MessageHandler.sendJoinMsg(this, pulseFBData.getSenderId());
                                             } else {
                                                 MessageHandler.sendGoAwayMsg(this, pulseFBData.getSenderId());
-                                                pulseFlag = true;
+                                                freeMove(1500);
                                             }
-
                                         }
 
                                     }
@@ -145,51 +169,60 @@ public class Aggregation {
 
                                 case Join:
                                     JoinData joinData = (JoinData) message.getData();
-                                    if (joinFlag && this.getId() == joinData.getreceiverId()
-                                            && !(clusterMembers.containsKey(sender.getId()))) {
-
-                                        console.log(String.format("Received %s Message from %d", type, sender.getId()));
-                                        if (myState == State.SEARCHING) {
-                                            myState = State.INCLUSTER;
+                                    if (joinFlag && this.getId() == joinData.getreceiverId()) {
+                                        boolean proceedFlag = true;
+                                        leaveFlag = true;
+                                        receiverReset();
+//                                        joinTime = 0;
+                                        if (myState == State.INCLUSTER && clusterMembers.containsKey(sender.getId())) {
+                                            proceedFlag = false;
                                         }
-                                        clusterSize = clusterSize + 1;
-                                        if (clusterSize == noOfRobots) {
-                                            myState = Robot.State.AGGREGATE;
-                                        }
-                                        pulseFlag = true;
-                                        pulseFBFlag = true;
-                                        MessageHandler.sendInfoMsg(this, sender.getId(), clusterId, clusterSize);
-                                        MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize,
-                                                clusterMembers);
+                                        if (proceedFlag) {
+                                            console.log(String.format("Received %s Message from %d", type, sender.getId()));
+                                            if (myState == State.SEARCHING) {
+                                                myState = State.INCLUSTER;
+                                            }
+                                            clusterSize = clusterSize + 1;
+                                            if (clusterSize == noOfRobots) {
+                                                myState = Robot.State.AGGREGATE;
+                                            }
+                                            pulseFlag = true;
+                                            pulseFBFlag = true;
 
-                                        clusterMembers.put(sender.getId(), true);
-                                        printRobotStatus();
+                                            MessageHandler.sendInfoMsg(this, sender.getId(), clusterId, clusterSize);
+                                            //wait(400);
+                                            MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize,
+                                                    clusterMembers);
+                                            clusterMembers.put(sender.getId(), true);
+                                            printRobotStatus();
+                                        }
+                                        proceedFlag = true;
                                     }
                                     break;
 
                                 case Info:
                                     InfoData infoData = (InfoData) message.getData();
-                                    if (infoFlag && infoData.getreceiverId() == this.getId()
-                                            && !(clusterMembers.containsKey(sender.getId()))) {
-
-                                        clusterMembers.put(sender.getId(), true);
+                                    if (infoFlag && infoData.getreceiverId() == this.getId()) {
+//                                        infoTime = 0;
                                         clusterSize = infoData.getClusterSize();
                                         clusterId = infoData.getClusterId();
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
-                                        //come closer
-                                        receiverReset();
+                                        //come closer                                        
                                         if (clusterSize == noOfRobots) {
                                             myState = State.AGGREGATE;
                                         } else if (myState == State.SEARCHING) {
                                             myState = Robot.State.INCLUSTER;
                                         }
+                                        receiverReset();
                                         printRobotStatus();
                                     }
                                     break;
 
                                 case GoAway:
+                                    leaveFlag = true;
                                     GoAwayData goAwayData = (GoAwayData) message.getData();
                                     if (myState == State.SEARCHING && goAwayFlag && goAwayData.getreceiverId() == this.getId()) {
+//                                        joinTime = 0;
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
 //                                        moveHoldFlag = true;
 //                                        pulseFlag = true;
@@ -204,7 +237,7 @@ public class Aggregation {
                                     ClusterUpdateData updateData = (ClusterUpdateData) message.getData();
                                     if (myState == Robot.State.INCLUSTER && updateData.getClusterID() == clusterId
                                             && sender.getId() != getId()) {
-
+                                        receiverReset();
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
                                         int updatedClusterSize = updateData.getNewClusterSize();
                                         if (updatedClusterSize < clusterSize && clusterMembers.containsKey(sender.getId())) {
@@ -227,9 +260,10 @@ public class Aggregation {
                                     if (clusterId == leaveData.getClusterID()) {
                                         console.log(String.format("Received %s Message from %d", type, sender.getId()));
                                         clusterId = this.getId();
+                                        clusterSize = 1;
                                         myState = Robot.State.SEARCHING;
-                                        moveHoldFlag = true;
                                         printRobotStatus();
+                                        freeMove(1500);                                       
                                     }
 
                                     break;
@@ -237,7 +271,7 @@ public class Aggregation {
                                 default:
                                     break;
                             }
-                            type = MessageType.Dummy;
+
                         }
 
                         @Override
@@ -248,39 +282,63 @@ public class Aggregation {
                                     moveRandom();
                                     avoidObstacles();
                                     MessageHandler.sendPulseMsg(this, clusterId);
-
                                 }
+//                                long referenceTime = System.currentTimeMillis();
+//                                if (joinTime != 0 || infoTime != 0) {
+//                                    if( (referenceTime-joinTime)>2000 || (referenceTime-infoTime)>2000 ) {
+//                                        moveHoldFlag = true;
+//                                    }
+//                                }
 
                             } else if (myState == Robot.State.INCLUSTER) {
-                                pulseFlag = true;
-                                pulseFBFlag = true;
-                                double leavingFactor = 0.001;
-                                if (clusterId == getId()) {
-                                    leavingFactor = 0.0001;
+                                if (inClusterCounterFlag) {
+                                    receiverReset();
+                                    pulseFlag = true;
+                                    pulseFBFlag = false;
+                                    joinFlag = false;
+                                    infoFlag = false;
+                                    inClusterCounterFlag = false;
                                 }
-                                double leavingProb = (1 - ((double) clusterSize / (noOfRobots))) * leavingFactor;
-                                double randomProb = Math.random();
-                                //System.out.printf("Robot:{%d} Leaving_Prob-%f   random_Prob-%f \n", getId(), leavingProb, randomProb);
-                                if (randomProb < leavingProb) {
-                                    if (clusterId == this.getId()) {
-                                        clusterSize = 1;
-                                        MessageHandler.sendLeaveMsg(this, clusterId);
-                                    } else {
-                                        clusterSize = clusterSize - 1;
-                                        console.log("Me leaving message");
-                                        MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize,
-                                                clusterMembers);
+
+                                if (leaveFlag) {
+                                    double leavingFactor = 0.001;
+                                    if (clusterId == getId()) {
+                                        leavingFactor = 0.0001;
                                     }
-                                    clusterMembers = new HashMap<>();
-                                    myState = Robot.State.SEARCHING;
-                                    clusterId = getId();
-                                    freeMove(2500);
-                                    printRobotStatus();
+                                    double leavingProb = (1 - ((double) clusterSize / (noOfRobots))) * leavingFactor;
+                                    double randomProb = Math.random();
+                                    //System.out.printf("Robot:{%d} Leaving_Prob-%f   random_Prob-%f \n", getId(), leavingProb, randomProb);
+                                    if (randomProb < leavingProb) {
+                                        receiverReset();
+                                        pulseFlag = false;
+                                        pulseFBFlag = false;
+                                        joinFlag = false;
+                                        infoFlag = false;
+
+                                        if (clusterId == this.getId()) {
+                                            clusterSize = 1;
+                                            MessageHandler.sendLeaveMsg(this, clusterId);
+                                        } else {
+                                            clusterSize = clusterSize - 1;
+                                            console.log("Me leaving message");
+                                            MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize,
+                                                    clusterMembers);
+                                        }
+                                        clusterMembers = new HashMap<>();
+                                        myState = Robot.State.SEARCHING;
+                                        clusterId = getId();                                        
+                                        freeMove(2500);
+                                        inClusterCounterFlag = true;
+                                        printRobotStatus();
+                                    }
                                 }
-                                //MessageHandler.sendPulseMsg(this, clusterId);
+
                             } else if (myState == Robot.State.AGGREGATE) {
-                                pulseFlag = true;
-                                pulseFBFlag = true;
+                                receiverReset();
+                                pulseFlag = false;
+                                pulseFBFlag = false;
+                                joinFlag = false;
+                                infoFlag = false;
                                 if (aggreeCounterFlag) {
                                     MessageHandler.sendClusterUpdateMsg(this, clusterId, clusterSize,
                                             clusterMembers);

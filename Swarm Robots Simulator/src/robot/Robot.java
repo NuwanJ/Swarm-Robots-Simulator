@@ -88,7 +88,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
        
-
 //        wheelThread = new Thread();
 //        wheelThread.start();
     }
