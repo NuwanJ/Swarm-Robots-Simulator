@@ -1,21 +1,14 @@
 
 import communication.Message;
 import communication.MessageType;
-import communication.aggregation.ClusterUpdateData;
-import communication.aggregation.GoAwayData;
-import communication.aggregation.InfoData;
-import communication.aggregation.JoinData;
-import communication.aggregation.LeaveData;
-import communication.aggregation.MessageHandler;
-import communication.aggregation.PulseData;
-import communication.aggregation.PulseFBData;
+import communication.messageData.aggregation.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import robot.Robot;
 import robot.console.Console;
 import swarm.Swarm;
-import utility.Settings;
+import configs.Settings;
 import view.Simulator;
 
 /**
