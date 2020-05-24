@@ -31,7 +31,6 @@ public class Field extends JPanel implements ActionListener, MouseListener {
     private Boundary boundary;
     protected JMenuItem itemRun, itemExit;
     private JPopupMenu popupMenu;
-    private Simulator simulator;
 
     private final Timer timer = new Timer(15, this);
 
@@ -103,9 +102,6 @@ public class Field extends JPanel implements ActionListener, MouseListener {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         boundary.draw(g2d);
-
-        //robots.get(0).draw(g2d);
-        //robots.get(1).draw(g2d);
         
         for (Robot r : robots) {
             r.draw(g2d);
@@ -139,6 +135,10 @@ public class Field extends JPanel implements ActionListener, MouseListener {
     public void start() {
         start = System.currentTimeMillis();
         timer.start();
+    }
+    
+    public void stop() {
+        timer.stop();
     }
 
     public Boundary getBoundary() {

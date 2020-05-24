@@ -9,8 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import robot.behaviors.BasicBehaviors;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import configs.Settings;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -34,13 +32,11 @@ import view.Field;
  * @author Nadun
  */
 public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrain, SupportiveFunctions,
-        ActionListener, Communication, PairBehaviors {
+        Communication, PairBehaviors {
 
     protected double angle;
-
-    private Thread wheelThread, randomMoveThread;
     public boolean wheelStop = true;
-    private boolean forward = true;
+    private boolean forward = false;
     private SharpSensor sharp;
     private ArrayList<IRSensor> iRSensors;
     private LedStript ledStript;
@@ -87,7 +83,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
-       
 
 //        wheelThread = new Thread();
 //        wheelThread.start();
@@ -101,14 +96,14 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         setX(x);
         setY(y);
     }
-    
+
     public Robot() {
         this(0, 0);
 
         int x = Utility.randomInRange(20, Settings.FEILD_WIDTH - 5 * Settings.ROBOT_RADIUS);
         int y = Utility.randomInRange(20, Settings.FEILD_HEIGHT - 5 * Settings.ROBOT_RADIUS);
         this.angle = Utility.randomInRange(-360, 360);
-        
+
         setX(x);
         setY(y);
     }
@@ -134,6 +129,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     public void draw(Graphics2D gd) {
+
+        moveRobot();
 
         Graphics2D g2d = (Graphics2D) gd.create();
 
@@ -170,106 +167,35 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         return angle;
     }
 
-    public Thread getWheelThread() {
-        return wheelThread;
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        loop();
-    }
-
     @Override
     public void loop() {
 
     }
 
     @Override
-    public void moveForward(int delay) {
-
-        long start = System.currentTimeMillis();
-        while (true) {
-            double xdelta = Math.sin(Math.toRadians(angle));
-            double ydelta = Math.cos(Math.toRadians(angle));
-//            int R = 200; 
-//            if(x + xdelta >= Settings.FEILD_WIDTH || x + xdelta <= 0) {
-//                turnRightAngle(180 - 2*angle);
-//            }
-//            
-//            if(y - ydelta >= Settings.FEILD_HEIGHT || y - ydelta <= 0) {
-//                turnRightAngle(180 - 2*angle);
-//            }
-
-            x += xdelta;
-            y -= ydelta;
-
-//            if(sharp.isHit()) {
-//                System.out.println("");
-//            }
-            long end = System.currentTimeMillis();
-            if (end - start >= delay) {
-                break;
-            }
-            try {
-                Thread.sleep(100 - Settings.ROBOT_SPEED);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    public void delay(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    }
-
-    @Override
-    public void moveBackward(int delay) {
-
-        long start = System.currentTimeMillis();
-        while (true) {
-            x -= Math.sin(Math.toRadians(angle));
-            y += Math.cos(Math.toRadians(angle));
-
-            long end = System.currentTimeMillis();
-            if (end - start >= delay) {
-                break;
-            }
-            try {
-                Thread.sleep(100 - Settings.ROBOT_SPEED);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
     }
 
     @Override
     public void moveForward() {
-        if (wheelStop) {
-            if (wheelThread == null) {
-                wheelThread = new Thread(new WheelThread());
-                wheelStop = false;
-                wheelThread.start();
-
-            }
-        }
-
+        wheelStop = false;
+        forward = true;
     }
 
     @Override
     public void moveBackward() {
+        wheelStop = false;
         forward = false;
-        moveForward();
     }
 
     @Override
     public void moveStop() {
         wheelStop = true;
-        if (wheelThread != null) {
-            wheelThread.stop();
-        }
-        wheelThread = null;
-        if (randomMoveThread != null) {
-            randomMoveThread.stop();
-        }
-        randomMoveThread = null;
     }
 
     @Override
@@ -388,14 +314,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void moveRandom() {
-        if (wheelStop) {
-            if (randomMoveThread == null) {
-                randomMoveThread = new Thread(new RandomMoveThread());
-                wheelStop = false;
-                randomMoveThread.start();
-
-            }
-        }
+        wheelStop = false;
+        forward = true;
+        moveForwardDistance(10);
+        int randomAngle = Utility.randomInRange(0, 3);
+        angularTurn(randomAngle);
     }
 
     @Override
@@ -438,9 +361,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public synchronized void processMessage(Message message, int sensorId) {
 
-        Robot sender = message.getSender();
-        MessageType type = message.getType();
-        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override
@@ -466,46 +386,16 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public class WheelThread implements Runnable {
+    private void moveRobot() {
+        if (!wheelStop) {
 
-        @Override
-        public void run() {
-            wheelStop = false;
-            while (!wheelStop) {
-                double xdelta = Math.sin(Math.toRadians(angle));
-                double ydelta = Math.cos(Math.toRadians(angle));
+            double xdelta = Math.sin(Math.toRadians(angle));
+            double ydelta = Math.cos(Math.toRadians(angle));
 
-                x += forward ? xdelta : -xdelta;
-                y -= forward ? ydelta : -ydelta;
+            x += forward ? xdelta : -xdelta;
+            y -= forward ? ydelta : -ydelta;
 
-                try {
-                    Thread.sleep(100 - Settings.ROBOT_SPEED);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
         }
-
-    }
-
-    public class RandomMoveThread implements Runnable {
-
-        @Override
-        public void run() {
-            while (!wheelStop) {
-
-                moveForwardDistance(10);
-                int randomAngle = Utility.randomInRange(0, 3);
-                turnRightAngle(randomAngle);
-
-                try {
-                    Thread.sleep(100 - Settings.ROBOT_SPEED);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-
     }
 
 }
