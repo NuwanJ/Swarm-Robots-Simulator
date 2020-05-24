@@ -1,11 +1,11 @@
 
-import communication.ColorData;
+import communication.messageData.general.ColorData;
 import communication.Message;
 import communication.MessageType;
 import java.awt.Color;
 import robot.Robot;
 import swarm.Swarm;
-import utility.Settings;
+import configs.Settings;
 import view.Obstacle;
 import view.Simulator;
 
@@ -74,6 +74,6 @@ public class Example5_FindGreenObject {
         swarm.addObstacle(new Obstacle(450, 200, 70, 70, Color.GREEN));
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }

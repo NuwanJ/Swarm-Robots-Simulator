@@ -1,4 +1,4 @@
-package communication.aggregation;
+package communication.messageData.aggregation;
 
 import communication.Data;
 

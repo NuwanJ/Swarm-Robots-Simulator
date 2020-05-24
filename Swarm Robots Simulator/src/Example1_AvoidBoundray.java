@@ -31,6 +31,6 @@ public class Example1_AvoidBoundray {
         };
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }

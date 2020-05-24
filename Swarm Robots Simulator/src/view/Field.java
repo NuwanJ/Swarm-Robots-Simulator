@@ -3,28 +3,35 @@ package view;
 import swarm.Swarm;
 import robot.Robot;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
-import utility.Settings;
+import configs.Settings;
 
 /**
  *
  * @author Nadun
  */
-public class Field extends JPanel implements ActionListener {
+public class Field extends JPanel implements ActionListener, MouseListener {
 
     private ArrayList<Obstacle> obstacles;
     private Swarm swarm;
     private ArrayList<Robot> robots;
     private Boundary boundary;
+    protected JMenuItem itemRun, itemExit;
+    private JPopupMenu popupMenu;
+    private Simulator simulator;
 
     private final Timer timer = new Timer(15, this);
 
@@ -33,10 +40,40 @@ public class Field extends JPanel implements ActionListener {
     long start = 0;
     int collisions = 0;
 
-    public Field() throws HeadlessException {
+    public Field(Simulator simulator) throws HeadlessException {
         this.obstacles = new ArrayList<>();
         this.boundary = new Boundary(0, 0, Settings.FEILD_WIDTH - 17, Settings.FEILD_HEIGHT - 40);
 
+        popupMenu = new JPopupMenu();
+        
+        itemRun = new JMenuItem("Run");
+        popupMenu.add(itemRun);
+        itemExit = new JMenuItem("Exit");
+        popupMenu.add(itemExit);
+        
+        itemRun.setPreferredSize(new Dimension(100, 20));
+        
+        itemRun.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               if(itemRun.getText().equalsIgnoreCase("Run")) {
+                    simulator.run();
+                    itemRun.setText("Stop");
+                } else if(itemRun.getText().equalsIgnoreCase("Stop")) {
+                    simulator.setRunning(false);
+                    itemRun.setText("Run");
+                }
+            }
+        });
+        
+        itemExit.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               System.exit(0);
+            }
+        });
+        
     }
 
     public ArrayList<Obstacle> getObstacles() {
@@ -45,10 +82,6 @@ public class Field extends JPanel implements ActionListener {
 
     public void addObstacle(Obstacle obstacle) {
         this.obstacles.add(obstacle);
-    }
-
-    public Field(Color color) throws HeadlessException, IOException {
-        this();
     }
 
     public void parseSwarm(Swarm swarm) {
@@ -114,9 +147,36 @@ public class Field extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         repaint();
-        //revalidate();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        
+    }
+
+    @Override
+    public void mousePressed(MouseEvent ev) {
+        if (ev.isPopupTrigger()) {
+            popupMenu.show(ev.getComponent(), ev.getX(), ev.getY());
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent ev) {
+        if (ev.isPopupTrigger()) {
+            popupMenu.show(ev.getComponent(), ev.getX(), ev.getY());
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        
     }
 
 }

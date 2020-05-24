@@ -3,17 +3,21 @@
  *
  * @author Tharuka
  */
-import communication.aggregation.*;
+import communication.messageData.aggregation.PulseFBData;
+import communication.messageData.aggregation.ClusterUpdateData;
+import communication.messageData.aggregation.JoinData;
+import communication.messageData.aggregation.PulseData;
+import communication.messageData.aggregation.InfoData;
+import communication.messageData.aggregation.LeaveData;
 import communication.Message;
-import utility.Utility;
+import helper.Utility;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
 import communication.MessageType;
+import communication.MessageHandler;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import utility.Settings;
+import configs.Settings;
 
 public class Task_Aggregation {
 
@@ -418,7 +422,7 @@ public class Task_Aggregation {
 
         Simulator simulator = new Simulator(swarm);
 
-        simulator.run();
+        simulator.start();
     }
 
 }

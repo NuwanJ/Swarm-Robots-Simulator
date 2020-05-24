@@ -1,5 +1,5 @@
 
-import communication.AngleData;
+import communication.messageData.general.AngleData;
 import communication.Message;
 import communication.MessageType;
 import java.util.ArrayList;
@@ -76,6 +76,6 @@ public class FollowMeTest {
         };
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }
