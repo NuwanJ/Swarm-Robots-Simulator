@@ -1,21 +1,15 @@
 
 import communication.Message;
+import communication.MessageHandler;
 import communication.MessageType;
-import communication.aggregation.ClusterUpdateData;
-import communication.aggregation.GoAwayData;
-import communication.aggregation.InfoData;
-import communication.aggregation.JoinData;
-import communication.aggregation.LeaveData;
-import communication.aggregation.MessageHandler;
-import communication.aggregation.PulseData;
-import communication.aggregation.PulseFBData;
+import communication.messageData.aggregation.*;
+import configs.Settings;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import robot.Robot;
 import robot.console.Console;
 import swarm.Swarm;
-import utility.Settings;
 import view.Simulator;
 
 /**
@@ -357,6 +351,6 @@ public class Aggregation {
 
         Simulator simulator = new Simulator(swarm);
 
-        simulator.run();
+        simulator.start();
     }
 }
