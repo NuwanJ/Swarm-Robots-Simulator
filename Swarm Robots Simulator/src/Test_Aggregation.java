@@ -387,7 +387,7 @@ public class Test_Aggregation {
 
         Simulator simulator = new Simulator(swarm);
 
-        simulator.run();
+        simulator.start();
     }
 
 }

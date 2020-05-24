@@ -76,6 +76,6 @@ public class FollowMeTest {
         };
 
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }
