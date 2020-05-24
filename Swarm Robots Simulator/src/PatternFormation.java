@@ -2,7 +2,7 @@
 import communication.Message;
 import communication.MessageType;
 import communication.messageData.patternformation.JoinPattern;
-import configs.Settings;
+//import configs.Settings;
 import robot.Robot;
 import swarm.*;
 import view.Simulator;
@@ -24,39 +24,39 @@ public class PatternFormation {
         Swarm swarm = new Swarm("Pattern-Formation"){
             @Override
             public void create(){
-                for (int robotIndex = 0; robotIndex < Settings.NUM_OF_ROBOTS; robotIndex++){
-                    join(new Robot(){
-                        @Override
-                        public void loop(){
-                            if(getCurrentState() == State.JOINED){
-                                Message joinBroadcast = new Message(MessageType.JoinPattern, this);
-                                joinBroadcast.setData(new JoinPattern(patternPositionId,nextJoinId));
-                                broadcastMessage(joinBroadcast); 
-                               // validateIncomingRequests();
-                                informRelevantParents();
-                                transitionToProcessing();
-                            }else if(getCurrentState() == State.POSITIONING){
-                                ignore Message();
-                            }else if(getCurrentState() == State.REQUESTING){
-                                response = requestJoin();
-                                if(response == "ok"){
-                                    positionRobot();
-                                    addjoinIdtoList();
-                                    broadcastList();
-                                    transitionToJoined();
-                                }
-                            }else if (getCurrentState() == State.FREE){
-                                moveRandom();
-                                response = listenForJoinBroadcase();
-                                If (response ==true) transitionToRequest;
-                            }
-
-                        }
-                    });
-                }
+//                for (int robotIndex = 0; robotIndex < Settings.NUM_OF_ROBOTS; robotIndex++){
+//                    join(new Robot(){
+//                        @Override
+//                        public void loop(){
+//                            if(getCurrentState() == State.JOINED){
+//                                Message joinBroadcast = new Message(MessageType.JoinPattern, this);
+//                                joinBroadcast.setData(new JoinPattern(patternPositionId,nextJoinId));
+//                                broadcastMessage(joinBroadcast); 
+//                               // validateIncomingRequests();
+//                                informRelevantParents();
+//                                transitionToProcessing();
+//                            }else if(getCurrentState() == State.POSITIONING){
+//                                ignore Message();
+//                            }else if(getCurrentState() == State.REQUESTING){
+//                                response = requestJoin();
+//                                if(response == "ok"){
+//                                    positionRobot();
+//                                    addjoinIdtoList();
+//                                    broadcastList();
+//                                    transitionToJoined();
+//                                }
+//                            }else if (getCurrentState() == State.FREE){
+//                                moveRandom();
+//                                response = listenForJoinBroadcase();
+//                                If (response ==true) transitionToRequest;
+//                            }
+//
+//                        }
+//                    });
+//                }
             }
         };
         Simulator simulator = new Simulator(swarm);
-        simulator.run();
+        simulator.start();
     }
 }

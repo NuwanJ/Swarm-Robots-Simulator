@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import robot.Robot;
-import utility.Settings;
-import utility.Utility;
+import configs.Settings;
+import helper.Utility;
 import view.Simulator;
 
 /**

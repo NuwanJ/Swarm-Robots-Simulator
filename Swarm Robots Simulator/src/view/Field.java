@@ -17,7 +17,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
-import utility.Settings;
+import configs.Settings;
 
 /**
  *
