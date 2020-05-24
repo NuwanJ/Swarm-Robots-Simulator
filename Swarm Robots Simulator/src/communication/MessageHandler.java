@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package communication.aggregation;
+package communication;
 
 import communication.*;
+import communication.messageData.aggregation.*;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
