@@ -1,5 +1,5 @@
 
-import communication.ColorData;
+import communication.messageData.general.ColorData;
 import communication.Message;
 import communication.MessageType;
 import java.awt.Color;

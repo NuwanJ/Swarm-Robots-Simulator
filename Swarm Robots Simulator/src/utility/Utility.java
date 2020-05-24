@@ -6,7 +6,7 @@
  */
 package utility;
 
-import communication.aggregation.PulseFBData;
+import communication.messageData.aggregation.PulseFBData;
 import java.awt.AlphaComposite;
 import java.awt.geom.Point2D;
 import java.util.Random;

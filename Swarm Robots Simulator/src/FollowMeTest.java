@@ -1,5 +1,5 @@
 
-import communication.AngleData;
+import communication.messageData.general.AngleData;
 import communication.Message;
 import communication.MessageType;
 import java.util.ArrayList;

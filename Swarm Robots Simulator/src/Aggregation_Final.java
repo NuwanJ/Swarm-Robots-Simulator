@@ -3,13 +3,18 @@
  *
  * @author Tharuka
  */
-import communication.aggregation.*;
+import communication.messageData.aggregation.PulseFBData;
+import communication.messageData.aggregation.LeaveData;
+import communication.messageData.aggregation.ClusterUpdateData;
+import communication.messageData.aggregation.PulseData;
+import communication.messageData.aggregation.JoinData;
 import communication.Message;
 import utility.Utility;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
 import communication.MessageType;
+import communication.MessageHandler;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,13 +24,16 @@ public class Aggregation_Final {
 
     public static void main(String[] args) {
 
+        double[][] pos = {{100, 100}, {300, 450}, {700, 100}};
+
         Swarm swarm = new Swarm("Aggregate") {
+
             @Override
             public void create() {
 
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 3; i++) {
 
-                    join(new Robot() {
+                    join(new Robot(pos[i][0], pos[i][1]) {
 
                         Robot.State myState = Robot.State.SEARCHING;
                         int clusterId = this.getId();
