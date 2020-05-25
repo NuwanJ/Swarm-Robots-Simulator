@@ -396,12 +396,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             iRSensor.setBroadcastMsg(null);
         }
     }
-    
-    public void clearMessageBufferOut(){
-        for (IRSensor iRSensor : iRSensors) {
-            iRSensor.setBroadcastMsg(null);
-        }
-    }
 
     @Override
     public void broadcastMessage(Message message) {
