@@ -12,7 +12,9 @@ package configs;
  */
 public class Settings {
     
-    public final static int ROBOT_SPEED = 85;
+    public static final int NO_OF_ROBOTS = 6;
+    
+    public final static int ROBOT_SPEED = 86;
     public final static int ROBOT_RADIUS = 20;
     
     public final static int OBJECT_WIDTH = 20;

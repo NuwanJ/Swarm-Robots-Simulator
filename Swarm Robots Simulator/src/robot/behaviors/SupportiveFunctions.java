@@ -5,6 +5,7 @@
  */
 package robot.behaviors;
 
+import communication.messageData.patternformation.PositionData;
 import java.awt.Color;
 
 /**
@@ -16,5 +17,7 @@ public interface SupportiveFunctions {
     public double findDistance();
     
     public Color findColor();
+    
+    public PositionData calculateTargetPosition(int receivedIrSensorId);
     
 }
