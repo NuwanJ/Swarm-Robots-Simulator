@@ -37,12 +37,15 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     protected double angle;
     public boolean wheelStop = true;
     private boolean forward = false;
+    private boolean randomMove = false;
     private SharpSensor sharp;
     private ArrayList<IRSensor> iRSensors;
     private LedStript ledStript;
     private BufferedImage image;
     private int id;
     public Console console;
+
+    private int tempDist = 0;
 
     public enum State {
 
@@ -182,17 +185,20 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void moveForward() {
         wheelStop = false;
         forward = true;
+        randomMove = false;
     }
 
     @Override
     public void moveBackward() {
         wheelStop = false;
         forward = false;
+        randomMove = false;
     }
 
     @Override
     public void moveStop() {
         wheelStop = true;
+        randomMove = false;
     }
 
     @Override
@@ -292,30 +298,28 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public void moveForwardDistance(int distance) {
 
-        double d = 0;
-        while (true) {
-            if (d >= distance) {
-                break;
-            }
-            x += Math.sin(Math.toRadians(angle));
-            y -= Math.cos(Math.toRadians(angle));
+        forward = true;
+        wheelStop = false;
 
-            d++;
-            try {
-                Thread.sleep(100 - Settings.ROBOT_SPEED);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        long time = (100 - Settings.ROBOT_SPEED) * distance;
+        delay(time);
+        moveStop();
     }
 
     @Override
     public void moveRandom() {
         wheelStop = false;
         forward = true;
-        moveForwardDistance(10);
-        int randomAngle = Utility.randomInRange(0, 3);
-        angularTurn(randomAngle);
+        randomMove = true;
+
+        tempDist++;
+
+        if (tempDist > 100) {
+            tempDist = 0;
+            int randomAngle = Utility.randomInRange(-30, 30);
+            moveStop();
+            angularTurn(randomAngle);
+        }
     }
 
     @Override

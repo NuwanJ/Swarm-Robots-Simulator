@@ -32,7 +32,7 @@ public class Field extends JPanel implements ActionListener, MouseListener {
     protected JMenuItem itemRun, itemExit;
     private JPopupMenu popupMenu;
 
-    private final Timer timer = new Timer(15, this);
+    private final Timer timer = new Timer(100 - Settings.ROBOT_SPEED, this);
 
     public static Color color = new Color(240, 240, 240);
 
@@ -56,7 +56,7 @@ public class Field extends JPanel implements ActionListener, MouseListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                if(itemRun.getText().equalsIgnoreCase("Run")) {
-                    simulator.run();
+                    simulator.setRunning(true);
                     itemRun.setText("Stop");
                 } else if(itemRun.getText().equalsIgnoreCase("Stop")) {
                     simulator.setRunning(false);
