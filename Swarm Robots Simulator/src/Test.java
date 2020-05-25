@@ -20,23 +20,25 @@ public class Test {
                 for (int i = 0; i < 3; i++) {
                     join(new Robot() {
 
+                        boolean done = false;
+
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId) {
-                            super.processMessage(message, sensorId);
+                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();
                             MessageType type = message.getType();
 
                             switch (type) {
-                                case Pulse:
-                                    /* your code here */
-                                    //sendMessage(MessageType.PulseFeedback, receiver);
+                                case ComeCloser:
+                                    done = true;
+                                    moveStop();
+                                    //angularTurn(bearing);
+                                    //turnRightAngle(90);
+                                    rotationStop();
                                     break;
                                 case PulseFeedback:
-                                    if (receiver != null && receiver.getId() == getId()) {
-                                        /* your code here */
-                                    }
+
                                     break;
                                 default:
                                     break;
@@ -45,11 +47,17 @@ public class Test {
 
                         @Override
                         public void loop() {
-                            //Message pulse = new Message(MessageType.Pulse, this);
-                            //broadcastMessage(pulse);
-                            moveRandom();
-                            avoidObstacles();
 
+                            // first robot send come closer msg 
+                            if (getId() == 0) {
+                                Message comeCloser = new Message(MessageType.ComeCloser, this);
+                                //broadcastMessage(comeCloser);
+                            } else {
+                                if (!done) {
+                                    moveRandom();
+                                    avoidObstacles();
+                                }
+                            }
                         }
 
                     });

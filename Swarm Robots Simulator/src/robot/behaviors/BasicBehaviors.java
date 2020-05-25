@@ -13,11 +13,7 @@ public interface BasicBehaviors {
     public void moveForward();
 
     public void moveBackward();
-
-    public void turnRight(int delay);
-
-    public void turnLeft(int delay);
-
+    
     public void turnRightAngle(double angle);
 
     public void turnLeftAngle(double angle);

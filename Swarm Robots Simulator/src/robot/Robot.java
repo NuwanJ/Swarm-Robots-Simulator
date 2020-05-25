@@ -37,7 +37,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     protected double angle;
     public boolean wheelStop = true;
     private boolean forward = false;
-    private boolean randomMove = false;
+    private boolean rotationOff = true;
     private SharpSensor sharp;
     private ArrayList<IRSensor> iRSensors;
     private LedStript ledStript;
@@ -53,7 +53,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         INCLUSTER,
         AGGREGATE
     }
-    public boolean rotationOff = false;
 
     private Color ledColor;
 
@@ -185,61 +184,31 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void moveForward() {
         wheelStop = false;
         forward = true;
-        randomMove = false;
+        rotationOff = false;
     }
 
     @Override
     public void moveBackward() {
         wheelStop = false;
         forward = false;
-        randomMove = false;
+        rotationOff = false;
     }
 
     @Override
     public void moveStop() {
         wheelStop = true;
-        randomMove = false;
     }
-
-    @Override
-    public void turnRight(int delay) {
-        long start = System.currentTimeMillis();
-        while (true) {
-            angle++;
-
-            long end = System.currentTimeMillis();
-            if (end - start >= delay) {
-                break;
-            }
-            try {
-                Thread.sleep(100 - Settings.ROBOT_SPEED);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    @Override
-    public void turnLeft(int delay) {
-        long start = System.currentTimeMillis();
-        while (true) {
-            angle--;
-
-            long end = System.currentTimeMillis();
-            if (end - start >= delay) {
-                break;
-            }
-            try {
-                Thread.sleep(100 - Settings.ROBOT_SPEED);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Robot.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    
+    public void rotationStop() {
+        rotationOff = true;
     }
 
     @Override
     public void turnRightAngle(double angle) {
         for (int i = 0; i < angle; i++) {
+            if(rotationOff) {
+                break;
+            }
             this.angle++;
             try {
                 Thread.sleep(100 - Settings.ROBOT_SPEED);
@@ -252,6 +221,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public void turnLeftAngle(double angle) {
         for (int i = 0; i < angle; i++) {
+            if(rotationOff) {
+                break;
+            }
             this.angle--;
             try {
                 Thread.sleep(100 - Settings.ROBOT_SPEED);
@@ -310,7 +282,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void moveRandom() {
         wheelStop = false;
         forward = true;
-        randomMove = true;
+        rotationOff = false;
 
         tempDist++;
 
@@ -360,7 +332,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
-    public synchronized void processMessage(Message message, int sensorId) {
+    public synchronized void processMessage(Message message, int sensorId, double bearing) {
     }
 
     @Override

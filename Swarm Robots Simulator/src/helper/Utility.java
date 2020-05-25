@@ -9,6 +9,7 @@ package helper;
 import java.awt.AlphaComposite;
 import java.awt.geom.Point2D;
 import java.util.Random;
+import robot.Robot;
 
 /**
  *
@@ -64,13 +65,50 @@ public class Utility {
     }
     
     public static double getSlope(double x1, double y1, double x2, double y2) {
-        // using long to avoid possible overflows when multiplying
+        
         double dx = x1 - x2;
         double dy = y1 - y2;
         
         double toDegrees = Math.toDegrees(Math.atan(dy/dx));
 
         return toDegrees;
+    }
+    
+    public static double calculateBearing(Robot from, Robot to) {
+        
+        double slope = getSlope(from.getCenterX(), from.getCenterY(), 
+                to.getCenterX(), to.getCenterY());
+        
+        // robot orientation to north direction (in positive)
+        double orientation = 0;
+        
+        double angle = from.getAngle();
+        
+        if(angle > 0) {
+            orientation = angle % 360;
+        } else {
+            orientation = 360 - (Math.abs(angle) % 360);
+        }
+        
+        double bearing = 0;
+        
+        if(slope > 0) {
+            
+            if(to.getCenterY() > from.getCenterY()) { // 2nd quadrant
+                bearing = 90 + slope;
+            } else { // 4th quadrant
+                bearing = 90 + slope + 180;
+            }
+        } else {
+            
+            if(to.getCenterY() > from.getCenterY()) { // 1st quadrant
+                bearing = 90 - Math.abs(slope);
+            } else { // 3rd quadrant
+                bearing = 90 - Math.abs(slope) + 180;
+            }
+        }
+
+        return bearing - orientation;
     }
     
     //---------------------------------aggregation functions------------------------------------------------------------

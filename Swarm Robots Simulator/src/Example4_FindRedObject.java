@@ -28,10 +28,25 @@ public class Example4_FindRedObject {
                         boolean done = false;
 
                         @Override
+                        public synchronized void processMessage(Message recieveMsg, int sensorId, double bearing) {
+
+                            MessageType type = recieveMsg.getType();
+
+                            if (type == MessageType.ColorExchange) {
+                                Message message = new Message(MessageType.ColorExchange, this);
+                                message.setData(recieveMsg.getData());
+                                broadcastMessage(message);
+                                swithOnLedStript(Color.RED);
+                                done = true;
+                                moveStop();
+                            }
+                        }
+
+                        @Override
                         public void loop() {
 
                             if (!done) {
-                                moveForward();
+                                moveRandom();
                             }
                             avoidObstacles();
                             Color c = findColor();
@@ -45,23 +60,6 @@ public class Example4_FindRedObject {
                                 moveStop();
                             } else {
                                 broadcastMessage(MessageType.Pulse);
-                            }
-
-                            Message recieveMessage = null;
-                            int n = Settings.NUM_OF_IR_SENSORS;
-                            for (int j = 0; j < n; j++) {
-                                if(recieveMessage(j) != null) {
-                                    recieveMessage = recieveMessage(j);
-                                }
-                            }
-
-                            if (recieveMessage != null && recieveMessage.getType() == MessageType.ColorExchange) {
-                                Message message = new Message(MessageType.ColorExchange, this);
-                                message.setData(recieveMessage.getData());
-                                broadcastMessage(message);
-                                swithOnLedStript(Color.RED);
-                                done = true;
-                                moveStop();
                             }
 
                         }

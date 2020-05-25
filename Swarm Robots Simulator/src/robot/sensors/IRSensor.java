@@ -28,8 +28,7 @@ public class IRSensor extends Arc2D.Double {
     private Message broadcastMsg;
     private Message recieveMsg;
     private final Robot robot;
-    private double slope;
-    private boolean send, recieve;
+    private double bearing;
     private Shape transformedShape;
     private double angle;
     private int id;
@@ -103,18 +102,27 @@ public class IRSensor extends Arc2D.Double {
                 areaShape.intersect(areaRobot);
 
                 if (!areaShape.isEmpty()) {
+
                     if (Settings.VISIBLE_IR_INTERSECTION) {
                         g2d.setColor(Color.yellow);
                         g2d.draw(areaShape);
                     }
-                    recieveMsg = irSensor.getBroadcastMsg();
+
+                    // get the broadcasting message from other robot
+                    Message msg = irSensor.getBroadcastMsg();
+
+                    //if (recieveMsg == null || recieveMsg.getType() != msg.getType()) {
+                        recieveMsg = msg;
+                    //}
 
                     if (recieveMsg != null) {
-                        robot.processMessage(recieveMsg, id);
-                        slope = Utility.getSlope(robot.getCenterX(), robot.getCenterY(), r.getCenterX(), r.getCenterY());
-                        //System.out.println(robot.getId() + " -> " + recieveMsg + " => " + slope);                        
+                        bearing = Utility.getSlope(robot.getCenterX(),
+                                robot.getCenterY(), r.getCenterX(), r.getCenterY());
+                        robot.processMessage(msg, id, bearing);
+                        
                     }
-
+                } else {
+                    recieveMsg = null;
                 }
             }
 
@@ -145,10 +153,6 @@ public class IRSensor extends Arc2D.Double {
 
     public void setBroadcastMsg(Message broadcastMsg) {
         this.broadcastMsg = broadcastMsg;
-    }
-
-    public double getSlope() {
-        return -slope;
     }
 
 }
