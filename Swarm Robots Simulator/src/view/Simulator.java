@@ -64,6 +64,7 @@ public class Simulator {
 
             for (Robot robot : robots) {
                 robot.moveStop();
+                robot.rotationStop();
             }
             field.stop();
         } else {

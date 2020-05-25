@@ -25,6 +25,6 @@ public interface Communication {
     
     public void resetReceivers(int index);
     
-    public void processMessage(Message message, int sensorId);
+    public void processMessage(Message message, int sensorId, double bearing);
     
 }
