@@ -4,6 +4,7 @@ import communication.Communication;
 import communication.Data;
 import communication.Message;
 import communication.MessageType;
+import communication.messageData.patternformation.PositionData;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -46,23 +47,74 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public Console console;
 
     private int tempDist = 0;
-
+    
     public enum State {
-
+        //States for aggregation
         SEARCHING,
         INCLUSTER,
-        AGGREGATE
+        AGGREGATE,
+        //States for pattern formation
+        JOINED,
+        JOINEDBUSY,
+        POSITIONING,
+        REQUESTING,
+        FREE
     }
+    
+    private State currentState = State.FREE;
+    public int patternPositionId;
+    public int nextJoinId;
+    public  double currentHeading;
+    public boolean isLeader;
+    
+    public boolean rotationOff = false;
 
     private Color ledColor;
 
     private static int nextId = 0;
 
-    public Robot(double x, double y, double angle) {
+        public Robot(double x, double y, double angle) {
 
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
 
+        if(isLeader) currentState = State.JOINED;
+        
+        try {
+            image = ImageIO.read(new File("images/robo_icon.png"));
+        } catch (IOException ex) {
+            Logger.getLogger(Field.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        sharp = new SharpSensor(this);
+        iRSensors = new ArrayList<>();
+
+        int n = Settings.NUM_OF_IR_SENSORS;
+        for (int i = 0; i < n; i++) {
+            iRSensors.add(new IRSensor(i, this, i * 360 / n));
+        }
+
+        ledStript = new LedStript(this);
+
+        this.id = nextId;
+
+        nextId++;
+
+        this.console = new Console(id);
+        this.console.setVisible(Settings.CONSOLE_LOGGER);
+       
+
+//        wheelThread = new Thread();
+//        wheelThread.start();
+    }
+        
+    public Robot(double x, double y, double angle,boolean isLeader) {
+
+        super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
+        this.angle = angle;
+
+        if(isLeader) currentState = State.JOINED;
+        
         try {
             image = ImageIO.read(new File("images/robo_icon.png"));
         } catch (IOException ex) {
@@ -127,7 +179,25 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public int getId() {
         return id;
     }
-
+    
+    public State getCurrentState() {return this.currentState;}
+    
+    public void setCurrentState(State state) {
+        this.currentState = state;
+    }
+    
+    public void setPatternPositionLabel(int label){
+        this.patternPositionId = label;
+    }
+    
+    public void setNextJoinId(int id){
+        this.nextJoinId = id;
+    }
+    
+    public void setCurrentHeading(double heading){
+        this.currentHeading = heading;
+    }
+    
     public void draw(Graphics2D gd) {
 
         moveRobot();
@@ -306,6 +376,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             angularTurn(randomAngle);
         }
     }
+    
+    public void clearMessageBufferOut(){
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.setBroadcastMsg(null);
+        }
+    }
 
     @Override
     public void broadcastMessage(Message message) {
@@ -369,6 +445,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public void rotateToRobot() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public PositionData calculateTargetPosition(int receivedIrSensorId){
+        
+        return new PositionData();
     }
 
     private void moveRobot() {

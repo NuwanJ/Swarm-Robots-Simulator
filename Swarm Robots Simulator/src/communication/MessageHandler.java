@@ -7,6 +7,7 @@ package communication;
 
 import communication.*;
 import communication.messageData.aggregation.*;
+import communication.messageData.patternformation.*;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import robot.Robot;
  * @author Tharuka
  */
 public class MessageHandler {
-
+    
     private static final Logger LOGGER = Logger.getLogger(MessageHandler.class.getName());
 
     public static void sendPulseMsg(Robot robot, int clusterId) {
@@ -44,7 +45,7 @@ public class MessageHandler {
 
     public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize, HashMap<Integer, Boolean> clusterMembers) {
         for (Map.Entry member : clusterMembers.entrySet()) {
-            robot.console.log(String.format("Sending Cluster Update Msg for member:{%d} in cluster:(%d)", member.getKey(), clusterId));
+            robot.console.log(String.format("Sending Cluster Update Message for member:{%d} in cluster: (%d)", member.getKey(), clusterId));
             Message clusterUpdateMsg = new Message(MessageType.Update, robot);
             clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize, (int) member.getKey()));
             robot.broadcastMessage(clusterUpdateMsg);
@@ -60,7 +61,7 @@ public class MessageHandler {
     }
 
     public static void sendInfoMsg(Robot robot, int receiver, int clusterId, int clusterSize) {
-        //robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
+        robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
         Message infoMsg = new Message(MessageType.Info, robot);
         infoMsg.setData(new InfoData(receiver, clusterId, clusterSize));
         robot.broadcastMessage(infoMsg);
@@ -72,5 +73,31 @@ public class MessageHandler {
         pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), receiverId, 0.8, clusterSize));
         robot.broadcastMessage(pulseFBMsg);
     }
-
+    
+    public static void sendJoinBroadcastMsg(Robot robot){
+        Message joinBroadcast = new Message(MessageType.JoinPattern, robot);
+        joinBroadcast.setData(new JoinPattern(robot.patternPositionId,robot.nextJoinId));
+        robot.broadcastMessage(joinBroadcast); 
+    }
+    
+    public static void sendJoinPatternReqMsg(Robot robot){
+        Message join = new Message(MessageType.JoinPatternRequest, robot);
+        join.setData(new JoinPatternRequest(robot.getId(),robot.nextJoinId, robot.currentHeading));
+        robot.broadcastMessage(join); 
+    }
+    /*
+    public static void sendJoinPatternReqAckMsg(Robot robot){
+        Message joinAck = new Message(MessageType.JoinPatternReqAck, robot);
+        joinBroadcast.setData(new JoinPatternReqAck(robot.getPatternPosition(),robot.getNextJoinId()));
+        robot.broadcastMessage(joinBroadcast); 
+    }
+    */  
+    /*
+    public static void sendJoinPatternResMsg(Robot robot){
+        Message joinBroadcast = new Message(MessageType.JoinPatternResponse, robot);
+        joinBroadcast.setData(new JoinPatternResponse(robot.getPatternPosition(),robot.getNextJoinId()));
+        robot.broadcastMessage(joinBroadcast); 
+    }
+    */
+    
 }
