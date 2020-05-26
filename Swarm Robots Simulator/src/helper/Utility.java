@@ -94,14 +94,14 @@ public class Utility {
         
         if(slope > 0) {
             
-            if(to.getCenterY() > from.getCenterY()) { // 2nd quadrant
-                bearing = 90 + slope;
-            } else { // 4th quadrant
+            if(to.getCenterY() < from.getCenterY()) { // 2nd quadrant
                 bearing = 90 + slope + 180;
+            } else { // 4th quadrant
+                bearing = 90 + slope;
             }
         } else {
             
-            if(to.getCenterY() > from.getCenterY()) { // 1st quadrant
+            if(to.getCenterY() < from.getCenterY()) { // 1st quadrant
                 bearing = 90 - Math.abs(slope);
             } else { // 3rd quadrant
                 bearing = 90 - Math.abs(slope) + 180;

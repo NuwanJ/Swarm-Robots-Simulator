@@ -58,19 +58,25 @@ public class Simulator {
 
     public void setRunning(boolean running) {
         this.running = running;
-
+        
+        ArrayList<Robot> robots = field.getSwarm().getRobots();
+        
         if (!running) {
-            ArrayList<Robot> robots = field.getSwarm().getRobots();
-
             for (Robot robot : robots) {
                 robot.moveStop();
                 robot.rotationStop();
+                robot.setIRListening(false);
+                robot.setSharpListening(false);
             }
             field.stop();
         } else {
             run();
+            for (Robot robot : robots) {
+                robot.setIRListening(true);
+                robot.setSharpListening(true);
+            }
         }
-        
+
     }
 
     private void run() {
