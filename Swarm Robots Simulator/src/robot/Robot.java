@@ -38,7 +38,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     protected double angle;
     public boolean wheelStop = true;
     private boolean forward = false;
-    private boolean rotationOff = true;
     private SharpSensor sharp;
     private ArrayList<IRSensor> iRSensors;
     private LedStript ledStript;

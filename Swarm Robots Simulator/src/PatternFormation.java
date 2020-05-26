@@ -27,10 +27,9 @@ public class PatternFormation {
                     PatternTable table = new PatternTable();
                     
                     @Override
-                    public synchronized void processMessage(Message message, int sensorId) {
+                    public synchronized void processMessage(Message message, int sensorId, double bearing) {
                         if (getCurrentState() == Robot.State.JOINED) {
                             if (message.getType() == MessageType.JoinPatternRequest) {
-                                super.processMessage(message, sensorId);
                                 PositionData positionData = calculateTargetPosition(sensorId);
                                 //MessageHandler.sendPositioningData(this,positionData);
                                 setCurrentState(Robot.State.JOINEDBUSY);
@@ -38,7 +37,6 @@ public class PatternFormation {
                             }
                         } else if (getCurrentState() == Robot.State.JOINEDBUSY) {
                             if (message.getType() == MessageType.PositionAcquired) {
-                                super.processMessage(message, sensorId);
                                 //calculation
                                 //MessageHandler.updatePattern(this);
                                 setCurrentState(Robot.State.JOINED);
@@ -65,10 +63,9 @@ public class PatternFormation {
                         PatternTable table = new PatternTable();
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId) {
+                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
                             if (getCurrentState() == State.JOINED) {
                                 if (message.getType() == MessageType.JoinPatternRequest) {
-                                    super.processMessage(message, sensorId);
                                     //calculation
                                     //MessageHandler.sendPositioningData(this);
                                     //increment nextjoinid and broadcast
@@ -81,14 +78,12 @@ public class PatternFormation {
                                 //ignore Message();
                             } else if (getCurrentState() == State.FREE) {
                                 if (message.getType() == MessageType.JoinPattern) {
-                                    super.processMessage(message, sensorId);
                                     nextJoinId = ((JoinPattern) message.getData()).getNextJoinId();
                                     setCurrentState(State.REQUESTING);
                                     MessageHandler.sendJoinPatternReqMsg(this);
                                 }
                             } else if (getCurrentState() == State.REQUESTING) {
                                 if (message.getType() == MessageType.JoinPatternReqAck) {
-                                    super.processMessage(message, sensorId);
                                     //getparents
 
                                 }
