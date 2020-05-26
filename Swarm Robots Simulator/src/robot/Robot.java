@@ -74,7 +74,8 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         int n = Settings.NUM_OF_IR_SENSORS;
         for (int i = 0; i < n; i++) {
-            iRSensors.add(new IRSensor(i, this, i * 360 / n));
+            IRSensor irSensor = new IRSensor(i, this, i * 360 / n);
+            iRSensors.add(irSensor);
         }
 
         ledStript = new LedStript(this);
@@ -198,15 +199,26 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void moveStop() {
         wheelStop = true;
     }
-    
+
     public void rotationStop() {
         rotationOff = true;
     }
 
+    public void setIRListening(boolean value) {
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.setListening(value);
+        }
+    }
+
+    public void setSharpListening(boolean value) {
+        sharp.setListening(value);
+    }
+
     @Override
     public void turnRightAngle(double angle) {
+        rotationOff = false;
         for (int i = 0; i < angle; i++) {
-            if(rotationOff) {
+            if (rotationOff) {
                 break;
             }
             this.angle++;
@@ -220,8 +232,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public void turnLeftAngle(double angle) {
+        rotationOff = false;
         for (int i = 0; i < angle; i++) {
-            if(rotationOff) {
+            if (rotationOff) {
                 break;
             }
             this.angle--;

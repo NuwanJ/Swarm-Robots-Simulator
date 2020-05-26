@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import robot.Robot;
 import configs.Settings;
 import helper.Utility;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import view.Simulator;
 
 /**
@@ -32,8 +34,7 @@ public class IRSensor extends Arc2D.Double {
     private Shape transformedShape;
     private double angle;
     private int id;
-
-    private final Color SHARP_COLOR = new Color(255, 223, 163);
+    private boolean listening = false;
 
     public IRSensor(int id, Robot robot, double angle) {
         super(Arc2D.PIE);
@@ -82,51 +83,6 @@ public class IRSensor extends Arc2D.Double {
         transformedShape = at.createTransformedShape(this);
         g2d.fill(transformedShape);
 
-        for (Robot r : Simulator.field.getRobots()) {
-
-            if (r == robot) {
-                continue;
-            }
-
-            ArrayList<IRSensor> irSensors = r.getiRSensors();
-
-            for (IRSensor irSensor : irSensors) {
-
-                Area areaShape = new Area(transformedShape);
-
-                Shape robotShape = irSensor.getTransformedShape();
-                if (robotShape == null) {
-                    continue;
-                }
-                Area areaRobot = new Area(robotShape);
-                areaShape.intersect(areaRobot);
-
-                if (!areaShape.isEmpty()) {
-
-                    if (Settings.VISIBLE_IR_INTERSECTION) {
-                        g2d.setColor(Color.yellow);
-                        g2d.draw(areaShape);
-                    }
-
-                    // get the broadcasting message from other robot
-                    Message msg = irSensor.getBroadcastMsg();
-
-                    //if (recieveMsg == null || recieveMsg.getType() != msg.getType()) {
-                        recieveMsg = msg;
-                    //}
-
-                    if (recieveMsg != null) {
-                        bearing = Utility.getSlope(robot.getCenterX(),
-                                robot.getCenterY(), r.getCenterX(), r.getCenterY());
-                        robot.processMessage(msg, id, bearing);
-                        
-                    }
-                } else {
-                    recieveMsg = null;
-                }
-            }
-
-        }
         g2d.dispose();
 
     }
@@ -154,5 +110,71 @@ public class IRSensor extends Arc2D.Double {
     public void setBroadcastMsg(Message broadcastMsg) {
         this.broadcastMsg = broadcastMsg;
     }
+
+    public void setListening(boolean value) {
+        listening = value;
+        if (value) {
+            IRSensorThread thread = new IRSensorThread();
+            thread.start();
+        }
+    }
+
+    // msg receiving thread
+    private class IRSensorThread extends Thread {
+
+        @Override
+        public void run() {
+            while (listening) {
+
+                for (Robot r : Simulator.field.getRobots()) {
+
+                    if (r == robot) {
+                        continue;
+                    }
+
+                    ArrayList<IRSensor> irSensors = r.getiRSensors();
+
+                    for (IRSensor irSensor : irSensors) {
+
+                        Area areaShape = new Area(transformedShape);
+
+                        Shape robotShape = irSensor.getTransformedShape();
+                        if (robotShape == null) {
+                            continue;
+                        }
+                        Area areaRobot = new Area(robotShape);
+                        areaShape.intersect(areaRobot);
+
+                        if (!areaShape.isEmpty()) {
+
+                            // get the broadcasting message from other robot
+                            Message msg = irSensor.getBroadcastMsg();
+
+                            //if (recieveMsg == null || recieveMsg.getType() != msg.getType()) {
+                            recieveMsg = msg;
+                            //}
+
+                            if (recieveMsg != null) {
+                                bearing = Utility.calculateBearing(robot, r);
+                                robot.processMessage(msg, id, bearing);
+
+                            }
+                        } else {
+                            recieveMsg = null;
+                        }
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(IRSensor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+    }
+    // end thread
 
 }

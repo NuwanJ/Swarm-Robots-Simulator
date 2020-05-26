@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import robot.Robot;
 import configs.Settings;
 import helper.Utility;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import view.Boundary;
 import view.Obstacle;
 import view.Simulator;
@@ -29,8 +31,9 @@ public class SharpSensor extends Arc2D.Double {
 
     private final Robot robot;
     private double distance;
-
+    private Shape createTransformedShape;
     private Color color;
+    private boolean listening = false;
 
     private final Color SHARP_COLOR = new Color(255, 223, 163);
 
@@ -51,7 +54,6 @@ public class SharpSensor extends Arc2D.Double {
         setAngleStart(360 + 90 - Settings.SHARP_MAX_RANGE);
         setAngleExtent(2 * Settings.SHARP_MAX_RANGE);
 
-        distance = 0;
     }
 
     public void draw(Graphics2D gd) {
@@ -69,73 +71,9 @@ public class SharpSensor extends Arc2D.Double {
         AffineTransform at = new AffineTransform();
         at.rotate(Math.toRadians(robot.getAngle()), robot.getCenterX(), robot.getCenterY());
 
-        Shape createTransformedShape = at.createTransformedShape(this);
+        createTransformedShape = at.createTransformedShape(this);
         g2d.fill(createTransformedShape);
 
-        Boundary boundary = Simulator.field.getBoundary();
-
-        boolean hit = false;
-        for (Rectangle2D.Double line : boundary.getBorders()) {
-
-            Area areaShape = new Area(createTransformedShape);
-            Area areaLine = new Area(line);
-            areaShape.intersect(areaLine);
-
-            if (!areaShape.isEmpty()) {
-                distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
-                hit = true;
-                break;
-            } else {
-                distance = 0;
-            }
-        }
-
-        if (!hit) {
-
-            ArrayList<Obstacle> obstacles = Simulator.field.getObstacles();
-
-            for (Obstacle obstacle : obstacles) {
-                Area areaShape = new Area(createTransformedShape);
-                Area areaRobot = new Area(obstacle.getBounds2D());
-                areaShape.intersect(areaRobot);
-
-                if (!areaShape.isEmpty()) {
-                    distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
-                    color = obstacle.getColor();
-
-                    hit = true;
-                } else {
-                    distance = 0;
-                    color = Color.WHITE;
-
-                }
-            }
-
-        }
-
-        if (!hit) {
-            for (Robot r : Simulator.field.getRobots()) {
-
-                if (r == robot) {
-                    continue;
-                }
-
-                Area areaShape = new Area(createTransformedShape);
-                Area areaRobot = new Area(r.getBounds2D());
-                areaShape.intersect(areaRobot);
-
-                if (!areaShape.isEmpty()) {
-                    distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
-                    color = Color.green;
-                    //System.out.println("in");
-                    break;
-                } else {
-                    distance = 0;
-                    color = Color.green;
-                }
-            }
-        }
-        //g2d.setColor(color1);
         g2d.dispose();
 
     }
@@ -167,6 +105,95 @@ public class SharpSensor extends Arc2D.Double {
 
     public Color readColor() {
         return color;
+    }
+
+    public void setListening(boolean value) {
+        listening = value;
+        if (value) {
+            SharpListeningThread thread = new SharpListeningThread();
+            thread.start();
+        }
+    }
+
+    private class SharpListeningThread extends Thread {
+
+        @Override
+        public void run() {
+
+            while (listening) {
+
+                Boundary boundary = Simulator.field.getBoundary();
+
+                boolean hit = false;
+                for (Rectangle2D.Double line : boundary.getBorders()) {
+
+                    Area areaShape = new Area(createTransformedShape);
+                    Area areaLine = new Area(line);
+                    areaShape.intersect(areaLine);
+
+                    if (!areaShape.isEmpty()) {
+                        distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                        hit = true;
+                        break;
+                    } else {
+                        distance = 0;
+                    }
+                }
+
+                if (!hit) {
+
+                    ArrayList<Obstacle> obstacles = Simulator.field.getObstacles();
+
+                    for (Obstacle obstacle : obstacles) {
+                        Area areaShape = new Area(createTransformedShape);
+                        Area areaRobot = new Area(obstacle.getBounds2D());
+                        areaShape.intersect(areaRobot);
+
+                        if (!areaShape.isEmpty()) {
+                            distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                            color = obstacle.getColor();
+
+                            hit = true;
+                        } else {
+                            distance = 0;
+                            color = Color.WHITE;
+
+                        }
+                    }
+
+                }
+
+                if (!hit) {
+                    for (Robot r : Simulator.field.getRobots()) {
+
+                        if (r == robot) {
+                            continue;
+                        }
+
+                        Area areaShape = new Area(createTransformedShape);
+                        Area areaRobot = new Area(r.getBounds2D());
+                        areaShape.intersect(areaRobot);
+
+                        if (!areaShape.isEmpty()) {
+                            distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                            color = Color.green;
+                            break;
+                        } else {
+                            distance = 0;
+                            color = Color.green;
+                        }
+                    }
+                }
+
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(IRSensor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        }
+
     }
 
 }

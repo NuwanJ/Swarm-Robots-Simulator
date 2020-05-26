@@ -17,13 +17,12 @@ public class Test {
             @Override
             public void create() {
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 1; i++) {
+
                     join(new Robot() {
 
-                        boolean done = false;
-
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
+                        public synchronized void processMessage(Message message, int sensorId, double b) {
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();
@@ -31,11 +30,7 @@ public class Test {
 
                             switch (type) {
                                 case ComeCloser:
-                                    done = true;
-                                    moveStop();
-                                    //angularTurn(bearing);
-                                    //turnRightAngle(90);
-                                    rotationStop();
+
                                     break;
                                 case PulseFeedback:
 
@@ -48,16 +43,9 @@ public class Test {
                         @Override
                         public void loop() {
 
-                            // first robot send come closer msg 
-                            if (getId() == 0) {
-                                Message comeCloser = new Message(MessageType.ComeCloser, this);
-                                //broadcastMessage(comeCloser);
-                            } else {
-                                if (!done) {
-                                    moveRandom();
-                                    avoidObstacles();
-                                }
-                            }
+                            moveRandom();
+                            avoidObstacles();
+
                         }
 
                     });

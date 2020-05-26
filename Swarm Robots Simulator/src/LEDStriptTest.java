@@ -25,15 +25,14 @@ public class LEDStriptTest {
                         @Override
                         public void loop() {
                             
-      
+                            moveRandom();
+                            avoidObstacles();
                             double d = findDistance();
                             //System.out.println(getId() + " - " + d);
 //                            
                             if(d > 0 && d < 55) {
                                 swithOnLedStript(Color.yellow);
                             }
-                            
-                            console.log("Angle " + angle);
                         }
 
                     });

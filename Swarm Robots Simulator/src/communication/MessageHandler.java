@@ -44,7 +44,7 @@ public class MessageHandler {
 
     public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize, HashMap<Integer, Boolean> clusterMembers) {
         for (Map.Entry member : clusterMembers.entrySet()) {
-            robot.console.log(String.format("Sending Cluster Update Message for member:{%d} in cluster: (%d)", member.getKey(), clusterId));
+            robot.console.log(String.format("Sending Cluster Update Msg for member:{%d} in cluster:(%d)", member.getKey(), clusterId));
             Message clusterUpdateMsg = new Message(MessageType.Update, robot);
             clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize, (int) member.getKey()));
             robot.broadcastMessage(clusterUpdateMsg);
@@ -60,7 +60,7 @@ public class MessageHandler {
     }
 
     public static void sendInfoMsg(Robot robot, int receiver, int clusterId, int clusterSize) {
-        robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
+        //robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
         Message infoMsg = new Message(MessageType.Info, robot);
         infoMsg.setData(new InfoData(receiver, clusterId, clusterSize));
         robot.broadcastMessage(infoMsg);
