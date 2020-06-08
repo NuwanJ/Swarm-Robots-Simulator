@@ -13,16 +13,16 @@ import communication.Data;
  */
 
 public class JoinPatternRequest implements Data {
-    private int joiningId;
+    private int parentLabel;
     private double currentHeading;
 
-    public JoinPatternRequest(int joiningId, double currentHeading) {
-        this.joiningId = joiningId;
+    public JoinPatternRequest(int parentPatternLable, double currentHeading) {
+        this.parentLabel = parentPatternLable;
         this.currentHeading = currentHeading;
     }
 
-    public int getJoiningId() {
-        return this.joiningId;
+    public int getParentLabel() {
+        return this.parentLabel;
     }
     
     public double getCurrentHeading() {

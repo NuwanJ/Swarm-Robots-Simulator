@@ -31,56 +31,69 @@ public class PatternFormation {
                 join(new Robot(500, 300, 0, true) {
                     HashMap<Integer, Double> childMap = new HashMap<Integer, Double>();
                     PatternTable table = new PatternTable();
-     
-                    
-                    public int patternPositionId;
-                    public int nextJoinId;
+
+                    public int myPatternPositionLabel = -1;
+                    public int nextPatternLabel = -1;
                     public int joiningRobotId = -1;
-                    
+
                     double distance = 15;
 
                     @Override
                     public synchronized void processMessage(Message message, int senderId, double bearing) {
-                        Robot sender = message.getSender();
+
                         if (getCurrentState() == Robot.State.JOINED) {
                             if (message.getType() == MessageType.JoinPatternRequest) {
-                                int joiningId = ((JoinPatternRequest) message.getData()).getJoiningId();
-                                boolean response = table.checkJoinValidity(getId(), joiningId);
-                                if (response) {
-                                    double targetBearing = table.getTargetBearingFromParent(joiningId);
-                                    double targetDistance = table.getTargetDistanceFromParent(joiningId);
+                                int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
+
+                                console.log(String.format("Join Pattern request received from %d",
+                                         message.getSender().getId()));
+
+                                if (parentLabel == myPatternPositionLabel) {
+                                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel);
+                                    double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
 
                                     console.log(String.format("Target Bearing %f and Distance %f for joining id "
-                                            + "%d", targetBearing, targetDistance, joiningId));
-                                    boolean joinFeasibility = joinFeasibility = Utility.checkJoinFeasibility(childMap,
-                                            targetBearing, bearing);
+                                            + "%d", targetBearing, targetDistance, nextPatternLabel));
+
+                                    //check for any obstacles in positioning the robot
+                                    boolean joinFeasibility = true; //joinFeasibility = Utility.checkJoinFeasibility(childMap,
+                                    //bearing, targetBearing);
                                     if (joinFeasibility) {
+                                        Robot sender = message.getSender();
                                         joiningRobotId = sender.getId();
 
-                                        MessageHandler.sendJoinPatternResponseMsg(sender, nextJoinId);
+                                        console.log(String.format("Sending join response to %d",sender.getId()));
+                                        MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
                                         //transition to Joined busy state
                                         setCurrentState(Robot.State.NAVIGATING);
                                     }
-
-                                    //This is done to clear the message buffer 
-                                    //can be removed in the real implementation 
-                                    clearMessageBufferOut();
                                 }
-                            }else if(message.getType() == MessageType.PositionAcquired){
-                                nextJoinId++;
-                                joiningRobotId = -1;
-                                
+                                //This is done to clear the message buffer 
+                                //can be removed in the real implementation 
+                                clearMessageBufferOut();
+
                             }
                         } else if (getCurrentState() == Robot.State.NAVIGATING) {
+                            Robot sender = message.getSender();
+                            console.log(String.format("Received %s from %d",message.getType(),sender.getId()));
                             if (sender.getId() == joiningRobotId && message.getType() == MessageType.PositionDataReq) {
-                                if (bearing != table.getTargetBearingFromParent(joiningId)
-                                        && distance != table.getTargetBearingFromParent(joiningId)) {
+                                double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                        - Settings.BEARING_ERROR_THRESHOLD;
+                                double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                        + Settings.BEARING_ERROR_THRESHOLD;
+                                double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                        - Settings.DISTANCE_ERROR_THRESHOLD;
+                                double distance_upper_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                        + Settings.DISTANCE_ERROR_THRESHOLD;
+                                if (bearing <= bearing_upper_bound && bearing >= bearing_lower_bound
+                                        && distance <= distance_upper_bound && distance >= distance_lower_bound) {
                                     PositionData data = Utility.calculateTargetPosition(table,
-                                            joiningId, bearing, distance);
-                                    MessageHandler.sendPositionData();
-                                }else if(bearing != table.getTargetBearingFromParent(joiningId)
-                                        && distance != table.getTargetBearingFromParent(joiningId)){
-                                    MessageHandler.sendPositionAcquiredMsg();
+                                            bearing, distance, nextPatternLabel);
+                                    MessageHandler.sendPositionDataMsg(this, sender, data);
+                                } else {
+                                    nextPatternLabel++;
+                                    joiningRobotId = -1;
+                                    MessageHandler.sendPositionAcquiredMsg(this, nextPatternLabel - 1);
                                 }
 
                             }
@@ -93,12 +106,12 @@ public class PatternFormation {
                     public void loop() {
                         if (getCurrentState() == Robot.State.JOINED) {
                             currentHeading = angle;
-                            nextJoinId = 1;
-                            patternPositionId = 0;
-                            console.log(String.format("Sending Message from %d", this.getId()));
-                            MessageHandler.sendJoinBroadcastMsg(this);
-                        } else if (getCurrentState() == Robot.State.JOINEDBUSY) {
-                            MessageHandler.sendPulseMessage(this);
+                            nextPatternLabel = 1;
+                            myPatternPositionLabel = 0;
+                            console.log(String.format("Sending JoinBroadcast Message from %d", this.getId()));
+                            MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
+                        } else if (getCurrentState() == Robot.State.NAVIGATING) {
+
                         }
                     }
                 }
@@ -108,75 +121,121 @@ public class PatternFormation {
                     join(new Robot(10, 10) {
                         HashMap<Integer, Ellipse2D.Double> childMap = new HashMap<Integer, Ellipse2D.Double>();
                         PatternTable table = new PatternTable();
-                        boolean joinFeasibility = true;
-                        boolean response = false;
+
+                        public int myPatternPositionLabel = -1;
+                        public int nextPatternLabel = -1;
+                        public int joiningRobotId = -1;
+
                         double distance = 15;
-                        public int patternPositionId;
-                        public int nextJoinId;
 
                         @Override
                         public synchronized void processMessage(Message message, int sensorId, double bearing) {
-                            if (getCurrentState() == State.JOINED) {
+
+                            if (getCurrentState() == Robot.State.JOINED) {
                                 if (message.getType() == MessageType.JoinPatternRequest) {
+                                    int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
 
-                                    setCurrentState(State.JOINEDBUSY);
+                                    if (parentLabel == myPatternPositionLabel) {
+                                        double targetBearing = table.getTargetBearingFromParent(nextPatternLabel);
+                                        double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
+
+                                        console.log(String.format("Target Bearing %f and Distance %f for joining id "
+                                                + "%d", targetBearing, targetDistance, nextPatternLabel));
+
+                                        //check for any obstacles in positioning the robot
+                                        boolean joinFeasibility = true; //joinFeasibility = Utility.checkJoinFeasibility(childMap,
+                                        //bearing, targetBearing);
+                                        if (joinFeasibility) {
+                                            Robot sender = message.getSender();
+                                            joiningRobotId = sender.getId();
+
+                                            MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
+                                            //transition to Joined busy state
+                                            setCurrentState(Robot.State.NAVIGATING);
+                                        }
+                                    }
+                                    //This is done to clear the message buffer 
+                                    //can be removed in the real implementation 
+                                    clearMessageBufferOut();
+
                                 }
-                                setCurrentState(State.POSITIONING);
-                            } else if (getCurrentState() == State.JOINEDBUSY) {
+                            } else if (getCurrentState() == Robot.State.NAVIGATING) {
+                                Robot sender = message.getReceiver();
+                                if (sender.getId() == joiningRobotId && message.getType() == MessageType.PositionDataReq) {
+                                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                            - Settings.BEARING_ERROR_THRESHOLD;
+                                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                            + Settings.BEARING_ERROR_THRESHOLD;
+                                    double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                            - Settings.DISTANCE_ERROR_THRESHOLD;
+                                    double distance_upper_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                            + Settings.DISTANCE_ERROR_THRESHOLD;
 
-                            } else if (getCurrentState() == State.POSITIONING) {
+                                    if (bearing <= bearing_upper_bound && bearing >= bearing_lower_bound
+                                            && distance <= distance_upper_bound && distance >= distance_lower_bound) {
+                                        PositionData data = Utility.calculateTargetPosition(table,
+                                                bearing, distance, nextPatternLabel);
+                                        MessageHandler.sendPositionDataMsg(this, sender, data);
+                                    } else {
+                                        nextPatternLabel++;
+                                        joiningRobotId = -1;
+                                        MessageHandler.sendPositionAcquiredMsg(this, nextPatternLabel - 1);
+                                    }
 
+                                }
                             } else if (getCurrentState() == State.FREE) {
                                 if (message.getType() == MessageType.JoinPattern) {
-                                    nextJoinId = ((JoinPattern) message.getData()).getNextJoinId();
-                                    setCurrentState(State.REQUESTING);
-                                    MessageHandler.sendJoinPatternReqMsg(this);
-                                }
-                            } else if (getCurrentState() == State.REQUESTING) {
-                                if (message.getType() == MessageType.JoinPatternReqAck) {
-                                    //getparents
+                                    nextPatternLabel = ((JoinPattern) message.getData()).getNextPatternLabel();
+                                    int senderPatternLabel = ((JoinPattern) message.getData()).getMyPatternLabel();
+
+                                    //check whether the sender is the parent for the requested joining Label
+                                    boolean response = table.checkJoinValidity(senderPatternLabel, nextPatternLabel);
+
+                                    if (response) {
+                                        MessageHandler.sendJoinPatternReqMsg(this, senderPatternLabel);
+                                        setCurrentState(State.REQUESTING);
+                                    } else {
+                                        setCurrentState(State.ESCAPE);
+                                    }
 
                                 }
-                                /*
-                                response = requestJoin();
-                                if (response == "ok") {
-                                    positionRobot();
-                                    addjoinIdtoList();
-                                    broadcastList();
-                                    transitionToJoined();
-                                }*/
+                            } else if (getCurrentState() == State.REQUESTING) {
+                                if (message.getType() == MessageType.JoinPatternResponse) {
+                                    if (message.getReceiver().getId() == this.getId()) {
+                                        setCurrentState(State.JOININGPATTERN);
+                                        MessageHandler.sendPositionDataReqMsg(this);
+                                    }
+                                }
+                            } else if (getCurrentState() == State.ESCAPE) {
+                                angle = Math.abs(180 - angle);
+                                moveForwardDistance(Settings.IR_MAX_DISTANCE);
+                            } else if (getCurrentState() == State.JOININGPATTERN) {
+                                if (message.getType() == MessageType.PositionData
+                                        && message.getReceiver().getId() == this.getId()) {
+                                    PositionData data = (PositionData) message.getData();
+                                    angle = data.getTargetBearing();
+                                    moveForwardDistance((int) data.getTargetDistance());
+                                }
                             }
 
                         }
 
                         @Override
                         public void loop() {
-                            if (getCurrentState() == State.JOINED) {
-                                MessageHandler.sendJoinBroadcastMsg(this);
-                                //informRelevantParents();
-                            } else if (getCurrentState() == State.JOINEDBUSY) {
+                            if (getCurrentState() == Robot.State.JOINED) {
+                                currentHeading = angle;
+                                nextPatternLabel = 1;
+                                myPatternPositionLabel = 0;
+                                console.log(String.format("Sending JoinBroadcast Message from %d", this.getId()));
+                                MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
+                            } else if (getCurrentState() == State.NAVIGATING) {
 
                             } else if (getCurrentState() == State.REQUESTING) {
                                 moveStop();
-                                /*
-                                if
-                                response = requestJoin();
-                                if (response == "ok") {
-                                    positionRobot();
-                                    addjoinIdtoList();
-                                    broadcastList();
-                                    transitionToJoined();
-                                }*/
                             } else if (getCurrentState() == State.FREE) {
                                 moveRandom();
                                 avoidObstacles();
-                                if (this.getId() == 1) {
-                                    swithOnLedStript(Color.yellow);
-                                }
-                                if (this.getId() == 2) {
-                                    swithOnLedStript(Color.green);
-                                }
-                            } else if (getCurrentState() == State.POSITIONING) {
+                            } else if (getCurrentState() == State.JOININGPATTERN) {
                                 //positionToRelativeLocation(bearing, distance);
                             }
                         }

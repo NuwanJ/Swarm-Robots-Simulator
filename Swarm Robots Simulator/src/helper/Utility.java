@@ -168,27 +168,31 @@ public class Utility {
 
     //---------------------------------pattern formation functions------------------------------------------------------------
     public static PositionData calculateTargetPosition(PatternTable patternTable,
-            double bearing, double distance, int joiningId) {
-        double targetDistanceFromParent = patternTable.getTargetDistanceFromParent(joiningId);
-        double targetBearingFromParent = patternTable.getTargetBearingFromParent(joiningId);
+            double bearing, double distance, int joiningLabel) {
+       
+        double targetBearingFromParent = patternTable.getTargetBearingFromParent(joiningLabel);
         
-        getPerpendicDistToNavPath(joiningId, bearing, distance);
+        //patternTable.getPerpendicDistToNavPath(joiningLabel, bearing, distance);
+        double targetDistance = patternTable.getTargetDistance(joiningLabel, bearing, distance);
         
+        /*
         double distanceFromParentToNavPath = 
         if () {
             double targetOrientation = 
         }
-        
-        return new PositionData(targetBearingFromParent, targetDistanceFromParent, joiningId);
+        */
+        return new PositionData(targetBearingFromParent, targetDistance);
     }
-
+/*
     public static boolean checkJoinFeasibility(HashMap childrenMap,
-            double currBearing, double trgBearing) {
+                                        double currBearing, double trgBearing) {
         boolean status = true;
         Iterator it = childrenMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry data = (Map.Entry) it.next();
             double bearing = (Double) data.getValue();
+            double bearingDiff = Math.abs(trgBearing-currBearing);
+            double angle = min(trgBearing,360-bearingDiff);
             if (bearing >= currBearing && bearing <= trgBearing) {
                 status = false;
             }
@@ -196,5 +200,5 @@ public class Utility {
         }
         return status;
     }
-
+*/
 }

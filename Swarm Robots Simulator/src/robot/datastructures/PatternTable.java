@@ -57,13 +57,13 @@ public class PatternTable implements Data {
          */
     }
 
-    public boolean checkJoinValidity(int myLabel, int requestedPatternLabel) {
+    public boolean checkJoinValidity(int parentLabel, int requestedPatternLabel) {
         boolean status = false;
 
         //Get the corresponding table row for the current robot
         TableRow row = patterntable.get(requestedPatternLabel);
         int parent = row.getParentLabel();
-        if (parent == myLabel) {
+        if (parent == parentLabel) {
             status = true;
         }
         return status;
@@ -80,11 +80,27 @@ public class PatternTable implements Data {
         TableRow row = patterntable.get(joinLabel);
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
-        double angle = Math.toDegrees(Math.atan2(y, x));
+
+        double angle = Math.toDegrees(Math.atan2(x, y));
+
         if (y < 0) {
             angle = angle + 180;
         }
         return angle;
+    }
+
+    public double getTargetDistance(int joinLabel, double bearing, double distance) {
+        TableRow row = patterntable.get(joinLabel);
+        double x = row.getXCoordinate();
+        double y = row.getYCoordinate();
+        double x_init = distance * Math.cos(Math.toRadians(bearing));
+        double y_init = distance * Math.sin(Math.toRadians(bearing));
+
+        double x_diff_squared = Math.pow(Math.abs(x_init - x), 2);
+        double y_diff_squared = Math.pow(Math.abs(y_init - y), 2);
+        double targetDistance = Math.sqrt(x_diff_squared + y_diff_squared);
+
+        return targetDistance;
     }
 
     public double getPerpendicDistToNavPath(int joinLabel, double bearing, double distance) {
@@ -93,12 +109,17 @@ public class PatternTable implements Data {
         double y = row.getYCoordinate();
         double x_init = distance * Math.cos(Math.toRadians(bearing));
         double y_init = distance * Math.sin(Math.toRadians(bearing));
-        
-        double midPointNavPath_x = (x_init + x)/2;
-        double midPointNavPath_y = (y_init + y)/2;
-        double distToNavPath = Math.sqrt(Math.pow(midPointNavPath_x, 2) + Math.pow(midPointNavPath_y, 2)); 
-        
+
+        double midPointNavPath_x = (x_init + x) / 2;
+        double midPointNavPath_y = (y_init + y) / 2;
+        double distToNavPath = Math.sqrt(Math.pow(midPointNavPath_x, 2) + Math.pow(midPointNavPath_y, 2));
+
         return distToNavPath;
     }
-
+    
+    /*
+    public static void main(String[] args) {
+        System.out.println(Math.toDegrees(Math.atan2(10, 0)));
+    }
+*/
 }

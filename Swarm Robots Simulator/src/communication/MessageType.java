@@ -18,8 +18,8 @@ public enum MessageType {
     ColorExchange, Join,
     Pulse, PulseFeedback, Leave,
     Update, Info, JoinPattern,
-    JoinPatternRequest, JoinPatternReqAck,
-    JoinPatternResponse, PositionAcquired,
-    PositionPulse, Command
+    JoinPatternRequest,JoinPatternResponse, 
+    PositionDataReq,PositionAcquired,
+    PositionData, Command
     
 }

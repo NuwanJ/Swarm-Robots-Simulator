@@ -56,9 +56,10 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         //States for pattern formation
         JOINED,
         NAVIGATING,
-        POSITIONING,
+        JOININGPATTERN,
         REQUESTING,
-        FREE
+        FREE,
+        ESCAPE
     }
     
     private State currentState = State.FREE;
