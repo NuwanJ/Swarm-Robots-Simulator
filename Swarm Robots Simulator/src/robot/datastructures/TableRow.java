@@ -13,13 +13,13 @@ import java.util.Hashtable;
  */
 public class TableRow {
     private int parentLabel;
-    private Hashtable<String,Double> distanceFromParent;
+    private double xDistance;
+    private double yDistance;
     
     public TableRow(int parent, double x, double y){
         this.parentLabel = parent;
-        distanceFromParent = new Hashtable<String,Double>();
-        distanceFromParent.put("x", x);
-        distanceFromParent.put("y", y);
+        xDistance = x;
+        yDistance = y;
     }
     
     public int getParentLabel(){
@@ -27,11 +27,11 @@ public class TableRow {
     }
     
     public double getXCoordinate(){
-        return this.distanceFromParent.get("x");
+        return this.xDistance;
     }
     
     public double getYCoordinate(){
-        return this.distanceFromParent.get("y");
+        return this.yDistance;
     }
 
 }

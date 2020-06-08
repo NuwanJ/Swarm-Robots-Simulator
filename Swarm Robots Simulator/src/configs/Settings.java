@@ -26,9 +26,9 @@ public class Settings {
     public final static int IR_MAX_DISTANCE = 60;
     public final static int IR_MAX_RANGE = 20;
     
-    public final static boolean VISIBLE_SHARP = true;
-    public final static boolean VISIBLE_IR = true;
+    public final static boolean VISIBLE_SHARP = false;
+    public final static boolean VISIBLE_IR = false;
     
-    public final static boolean CONSOLE_LOGGER = true;
+    public final static boolean CONSOLE_LOGGER = false;
     
 }

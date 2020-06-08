@@ -26,6 +26,7 @@ import robot.behaviors.SupportiveFunctions;
 import robot.console.Console;
 import robot.sensors.SharpSensor;
 import helper.Utility;
+import robot.datastructures.PatternTable;
 import view.Field;
 
 /**
@@ -54,17 +55,17 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         AGGREGATE,
         //States for pattern formation
         JOINED,
-        JOINEDBUSY,
+        NAVIGATING,
         POSITIONING,
         REQUESTING,
         FREE
     }
     
     private State currentState = State.FREE;
-    public int patternPositionId;
-    public int nextJoinId;
     public  double currentHeading;
     public boolean isLeader;
+
+    
     
     public boolean rotationOff = false;
 
@@ -161,6 +162,13 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     public void swithOnLedStript(Color ledColor) {
         this.ledColor = ledColor;
+        /*
+        try{
+            Thread.sleep(500);
+        }catch(Exception e){
+            
+        }
+        */
     }
 
     public void swithOffLedStript() {
@@ -183,14 +191,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     
     public void setCurrentState(State state) {
         this.currentState = state;
-    }
-    
-    public void setPatternPositionLabel(int label){
-        this.patternPositionId = label;
-    }
-    
-    public void setNextJoinId(int id){
-        this.nextJoinId = id;
     }
     
     public void setCurrentHeading(double heading){
@@ -444,12 +444,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public void rotateToRobot() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public PositionData calculateTargetPosition(int receivedIrSensorId){
-        
-        return new PositionData();
     }
 
     private void moveRobot() {
