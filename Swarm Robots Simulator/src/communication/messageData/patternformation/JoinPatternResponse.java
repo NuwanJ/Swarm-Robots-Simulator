@@ -4,11 +4,21 @@
  * and open the template in the editor.
  */
 package communication.messageData.patternformation;
+import communication.Data;
 
 /**
  *
- * @author mster
+ * @author Mahendra
  */
-public class JoinPatternResponse {
-    
+public class JoinPatternResponse implements Data{
+
+    private boolean response;
+
+    public JoinPatternResponse(boolean status) {
+        this.response = status;
+    }
+
+    public boolean getResponse() {
+        return this.response;
+    }
 }

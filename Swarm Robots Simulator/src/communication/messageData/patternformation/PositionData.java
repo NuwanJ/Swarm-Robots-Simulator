@@ -4,11 +4,26 @@
  * and open the template in the editor.
  */
 package communication.messageData.patternformation;
-
+import communication.Data;
 /**
  *
- * @author mster
+ * @author Mahendra
  */
-public class PositionData {
-    
+public class PositionData implements Data{
+
+    private double targetBearing;
+    private double targetDistance;
+
+    public PositionData(double bearing, double distance) {
+        this.targetBearing = bearing;
+        this.targetDistance = distance;
+    }
+
+    public double getTargetBearing() {
+        return this.targetBearing;
+    }
+
+    public double getTargetDistance() {
+        return targetDistance;
+    }
 }
