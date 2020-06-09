@@ -24,7 +24,15 @@ import view.Simulator;
 public class PatternFormation {
 
     public static void main(String[] args) {
+
+        // line points
+        Point[] points = new Point[]{
+            new Point(400, 300),
+            new Point(600, 300)
+        };
+
         Swarm swarm = new Swarm("Pattern-Formation") {
+
             @Override
             public void create() {
 

@@ -1,6 +1,7 @@
 
 import communication.Message;
 import communication.MessageType;
+import communication.messageData.general.DistanceData;
 import robot.Robot;
 import swarm.Swarm;
 import view.Simulator;
@@ -17,9 +18,11 @@ public class Test {
             @Override
             public void create() {
 
-                for (int i = 0; i < 1; i++) {
+                for (int i = 0; i < 6; i++) {
 
                     join(new Robot() {
+
+                        int state = 0;
 
                         @Override
                         public synchronized void processMessage(Message message, int sensorId, double b) {
@@ -30,7 +33,10 @@ public class Test {
 
                             switch (type) {
                                 case ComeCloser:
-
+                                    if (state == 0) {
+                                        moveStop();
+                                        state = 1;
+                                    }
                                     break;
                                 case PulseFeedback:
 
@@ -43,8 +49,17 @@ public class Test {
                         @Override
                         public void loop() {
 
-                            moveRandom();
-                            avoidObstacles();
+                            if (getId() == 0) {
+
+                                Message comeCloser = new Message(MessageType.ComeCloser, this);
+                                comeCloser.setData(new DistanceData(50));
+                                broadcastMessage(comeCloser);
+                            } else if (state == 0) {
+                                moveRandom();
+                                avoidObstacles();
+                            } else if(state == 1) {
+                                
+                            }
 
                         }
 

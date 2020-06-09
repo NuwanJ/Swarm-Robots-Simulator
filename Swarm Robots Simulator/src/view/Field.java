@@ -44,35 +44,37 @@ public class Field extends JPanel implements ActionListener, MouseListener {
         this.boundary = new Boundary(0, 0, Settings.FEILD_WIDTH - 17, Settings.FEILD_HEIGHT - 40);
 
         popupMenu = new JPopupMenu();
-        
+
         itemRun = new JMenuItem("Run");
         popupMenu.add(itemRun);
         itemExit = new JMenuItem("Exit");
         popupMenu.add(itemExit);
-        
+
         itemRun.setPreferredSize(new Dimension(100, 20));
-        
+
         itemRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               if(itemRun.getText().equalsIgnoreCase("Run")) {
+                if (itemRun.getText().equalsIgnoreCase("Run")) {
                     simulator.setRunning(true);
                     itemRun.setText("Stop");
-                } else if(itemRun.getText().equalsIgnoreCase("Stop")) {
+                } else if (itemRun.getText().equalsIgnoreCase("Stop")) {
                     simulator.setRunning(false);
                     itemRun.setText("Run");
                 }
             }
         });
-        
+
         itemExit.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-               System.exit(0);
+                System.exit(0);
             }
         });
         
+        setBackground(Settings.FIELD_COLOR);
+
     }
 
     public ArrayList<Obstacle> getObstacles() {
@@ -102,7 +104,7 @@ public class Field extends JPanel implements ActionListener, MouseListener {
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         boundary.draw(g2d);
-        
+
         for (Robot r : robots) {
             r.draw(g2d);
         }
@@ -136,7 +138,7 @@ public class Field extends JPanel implements ActionListener, MouseListener {
         start = System.currentTimeMillis();
         timer.start();
     }
-    
+
     public void stop() {
         timer.stop();
     }
@@ -152,7 +154,7 @@ public class Field extends JPanel implements ActionListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        
+
     }
 
     @Override
@@ -171,12 +173,12 @@ public class Field extends JPanel implements ActionListener, MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        
+
     }
 
 }

@@ -7,6 +7,7 @@
 package helper;
 
 import java.awt.AlphaComposite;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Random;
 import robot.Robot;
@@ -115,7 +116,44 @@ public class Utility {
 
         return bearing - orientation;
     }
+    
+    public static double calculateBearing(Robot from, Point p) {
+        
+        double slope = getSlope(from.getCenterX(), from.getCenterY(), 
+                p.getX(), p.getY());
+        
+        // robot orientation to north direction (in positive)
+        double orientation = 0;
+        
+        double angle = from.getAngle();
+        
+        if(angle > 0) {
+            orientation = angle % 360;
+        } else {
+            orientation = 360 - (Math.abs(angle) % 360);
+        }
+        
+        double bearing = 0;
+        
+        if(slope > 0) {
+            
+            if(p.getY() < from.getCenterY()) { // 2nd quadrant
+                bearing = 90 + slope + 180;
+            } else { // 4th quadrant
+                bearing = 90 + slope;
+            }
+        } else {
+            
+            if(p.getY() < from.getCenterY()) { // 1st quadrant
+                bearing = 90 - Math.abs(slope);
+            } else { // 3rd quadrant
+                bearing = 90 - Math.abs(slope) + 180;
+            }
+        }
 
+        return bearing - orientation;
+    }
+    
     //---------------------------------aggregation functions------------------------------------------------------------
     public static double getMax(double[] inputArray) {
         double pMax = inputArray[0];
