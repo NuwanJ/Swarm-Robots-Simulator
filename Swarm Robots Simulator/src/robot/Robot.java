@@ -426,14 +426,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     @Override
     public void comeCloser(double heading, int dist) {
 
-        if (heading > 0) {
-            angularTurn(heading);
-        } else if (heading > 0) {
-            angularTurn(3600 - heading);
-        }
-        moveForwardDistance(dist);
-        moveStop();
-
     }
 
     @Override

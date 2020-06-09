@@ -1,5 +1,7 @@
 package configs;
 
+import java.awt.Color;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -26,9 +28,11 @@ public class Settings {
     public final static int IR_MAX_DISTANCE = 60;
     public final static int IR_MAX_RANGE = 20;
     
-    public final static boolean VISIBLE_SHARP = true;
-    public final static boolean VISIBLE_IR = true;
+    public final static boolean VISIBLE_SHARP = false;
+    public final static boolean VISIBLE_IR = false;
     
     public final static boolean CONSOLE_LOGGER = true;
+    
+    public final static Color FIELD_COLOR = new Color(240, 240, 240);
     
 }

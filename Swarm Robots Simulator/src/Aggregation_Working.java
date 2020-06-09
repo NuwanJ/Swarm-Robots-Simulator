@@ -3,6 +3,7 @@ import communication.Message;
 import communication.MessageHandler;
 import communication.MessageType;
 import communication.messageData.aggregation.*;
+import communication.messageData.general.DistanceData;
 import configs.Settings;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class Aggregation_Working {
 
     public static void main(String[] args) {
 
-        double[][] pos = {{100, 100}, {300, 450}, {700, 100}};
+        double[][] pos = {{100, 100}, {350, 450}, {700, 100}, {550, 200}, {150, 400}};
 
         Swarm swarm = new Swarm("Testing..") {
 
@@ -201,9 +202,19 @@ public class Aggregation_Working {
                                         clusterSize = infoData.getClusterSize();
                                         clusterId = infoData.getClusterId();
                                         clusterMembers.put(sender.getId(), true);
-                                        //come closer                                        
+                                        //come closer
+//
+//                                        double distance = findDistance();
+//                                        if (distance > 50 || distance == 0) {
+//                                            angularTurn(bearing);
+//                                            moveForward();
+//                                        } else {
+//                                            moveStop();
+//                                        }
+                                        
                                         if (clusterSize == noOfRobots) {
                                             myState = Robot.State.AGGREGATE;
+
                                         } else if (myState == Robot.State.SEARCHING) {
                                             myState = Robot.State.INCLUSTER;
                                         }
@@ -342,6 +353,7 @@ public class Aggregation_Working {
                                             clusterMembers);
                                 }
                                 aggreeCounterFlag = false;
+
                             }
 
                         }
@@ -354,7 +366,7 @@ public class Aggregation_Working {
         };
 
         Simulator simulator = new Simulator(swarm);
-
+        
         simulator.start();
     }
 }
