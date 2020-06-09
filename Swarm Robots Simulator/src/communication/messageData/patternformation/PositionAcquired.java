@@ -4,11 +4,23 @@
  * and open the template in the editor.
  */
 package communication.messageData.patternformation;
+import communication.Data;
 
 /**
  *
  * @author mster
  */
-public class PositionAcquired {
-    
+
+public class PositionAcquired implements Data {
+
+    private int label;
+
+    public PositionAcquired(int label){
+        this.label = label;
+    }
+
+    public double getLabel() {
+        return this.label;
+    }
+
 }

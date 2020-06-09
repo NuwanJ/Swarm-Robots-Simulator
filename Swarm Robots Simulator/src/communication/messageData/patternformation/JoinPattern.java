@@ -11,20 +11,20 @@ import communication.Data;
  * @author Mahendra, Nadun, Tharuka
  */
 public class JoinPattern implements Data {
-    private int senderJoinedId;
-    private int nextJoinId;
+    private int myPatternLabel;
+    private int nextPatternLabel;
     
-    public JoinPattern(int senderJoinedId, int nextjoinId){
-        this.senderJoinedId = senderJoinedId;
-        this.nextJoinId = nextjoinId;
+    public JoinPattern(int myPatternLabel, int nextPatternLabel){
+        this.myPatternLabel = myPatternLabel;
+        this.nextPatternLabel = nextPatternLabel;
     }
     
-    public int getSenderId(){
-        return this.senderJoinedId;
+    public int getMyPatternLabel(){
+        return this.myPatternLabel;
     }
     
-    public int getNextJoinId(){
-        return this.nextJoinId;
+    public int getNextPatternLabel(){
+        return this.nextPatternLabel;
     }
     
 }

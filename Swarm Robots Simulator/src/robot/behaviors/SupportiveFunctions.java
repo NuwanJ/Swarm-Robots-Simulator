@@ -18,6 +18,4 @@ public interface SupportiveFunctions {
     
     public Color findColor();
     
-    public PositionData calculateTargetPosition(int receivedIrSensorId);
-    
 }

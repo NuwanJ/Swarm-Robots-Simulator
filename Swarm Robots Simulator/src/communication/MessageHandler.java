@@ -19,7 +19,7 @@ import robot.Robot;
  * @author Tharuka
  */
 public class MessageHandler {
-    
+
     private static final Logger LOGGER = Logger.getLogger(MessageHandler.class.getName());
 
     public static void sendPulseMsg(Robot robot, int clusterId) {
@@ -27,6 +27,11 @@ public class MessageHandler {
         Message pulse = new Message(MessageType.Pulse, robot);
         pulse.setData(new PulseData(clusterId));
         robot.broadcastMessage(pulse);
+    }
+
+    public static void sendMoveStopMsg(Robot sender, Robot receiver) {
+        Message command = new Message(MessageType.Command, sender, receiver);
+        sender.broadcastMessage(command);
     }
 
     public static void sendGoAwayMsg(Robot robot, int senderId) {
@@ -73,31 +78,41 @@ public class MessageHandler {
         pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), receiverId, 0.8, clusterSize));
         robot.broadcastMessage(pulseFBMsg);
     }
-    
-    public static void sendJoinBroadcastMsg(Robot robot){
+
+    public static void sendJoinBroadcastMsg(Robot robot, int myPatternLabel, int nextPatternLabel) {
         Message joinBroadcast = new Message(MessageType.JoinPattern, robot);
-        joinBroadcast.setData(new JoinPattern(robot.patternPositionId,robot.nextJoinId));
-        robot.broadcastMessage(joinBroadcast); 
+        joinBroadcast.setData(new JoinPattern(myPatternLabel, nextPatternLabel));
+        robot.broadcastMessage(joinBroadcast);
     }
-    
-    public static void sendJoinPatternReqMsg(Robot robot){
+
+    public static void sendJoinPatternReqMsg(Robot robot, int parentLabel) {
         Message join = new Message(MessageType.JoinPatternRequest, robot);
-        join.setData(new JoinPatternRequest(robot.getId(),robot.nextJoinId, robot.currentHeading));
-        robot.broadcastMessage(join); 
+        join.setData(new JoinPatternRequest(parentLabel, robot.currentHeading));
+        robot.console.log(String.format("Sending joinPatternReq Message from %d", robot.getId()));
+        robot.broadcastMessage(join);
     }
-    /*
-    public static void sendJoinPatternReqAckMsg(Robot robot){
-        Message joinAck = new Message(MessageType.JoinPatternReqAck, robot);
-        joinBroadcast.setData(new JoinPatternReqAck(robot.getPatternPosition(),robot.getNextJoinId()));
-        robot.broadcastMessage(joinBroadcast); 
+
+    public static void sendPositionDataMsg(Robot sender, Robot receiver, PositionData data) {
+        Message positionData = new Message(MessageType.PositionData, sender, receiver);
+        positionData.setData(data);
+        sender.broadcastMessage(positionData);
     }
-    */  
-    /*
-    public static void sendJoinPatternResMsg(Robot robot){
-        Message joinBroadcast = new Message(MessageType.JoinPatternResponse, robot);
-        joinBroadcast.setData(new JoinPatternResponse(robot.getPatternPosition(),robot.getNextJoinId()));
-        robot.broadcastMessage(joinBroadcast); 
+
+    public static void sendJoinPatternResMsg(Robot sender, Robot receiver, boolean status) {
+        Message joinResponse = new Message(MessageType.JoinPatternResponse, sender, receiver);
+        joinResponse.setData(new JoinPatternResponse(status));
+        sender.broadcastMessage(joinResponse);
     }
-    */
-    
+
+    public static void sendPositionDataReqMsg(Robot sender) {
+        Message positionReq = new Message(MessageType.PositionAcquired, sender);
+        sender.broadcastMessage(positionReq);
+    }
+
+    public static void sendPositionAcquiredMsg(Robot sender, int label) {
+        Message positionAcq = new Message(MessageType.PositionAcquired, sender);
+        positionAcq.setData(new PositionAcquired(label));
+        sender.broadcastMessage(positionAcq);
+    }
+
 }
