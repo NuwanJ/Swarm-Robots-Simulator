@@ -7,14 +7,13 @@
 package helper;
 
 import java.awt.AlphaComposite;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Random;
 import robot.Robot;
 import robot.datastructures.PatternTable;
 import communication.messageData.patternformation.PositionData;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import configs.Settings;
 
 /**
  *
@@ -68,6 +67,16 @@ public class Utility {
         }
         return RANDOM.nextInt((max - min) + 1) + min;
     }
+    
+    public static double calculateDistance(Robot from, Robot to) {
+
+        double centerDist = getDistance(from.getCenterX(), from.getCenterY(),
+                to.getCenterX(), to.getCenterY());
+        
+        double dist = centerDist - 2 * Settings.ROBOT_RADIUS;
+
+        return dist;
+    }
 
     public static double getSlope(double x1, double y1, double x2, double y2) {
 
@@ -115,7 +124,44 @@ public class Utility {
 
         return bearing - orientation;
     }
+    
+    public static double calculateBearing(Robot from, Point p) {
+        
+        double slope = getSlope(from.getCenterX(), from.getCenterY(), 
+                p.getX(), p.getY());
+        
+        // robot orientation to north direction (in positive)
+        double orientation = 0;
+        
+        double angle = from.getAngle();
+        
+        if(angle > 0) {
+            orientation = angle % 360;
+        } else {
+            orientation = 360 - (Math.abs(angle) % 360);
+        }
+        
+        double bearing = 0;
+        
+        if(slope > 0) {
+            
+            if(p.getY() < from.getCenterY()) { // 2nd quadrant
+                bearing = 90 + slope + 180;
+            } else { // 4th quadrant
+                bearing = 90 + slope;
+            }
+        } else {
+            
+            if(p.getY() < from.getCenterY()) { // 1st quadrant
+                bearing = 90 - Math.abs(slope);
+            } else { // 3rd quadrant
+                bearing = 90 - Math.abs(slope) + 180;
+            }
+        }
 
+        return bearing - orientation;
+    }
+    
     //---------------------------------aggregation functions------------------------------------------------------------
     public static double getMax(double[] inputArray) {
         double pMax = inputArray[0];

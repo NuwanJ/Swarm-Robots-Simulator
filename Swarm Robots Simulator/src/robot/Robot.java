@@ -4,7 +4,6 @@ import communication.Communication;
 import communication.Data;
 import communication.Message;
 import communication.MessageType;
-import communication.messageData.patternformation.PositionData;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -26,7 +25,6 @@ import robot.behaviors.SupportiveFunctions;
 import robot.console.Console;
 import robot.sensors.SharpSensor;
 import helper.Utility;
-import robot.datastructures.PatternTable;
 import view.Field;
 
 /**
@@ -47,8 +45,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public Console console;
 
     private int tempDist = 0;
-    
+
     public enum State {
+
         //States for aggregation
         SEARCHING,
         INCLUSTER,
@@ -61,26 +60,26 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         FREE,
         ESCAPE
     }
-    
+
     private State currentState = State.FREE;
-    public  double currentHeading;
+    public double currentHeading;
     public boolean isLeader;
 
-    
-    
     public boolean rotationOff = false;
 
     private Color ledColor;
 
     private static int nextId = 0;
 
-        public Robot(double x, double y, double angle) {
+    public Robot(double x, double y, double angle) {
 
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
 
-        if(isLeader) currentState = State.JOINED;
-        
+        if (isLeader) {
+            currentState = State.JOINED;
+        }
+
         try {
             image = ImageIO.read(new File("images/robo_icon.png"));
         } catch (IOException ex) {
@@ -103,19 +102,20 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
-       
 
 //        wheelThread = new Thread();
 //        wheelThread.start();
     }
-        
-    public Robot(double x, double y, double angle,boolean isLeader) {
+
+    public Robot(double x, double y, double angle, boolean isLeader) {
 
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
 
-        if(isLeader) currentState = State.JOINED;
-        
+        if (isLeader) {
+            currentState = State.JOINED;
+        }
+
         try {
             image = ImageIO.read(new File("images/robo_icon.png"));
         } catch (IOException ex) {
@@ -164,12 +164,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public void swithOnLedStript(Color ledColor) {
         this.ledColor = ledColor;
         /*
-        try{
-            Thread.sleep(500);
-        }catch(Exception e){
+         try{
+         Thread.sleep(500);
+         }catch(Exception e){
             
-        }
-        */
+         }
+         */
     }
 
     public void swithOffLedStript() {
@@ -187,17 +187,19 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     public int getId() {
         return id;
     }
-    
-    public State getCurrentState() {return this.currentState;}
-    
+
+    public State getCurrentState() {
+        return this.currentState;
+    }
+
     public void setCurrentState(State state) {
         this.currentState = state;
     }
-    
-    public void setCurrentHeading(double heading){
+
+    public void setCurrentHeading(double heading) {
         this.currentHeading = heading;
     }
-    
+
     public void draw(Graphics2D gd) {
 
         moveRobot();
@@ -369,15 +371,15 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         tempDist++;
 
-        if (tempDist > 100) {
+        if (tempDist > 150) {
             tempDist = 0;
             int randomAngle = Utility.randomInRange(-30, 30);
             moveStop();
             angularTurn(randomAngle);
         }
     }
-    
-    public void clearMessageBufferOut(){
+
+    public void clearMessageBufferOut() {
         for (IRSensor iRSensor : iRSensors) {
             iRSensor.setBroadcastMsg(null);
         }
@@ -421,19 +423,11 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     }
 
     @Override
-    public synchronized void processMessage(Message message, int sensorId, double bearing) {
+    public synchronized void processMessage(Message message, int sensorId, double bearing, double distance) {
     }
 
     @Override
     public void comeCloser(double heading, int dist) {
-
-        if (heading > 0) {
-            angularTurn(heading);
-        } else if (heading > 0) {
-            angularTurn(3600 - heading);
-        }
-        moveForwardDistance(dist);
-        moveStop();
 
     }
 

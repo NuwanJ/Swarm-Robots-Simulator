@@ -28,7 +28,8 @@ public class Example4_FindRedObject {
                         boolean done = false;
 
                         @Override
-                        public synchronized void processMessage(Message recieveMsg, int sensorId, double bearing) {
+                        public synchronized void processMessage(Message recieveMsg, int sensorId, 
+                                double bearing, double d) {
 
                             MessageType type = recieveMsg.getType();
 

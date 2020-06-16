@@ -23,3 +23,6 @@
 hs_err_pid*
 
 build/
+
+private.xml
+/Swarm Robots Simulator/dist/

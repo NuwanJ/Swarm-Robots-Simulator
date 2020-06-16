@@ -1,5 +1,7 @@
 package configs;
 
+import java.awt.Color;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -33,5 +35,7 @@ public class Settings {
     public final static boolean VISIBLE_IR = true;
     
     public final static boolean CONSOLE_LOGGER = true;
+    
+    public final static Color FIELD_COLOR = new Color(240, 240, 240);
     
 }

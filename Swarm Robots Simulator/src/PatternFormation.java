@@ -4,6 +4,7 @@ import communication.messageData.patternformation.*;
 import configs.Settings;
 import helper.Utility;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +25,15 @@ import view.Simulator;
 public class PatternFormation {
 
     public static void main(String[] args) {
+
+        // line points
+        Point[] points = new Point[]{
+            new Point(400, 300),
+            new Point(600, 300)
+        };
+
         Swarm swarm = new Swarm("Pattern-Formation") {
+
             @Override
             public void create() {
 
@@ -39,7 +48,7 @@ public class PatternFormation {
                     double distance = 15;
 
                     @Override
-                    public synchronized void processMessage(Message message, int senderId, double bearing) {
+                    public synchronized void processMessage(Message message, int senderId, double bearing, double d) {
 
                         if (getCurrentState() == Robot.State.JOINED) {
                             if (message.getType() == MessageType.JoinPatternRequest) {
@@ -142,9 +151,61 @@ public class PatternFormation {
                         double distance = 15;
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
-                            
-                            if (getCurrentState() == State.FREE) {
+                        public synchronized void processMessage(Message message, int sensorId, double bearing, double d) {
+
+                            if (getCurrentState() == Robot.State.JOINED) {
+                                if (message.getType() == MessageType.JoinPatternRequest) {
+                                    int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
+
+                                    if (parentLabel == myPatternPositionLabel) {
+                                        double targetBearing = table.getTargetBearingFromParent(nextPatternLabel);
+                                        double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
+
+                                        console.log(String.format("Target Bearing %f and Distance %f for joining id "
+                                                + "%d", targetBearing, targetDistance, nextPatternLabel));
+
+                                        //check for any obstacles in positioning the robot
+                                        boolean joinFeasibility = true; //joinFeasibility = Utility.checkJoinFeasibility(childMap,
+                                        //bearing, targetBearing);
+                                        if (joinFeasibility) {
+                                            Robot sender = message.getSender();
+                                            joiningRobotId = sender.getId();
+
+                                            MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
+                                            //transition to Joined busy state
+                                            setCurrentState(Robot.State.NAVIGATING);
+                                        }
+                                    }
+                                    //This is done to clear the message buffer 
+                                    //can be removed in the real implementation 
+                                    clearMessageBufferOut();
+
+                                }
+                            } else if (getCurrentState() == Robot.State.NAVIGATING) {
+                                Robot sender = message.getReceiver();
+                                if (sender.getId() == joiningRobotId && message.getType() == MessageType.PositionDataReq) {
+                                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                            - Settings.BEARING_ERROR_THRESHOLD;
+                                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                                            + Settings.BEARING_ERROR_THRESHOLD;
+                                    double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                            - Settings.DISTANCE_ERROR_THRESHOLD;
+                                    double distance_upper_bound = table.getTargetDistanceFromParent(nextPatternLabel)
+                                            + Settings.DISTANCE_ERROR_THRESHOLD;
+
+                                    if (bearing <= bearing_upper_bound && bearing >= bearing_lower_bound
+                                            && distance <= distance_upper_bound && distance >= distance_lower_bound) {
+                                        PositionData data = Utility.calculateTargetPosition(table,
+                                                bearing, distance, nextPatternLabel);
+                                        MessageHandler.sendPositionDataMsg(this, sender, data);
+                                    } else {
+                                        nextPatternLabel++;
+                                        joiningRobotId = -1;
+                                        MessageHandler.sendPositionAcquiredMsg(this, nextPatternLabel - 1);
+                                    }
+
+                                }
+                            } else if (getCurrentState() == State.FREE) {
                                 if (message.getType() == MessageType.JoinPattern) {
 
                                     console.log(String.format("Received JoinPattern message to %d", getId()));

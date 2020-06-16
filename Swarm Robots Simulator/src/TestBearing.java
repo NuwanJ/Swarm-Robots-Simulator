@@ -18,7 +18,7 @@ public class TestBearing {
             @Override
             public void create() {
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 4; i++) {
                     join(new Robot() {
 
                         int state = 0;
@@ -26,7 +26,7 @@ public class TestBearing {
                         int dist = 0;
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double b) {
+                        public synchronized void processMessage(Message message, int sensorId, double b, double d) {
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();
