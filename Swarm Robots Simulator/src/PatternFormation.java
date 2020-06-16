@@ -48,7 +48,7 @@ public class PatternFormation {
                     double distance = 15;
 
                     @Override
-                    public synchronized void processMessage(Message message, int senderId, double bearing) {
+                    public synchronized void processMessage(Message message, int senderId, double bearing, double d) {
 
                         if (getCurrentState() == Robot.State.JOINED) {
                             if (message.getType() == MessageType.JoinPatternRequest) {
@@ -138,7 +138,7 @@ public class PatternFormation {
                         double distance = 15;
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
+                        public synchronized void processMessage(Message message, int sensorId, double bearing, double d) {
 
                             if (getCurrentState() == Robot.State.JOINED) {
                                 if (message.getType() == MessageType.JoinPatternRequest) {
