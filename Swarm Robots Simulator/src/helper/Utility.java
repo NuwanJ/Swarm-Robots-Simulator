@@ -121,8 +121,14 @@ public class Utility {
                 bearing = 90 - Math.abs(slope) + 180;
             }
         }
+        
+        bearing -= orientation;
+        
+        if(bearing < 0) {
+            bearing = 360 - Math.abs(bearing);
+        }
 
-        return bearing - orientation;
+        return bearing;
     }
     
     public static double calculateBearing(Robot from, Point p) {
