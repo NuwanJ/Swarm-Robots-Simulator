@@ -11,8 +11,6 @@ package robot;
  * @author Nadun
  */
 public interface RobotBrain {
-   
-    //public void setup();
     
     public void loop();
     

@@ -77,8 +77,8 @@ public class SharpSensor extends Arc2D.Double {
         g2d.dispose();
 
     }
-
-    private double minDistanceFromSharpTo(Area area) {
+    
+    private double getMinDistanceTo(Area area) {
 
         double minDist = java.lang.Double.MAX_VALUE;
 
@@ -115,7 +115,7 @@ public class SharpSensor extends Arc2D.Double {
         }
     }
 
-    private class SharpListeningThread extends Thread {
+    class SharpListeningThread extends Thread {
 
         @Override
         public void run() {
@@ -132,7 +132,7 @@ public class SharpSensor extends Arc2D.Double {
                     areaShape.intersect(areaLine);
 
                     if (!areaShape.isEmpty()) {
-                        distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                        distance = getMinDistanceTo(areaShape) - Settings.ROBOT_RADIUS;
                         hit = true;
                         break;
                     } else {
@@ -150,7 +150,7 @@ public class SharpSensor extends Arc2D.Double {
                         areaShape.intersect(areaRobot);
 
                         if (!areaShape.isEmpty()) {
-                            distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                            distance = getMinDistanceTo(areaShape) - Settings.ROBOT_RADIUS;
                             color = obstacle.getColor();
 
                             hit = true;
@@ -175,7 +175,7 @@ public class SharpSensor extends Arc2D.Double {
                         areaShape.intersect(areaRobot);
 
                         if (!areaShape.isEmpty()) {
-                            distance = minDistanceFromSharpTo(areaShape) - Settings.ROBOT_RADIUS;
+                            distance = getMinDistanceTo(areaShape) - Settings.ROBOT_RADIUS;
                             color = Color.green;
                             break;
                         } else {

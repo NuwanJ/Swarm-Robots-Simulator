@@ -25,7 +25,7 @@ public class Test {
                         int state = 0;
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double b) {
+                        public synchronized void processMessage(Message message, int sensorId, double b, double d) {
 
                             Robot receiver = message.getReceiver();
                             Robot sender = message.getSender();
