@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import robot.Robot;
 import configs.Settings;
 import helper.Utility;
+import java.awt.geom.PathIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import view.Simulator;
@@ -156,7 +157,8 @@ public class IRSensor extends Arc2D.Double {
 
                             if (recieveMsg != null) {
                                 bearing = Utility.calculateBearing(robot, r);
-                                robot.processMessage(msg, id, bearing);
+                                double distance = Utility.calculateDistance(robot, r);
+                                robot.processMessage(msg, id, bearing, distance);
 
                             }
                         } else {
@@ -167,7 +169,7 @@ public class IRSensor extends Arc2D.Double {
                 }
 
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(5);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(IRSensor.class.getName()).log(Level.SEVERE, null, ex);
                 }

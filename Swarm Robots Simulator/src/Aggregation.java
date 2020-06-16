@@ -88,7 +88,8 @@ public class Aggregation {
                         }
 
                         @Override
-                        public synchronized void processMessage(Message message, int sensorId, double bearing) {
+                        public synchronized void processMessage(Message message, int sensorId, 
+                                double bearing, double d) {
                             //super.processMessage(message, sensorId);
 
                             Robot receiver = message.getReceiver();

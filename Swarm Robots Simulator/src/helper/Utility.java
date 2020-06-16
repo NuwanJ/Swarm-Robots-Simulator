@@ -13,9 +13,7 @@ import java.util.Random;
 import robot.Robot;
 import robot.datastructures.PatternTable;
 import communication.messageData.patternformation.PositionData;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import configs.Settings;
 
 /**
  *
@@ -68,6 +66,16 @@ public class Utility {
             throw new IllegalArgumentException("max must be greater than min");
         }
         return RANDOM.nextInt((max - min) + 1) + min;
+    }
+    
+    public static double calculateDistance(Robot from, Robot to) {
+
+        double centerDist = getDistance(from.getCenterX(), from.getCenterY(),
+                to.getCenterX(), to.getCenterY());
+        
+        double dist = centerDist - 2 * Settings.ROBOT_RADIUS;
+
+        return dist;
     }
 
     public static double getSlope(double x1, double y1, double x2, double y2) {
