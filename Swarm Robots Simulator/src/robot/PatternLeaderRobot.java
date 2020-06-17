@@ -31,14 +31,13 @@ public class PatternLeaderRobot extends Robot {
     public int nextPatternLabel = -1;
     public int joiningRobotId = -1;
 
-    double distance = 15;
-
     public PatternLeaderRobot(double x, double y) {
-        super(x, y, 0, true);
+        super(x, y, 0);
+        setCurrentState(State.JOINED);
     }
 
     @Override
-    public synchronized void processMessage(Message message, int senderId, double bearing) {
+    public synchronized void processMessage(Message message, int senderId, double bearing, double distance) {
 
         if (getCurrentState() == Robot.State.JOINED) {
             if (message.getType() == MessageType.JoinPatternRequest) {
@@ -52,7 +51,7 @@ public class PatternLeaderRobot extends Robot {
                 int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
 
                 if (parentLabel == myPatternPositionLabel) {
-                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel);
+                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel,getAngle());
                     double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
 
                     console.log(String.format("Target Bearing %f and Distance %f for joining id "
@@ -85,26 +84,33 @@ public class PatternLeaderRobot extends Robot {
 
                 if (sender.getId() == joiningRobotId) {
 
-                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
                             - Settings.BEARING_ERROR_THRESHOLD;
-                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
                             + Settings.BEARING_ERROR_THRESHOLD;
                     double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
                             - Settings.DISTANCE_ERROR_THRESHOLD;
                     double distance_upper_bound = table.getTargetDistanceFromParent(nextPatternLabel)
                             + Settings.DISTANCE_ERROR_THRESHOLD;
+                    
+                    //get the bearing as the angle measured clockwise from robot's heading
+                    /*
+                    if (bearing < 0) {
+                        bearing = 360 + bearing;
+                    }
+                    */
+                    if (bearing > bearing_upper_bound || bearing < bearing_lower_bound) {
+                        if (distance > distance_upper_bound || distance < distance_lower_bound) {
+                            PositionData data = Utility.calculateTargetPosition(table,
+                                    bearing, distance, nextPatternLabel,getAngle());
 
-                    if (bearing > bearing_upper_bound && bearing < bearing_lower_bound
-                            || distance > distance_upper_bound && distance < distance_lower_bound) {
-                        PositionData data = Utility.calculateTargetPosition(table,
-                                bearing, distance, nextPatternLabel);
+                            MessageHandler.sendPositionDataMsg(this, sender, data);
 
-                        MessageHandler.sendPositionDataMsg(this, sender, data);
-
-                    } else {
-                        nextPatternLabel++;
-                        joiningRobotId = -1;
-                        MessageHandler.sendPositionAcquiredMsg(this, sender, nextPatternLabel - 1);
+                        } else {
+                            nextPatternLabel++;
+                            joiningRobotId = -1;
+                            MessageHandler.sendPositionAcquiredMsg(this, sender, nextPatternLabel - 1);
+                        }
                     }
 
                 }

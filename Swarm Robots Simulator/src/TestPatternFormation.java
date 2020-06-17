@@ -14,7 +14,7 @@ import view.Simulator;
 
 /**
  *
- * @author mster
+ * @author Mahendra
  */
 public class TestPatternFormation {
 
@@ -26,7 +26,7 @@ public class TestPatternFormation {
                 join(new PatternLeaderRobot(500, 300));
 
                 for (int i = 0; i < 2; i++) {
-                    join(new PatternJoiningRobot(10, 10));
+                    join(new PatternJoiningRobot());
                 }
             }
         };

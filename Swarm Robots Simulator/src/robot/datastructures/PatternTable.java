@@ -7,6 +7,7 @@ package robot.datastructures;
 
 import communication.Data;
 import configs.Settings;
+import helper.Utility;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -76,12 +77,14 @@ public class PatternTable implements Data {
         return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
     }
 
-    public double getTargetBearingFromParent(int joinLabel) {
+    public double getTargetBearingFromParent(int joinLabel, double heading) {
         TableRow row = patterntable.get(joinLabel);
+
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
 
-        double angle = Math.toDegrees(Math.atan2(x, y));
+        double angle = Utility.calculateBearing(new Point(0.0, 0.0),
+                new Point(x, y), heading);
 
         if (y < 0) {
             angle = angle + 180;
@@ -91,35 +94,50 @@ public class PatternTable implements Data {
 
     public double getTargetDistance(int joinLabel, double bearing, double distance) {
         TableRow row = patterntable.get(joinLabel);
+
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
+
         double x_init = distance * Math.cos(Math.toRadians(bearing));
         double y_init = distance * Math.sin(Math.toRadians(bearing));
 
-        double x_diff_squared = Math.pow(Math.abs(x_init - x), 2);
-        double y_diff_squared = Math.pow(Math.abs(y_init - y), 2);
-        double targetDistance = Math.sqrt(x_diff_squared + y_diff_squared);
+        double targetDistance = Utility.distanceBetweenTwoPoints(new Point(x_init, y_init),
+                new Point(x, y));
 
         return targetDistance;
     }
 
+    public double getTargetBearing(int joinLabel, double bearing, double distance) {
+
+        double dist_y = getPerpendicDistToNavPath(joinLabel, bearing, distance);
+
+        double headingDeviation = Math.toDegrees(Math.asin(dist_y / distance));
+
+        return headingDeviation;
+    }
+
     public double getPerpendicDistToNavPath(int joinLabel, double bearing, double distance) {
         TableRow row = patterntable.get(joinLabel);
+
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
+
         double x_init = distance * Math.cos(Math.toRadians(bearing));
         double y_init = distance * Math.sin(Math.toRadians(bearing));
 
         double midPointNavPath_x = (x_init + x) / 2;
         double midPointNavPath_y = (y_init + y) / 2;
-        double distToNavPath = Math.sqrt(Math.pow(midPointNavPath_x, 2) + Math.pow(midPointNavPath_y, 2));
+
+        double distToNavPath = Utility.distanceBetweenTwoPoints(new Point(midPointNavPath_x, midPointNavPath_y),
+                new Point(0.0, 0.0));
 
         return distToNavPath;
     }
-    
+
     /*
     public static void main(String[] args) {
-        System.out.println(Math.toDegrees(Math.atan2(10, 0)));
+         //System.out.println(Math.toDegrees(Math.toDegrees(Math.asin(0.5))));
+        System.out.println(Math.toDegrees(Math.asin(0.5)));
     }
-*/
+     */
 }

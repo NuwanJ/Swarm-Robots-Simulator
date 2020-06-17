@@ -33,12 +33,13 @@ public class PatternJoiningRobot extends Robot {
 
     double distance = 15;
 
-    public PatternJoiningRobot(double x, double y) {
-        super(x, y);
+    public PatternJoiningRobot() {
+        super();
+        setCurrentState(State.FREE);
     }
 
     @Override
-    public synchronized void processMessage(Message message, int senderId, double bearing) {
+    public synchronized void processMessage(Message message, int senderId, double bearing, double distance) {
 
         if (getCurrentState() == Robot.State.JOINED) {
             if (message.getType() == MessageType.JoinPatternRequest) {
@@ -52,7 +53,7 @@ public class PatternJoiningRobot extends Robot {
                 int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
 
                 if (parentLabel == myPatternPositionLabel) {
-                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel);
+                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel,getAngle());
                     double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
 
                     console.log(String.format("Target Bearing %f and Distance %f for joining id "
@@ -85,9 +86,9 @@ public class PatternJoiningRobot extends Robot {
 
                 if (sender.getId() == joiningRobotId) {
 
-                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
                             - Settings.BEARING_ERROR_THRESHOLD;
-                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel)
+                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
                             + Settings.BEARING_ERROR_THRESHOLD;
                     double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
                             - Settings.DISTANCE_ERROR_THRESHOLD;
@@ -97,7 +98,7 @@ public class PatternJoiningRobot extends Robot {
                     if (bearing > bearing_upper_bound && bearing < bearing_lower_bound
                             || distance > distance_upper_bound && distance < distance_lower_bound) {
                         PositionData data = Utility.calculateTargetPosition(table,
-                                bearing, distance, nextPatternLabel);
+                                bearing, distance, nextPatternLabel,getAngle());
 
                         MessageHandler.sendPositionDataMsg(this, sender, data);
 
@@ -147,7 +148,10 @@ public class PatternJoiningRobot extends Robot {
                 console.log(String.format("Received joinPatternRes Message"));
 
                 if (message.getReceiver().getId() == this.getId()) {
-
+                    angularTurn(bearing);
+                    
+                    console.log(String.format("Head set to Leader Robot"));
+                    
                     setCurrentState(State.JOININGPATTERN);
 
                     MessageHandler.sendPositionDataReqMsg(this, sender);
@@ -169,7 +173,7 @@ public class PatternJoiningRobot extends Robot {
 
                 PositionData data = (PositionData) message.getData();
 
-                angle = data.getTargetBearing();
+                angularTurn(data.getTargetBearing());
 
                 console.log(String.format("Bearing %f Distance %f", data.getTargetBearing(), data.getTargetDistance()));
                 moveForwardDistance((int) data.getTargetDistance());

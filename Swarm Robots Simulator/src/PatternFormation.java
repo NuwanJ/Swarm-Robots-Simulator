@@ -22,6 +22,8 @@ import view.Simulator;
  *
  * @author Mahendra, Nadun, Tharuka
  */
+
+/*
 public class PatternFormation {
 
     public static void main(String[] args) {
@@ -297,3 +299,4 @@ public class PatternFormation {
         simulator.start();
     }
 }
+*/
