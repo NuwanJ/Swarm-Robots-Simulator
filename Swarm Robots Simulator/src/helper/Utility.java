@@ -106,7 +106,15 @@ public class Utility {
 
         double bearing = 0;
 
-        if (slope > 0) {
+        if (slope == 0) {
+
+            if (to.getX() < from.getX()) {
+                bearing = 90 + slope + 180;
+            } else {
+                bearing = 90 + slope;
+            }
+
+        } else if (slope > 0) {
 
             if (to.getCenterY() < from.getCenterY()) { // 2nd quadrant
                 bearing = 90 + slope + 180;
@@ -128,7 +136,7 @@ public class Utility {
             bearing = 360 - Math.abs(bearing);
         }
 
-        return bearing;
+        return bearing % 360;
     }
 
     public static double calculateBearing(Point ref, Point target, double heading) {
@@ -149,7 +157,15 @@ public class Utility {
 
         double bearing = 0;
 
-        if (slope > 0) {
+        if (slope == 0) {
+
+            if (target.getX() < ref.getX()) {
+                bearing = 90 + slope + 180;
+            } else {
+                bearing = 90 + slope;
+            }
+
+        } else if (slope > 0) {
 
             if (target.getY() < ref.getY()) { // 2nd quadrant
                 bearing = 90 + slope + 180;
@@ -171,7 +187,7 @@ public class Utility {
             bearing = 360 - Math.abs(bearing);
         }
 
-        return bearing;
+        return bearing % 360;
     }
 
     //---------------------------------aggregation functions------------------------------------------------------------
@@ -270,37 +286,37 @@ public class Utility {
     }
 
     /*
-    public static boolean checkJoinFeasibility(HashMap childrenMap,
-                                        double currBearing, double trgBearing) {
-        boolean status = true;
-        Iterator it = childrenMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry data = (Map.Entry) it.next();
-            double bearing = (Double) data.getValue();
-            double bearingDiff = Math.abs(trgBearing-currBearing);
-            double angle = min(trgBearing,360-bearingDiff);
-            if (bearing >= currBearing && bearing <= trgBearing) {
-                status = false;
-            }
+     public static boolean checkJoinFeasibility(HashMap childrenMap,
+     double currBearing, double trgBearing) {
+     boolean status = true;
+     Iterator it = childrenMap.entrySet().iterator();
+     while (it.hasNext()) {
+     Map.Entry data = (Map.Entry) it.next();
+     double bearing = (Double) data.getValue();
+     double bearingDiff = Math.abs(trgBearing-currBearing);
+     double angle = min(trgBearing,360-bearingDiff);
+     if (bearing >= currBearing && bearing <= trgBearing) {
+     status = false;
+     }
 
-        }
-        return status;
-    }
+     }
+     return status;
+     }
      */
-
-    /*
+    
+    
     public static void main(String[] args) {
         //bearing should be 180
-        System.out.println(calculateBearing(new Point(0, 0), new Point(10, -10), 0));
-        
-         //bearing should be 90
+        System.out.println(calculateBearing(new Point(0, 0), new Point(0, -10), 0));
+
+        //bearing should be 90
         System.out.println(calculateBearing(new Point(0, 0), new Point(10, 0), 0));
-        
-         //bearing should be 270
+
+        //bearing should be 270
         System.out.println(calculateBearing(new Point(0, 0), new Point(-10, 0), 0));
-        
-         //bearing should be 0
+
+        //bearing should be 0
         System.out.println(calculateBearing(new Point(0, 0), new Point(0, 10), 0));
     }
-    */
+    
 }
