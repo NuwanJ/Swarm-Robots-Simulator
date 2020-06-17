@@ -101,7 +101,7 @@ public class PatternLeaderRobot extends Robot {
                     */
                     if (bearing > bearing_upper_bound || bearing < bearing_lower_bound) {
                         if (distance > distance_upper_bound || distance < distance_lower_bound) {
-                            PositionData data = Utility.calculateTargetPosition(table,
+                            PositionData data = Utility.calculateTargetPositionParams(table,
                                     bearing, distance, nextPatternLabel,getAngle());
 
                             MessageHandler.sendPositionDataMsg(this, sender, data);

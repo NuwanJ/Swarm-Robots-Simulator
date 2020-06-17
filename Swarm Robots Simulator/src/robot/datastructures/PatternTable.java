@@ -92,25 +92,32 @@ public class PatternTable implements Data {
         return angle;
     }
 
-    public double getTargetDistance(int joinLabel, double bearing, double distance) {
+    public double getDistancetoTargetFromJoiningRobot(int joinLabel, 
+            double bearing, double distance) {
+        
         TableRow row = patterntable.get(joinLabel);
+        
+        //get the x,y coordinates of the pattern label measured from leader robot(0,0)
+        double x_target = row.getXCoordinate();
+        double y_target = row.getYCoordinate();
 
-        double x = row.getXCoordinate();
-        double y = row.getYCoordinate();
+        //get the x,y coordinates of the joining robot measured from leader robot(0,0)
+        double x_join = distance * Math.cos(Math.toRadians(bearing));
+        double y_join = distance * Math.sin(Math.toRadians(bearing));
 
-        double x_init = distance * Math.cos(Math.toRadians(bearing));
-        double y_init = distance * Math.sin(Math.toRadians(bearing));
-
-        double targetDistance = Utility.distanceBetweenTwoPoints(new Point(x_init, y_init),
-                new Point(x, y));
+        //get distance from joining robot to target robot
+        double targetDistance = Utility.distanceBetweenTwoPoints(new Point(x_join, y_join),
+                new Point(x_target, y_target));
 
         return targetDistance;
     }
 
-    public double getTargetBearing(int joinLabel, double bearing, double distance) {
+    public double getBearingtoTargetFromJoiningRobot(int joinLabel, double bearing, double distance) {
 
+        //get perpendicular distance from leader robot to navigation path of the joining robot
         double dist_y = getPerpendicDistToNavPath(joinLabel, bearing, distance);
 
+        //get the amount of deviation angle needed for the joining robot to go to the target location 
         double headingDeviation = Math.toDegrees(Math.asin(dist_y / distance));
 
         return headingDeviation;
@@ -119,25 +126,22 @@ public class PatternTable implements Data {
     public double getPerpendicDistToNavPath(int joinLabel, double bearing, double distance) {
         TableRow row = patterntable.get(joinLabel);
 
-        double x = row.getXCoordinate();
-        double y = row.getYCoordinate();
+        //get the x,y coordinates of the pattern label measured from leader robot(0,0)
+        double x_target = row.getXCoordinate();
+        double y_target = row.getYCoordinate();
 
-        double x_init = distance * Math.cos(Math.toRadians(bearing));
-        double y_init = distance * Math.sin(Math.toRadians(bearing));
+        //get the x,y coordinates of the joining robot measured from leader robot(0,0)
+        double x_join = distance * Math.cos(Math.toRadians(bearing));
+        double y_join = distance * Math.sin(Math.toRadians(bearing));
 
-        double midPointNavPath_x = (x_init + x) / 2;
-        double midPointNavPath_y = (y_init + y) / 2;
+        //get the mid point of the navigation path
+        double midPointNavPath_x = (x_join + x_target) / 2;
+        double midPointNavPath_y = (y_join + y_target) / 2;
 
+        //get the perpendicular distance from leader robot(0,0) to mid point of navigation path
         double distToNavPath = Utility.distanceBetweenTwoPoints(new Point(midPointNavPath_x, midPointNavPath_y),
                 new Point(0.0, 0.0));
 
         return distToNavPath;
     }
-
-    /*
-    public static void main(String[] args) {
-         //System.out.println(Math.toDegrees(Math.toDegrees(Math.asin(0.5))));
-        System.out.println(Math.toDegrees(Math.asin(0.5)));
-    }
-     */
 }

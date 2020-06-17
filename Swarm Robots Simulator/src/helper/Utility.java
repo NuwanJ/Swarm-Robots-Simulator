@@ -80,10 +80,10 @@ public class Utility {
 
     public static double getSlope(double x1, double y1, double x2, double y2) {
 
-        double dx = x1 - x2;
-        double dy = y1 - y2;
+        double dx = x2 - x1;
+        double dy = y2 - y1;
 
-        double toDegrees = Math.toDegrees(Math.atan(dy / dx));
+        double toDegrees = Math.toDegrees(Math.atan2(dy,dx));
 
         return toDegrees;
     }
@@ -141,53 +141,45 @@ public class Utility {
 
     public static double calculateBearing(Point ref, Point target, double heading) {
 
+        double bearing = 0;
+        double minBearing = 0;
+
+        //get the gradient between two points
         double slope = getSlope(ref.getX(), ref.getY(),
                 target.getX(), target.getY());
 
-        // set robot orientation to north direction (in positive)
-        double orientation = 0;
+        // set robot orientation to angle measured clockwise from north direction 
+        double orientation = heading;
 
-        double angle = heading;
+        if (slope > 0) {
+            if (ref.getY() < target.getY()) {
+                minBearing = orientation - (90 - slope);
+            } else if (ref.getY() > target.getY()) {
+                minBearing = orientation - (270 - slope);
+            }else if(target.getY() == 0){ //slope 180
+                minBearing = orientation - 270;
+            }else if(target.getX() == 0){ //slope 90
+                minBearing = orientation;
+            }
+        } else if (slope <= 0) {
+            if (ref.getY() < target.getY()) {
+                minBearing = orientation - (270 - slope);
+            } else if (ref.getY() > target.getY()) {
+                minBearing = orientation - (90 - slope);
+            }else if(target.getY() == 0){ //slope 0
+                minBearing = orientation - 90;
+            }else if(target.getX() == 0){ //slope -90
+                minBearing = orientation - 180;
+            }
+        }
 
-        if (angle >= 0) {
-            orientation = angle % 360;
+        if (minBearing > 0) {
+            bearing = 360 - minBearing;
         } else {
-            orientation = 360 - (Math.abs(angle) % 360);
+            bearing = -minBearing;
         }
-
-        double bearing = 0;
-
-        if (slope == 0) {
-
-            if (target.getX() < ref.getX()) {
-                bearing = 90 + slope + 180;
-            } else {
-                bearing = 90 + slope;
-            }
-
-        } else if (slope > 0) {
-
-            if (target.getY() < ref.getY()) { // 2nd quadrant
-                bearing = 90 + slope + 180;
-            } else { // 4th quadrant
-                bearing = 90 + slope;
-            }
-        } else {
-
-            if (target.getY() < ref.getY()) { // 1st quadrant
-                bearing = 90 - Math.abs(slope);
-            } else { // 3rd quadrant
-                bearing = 90 - Math.abs(slope) + 180;
-            }
-        }
-
-        bearing -= orientation;
-
-        if (bearing < 0) {
-            bearing = 360 - Math.abs(bearing);
-        }
-
-        return bearing % 360;
+        
+        return bearing;
     }
 
     //---------------------------------aggregation functions------------------------------------------------------------
@@ -241,16 +233,18 @@ public class Utility {
     }
 
     //---------------------------------pattern formation functions------------------------------------------------------------
-    public static PositionData calculateTargetPosition(PatternTable patternTable,
+    public static PositionData calculateTargetPositionParams(PatternTable patternTable,
             double bearing, double distance, int joiningLabel, double parentHeading) {
 
-        //Amount of heading deviation of the joining robot (positive value)
+        //Amount of heading deviation needed for the joining robot
         double joinRobotHeadingDeviation = 0;
 
         //distance and bearing from the leader robot
         double targetBearingFromParent = patternTable.getTargetBearingFromParent(joiningLabel, parentHeading);
         double targetDistanceFromParent = patternTable.getTargetDistanceFromParent(joiningLabel);
-        double targetDistance = patternTable.getTargetDistance(joiningLabel, bearing, distance);
+
+        //get the distance from joining robot to target point
+        double targetDistance = patternTable.getDistancetoTargetFromJoiningRobot(joiningLabel, bearing, distance);
 
         //get the perpendicular distance from leader to nav path
         double distToNavPathFromLeader = patternTable.getPerpendicDistToNavPath(joiningLabel, bearing, distance);
@@ -267,12 +261,12 @@ public class Utility {
                 joinRobotHeadingDeviation = roatation;
             }
         } else {
-            double beta = patternTable.getTargetBearing(joiningLabel, bearing, distance);
-            if (alpha < 180) {
-                joinRobotHeadingDeviation = -beta;
-            } else {
-                joinRobotHeadingDeviation = beta;
-            }
+            // double beta = patternTable.getTargetBearing(joiningLabel, bearing, distance);
+//            if (alpha < 180) {
+//                joinRobotHeadingDeviation = -beta;
+//            } else {
+//                joinRobotHeadingDeviation = beta;
+//            }
         }
 
         return new PositionData(joinRobotHeadingDeviation, targetDistance);
@@ -303,20 +297,15 @@ public class Utility {
      return status;
      }
      */
-    
-    
     public static void main(String[] args) {
         //bearing should be 180
-        System.out.println(calculateBearing(new Point(0, 0), new Point(0, -10), 0));
+        System.out.println(calculateBearing(new Point(0, 0), new Point(-10, 0), 45));
+        
 
-        //bearing should be 90
-        System.out.println(calculateBearing(new Point(0, 0), new Point(10, 0), 0));
-
-        //bearing should be 270
-        System.out.println(calculateBearing(new Point(0, 0), new Point(-10, 0), 0));
-
-        //bearing should be 0
-        System.out.println(calculateBearing(new Point(0, 0), new Point(0, 10), 0));
+//       System.out.println(getSlope(0, 0, 0, -10));
+//        System.out.println(getSlope(0, 0, 0, 10));
+//        System.out.println(getSlope(0, 0, 10, 0));
+//        System.out.println(getSlope(0, 0, -10, 0));
     }
-    
+
 }
