@@ -288,9 +288,10 @@ public class Utility {
     }
      */
 
+    /*
     public static void main(String[] args) {
         //bearing should be 180
-        System.out.println(calculateBearing(new Point(0, 0), new Point(0, -10), 0));
+        System.out.println(calculateBearing(new Point(0, 0), new Point(10, -10), 0));
         
          //bearing should be 90
         System.out.println(calculateBearing(new Point(0, 0), new Point(10, 0), 0));
@@ -301,4 +302,5 @@ public class Utility {
          //bearing should be 0
         System.out.println(calculateBearing(new Point(0, 0), new Point(0, 10), 0));
     }
+    */
 }
