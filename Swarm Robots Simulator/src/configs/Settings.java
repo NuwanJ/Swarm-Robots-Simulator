@@ -34,7 +34,7 @@ public class Settings {
     public final static boolean VISIBLE_SHARP = true;
     public final static boolean VISIBLE_IR = true;
     
-    public final static boolean CONSOLE_LOGGER = true;
+    public final static boolean CONSOLE_LOGGER = false;
     
     public final static Color FIELD_COLOR = new Color(240, 240, 240);
     

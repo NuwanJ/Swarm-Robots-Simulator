@@ -33,22 +33,22 @@ public class PatternTable implements Data {
     }
 
     public void createPatternTable() {
-        TableRow row = new TableRow(0, 50, 40);
+        TableRow row = new TableRow(0, 0, 40);
         patterntable.put(1, row);
 
-        row = new TableRow(0, -50, 40);
+        row = new TableRow(1, 0, 40);
         patterntable.put(2, row);
 
-        row = new TableRow(1, 50, 40);
+        row = new TableRow(2, 0, 40);
         patterntable.put(3, row);
 
-        row = new TableRow(2, -50, 40);
+        row = new TableRow(3, 0, 40);
         patterntable.put(4, row);
 
-        row = new TableRow(3, 50, 40);
+        row = new TableRow(0, 50, 0);
         patterntable.put(5, row);
 
-        row = new TableRow(4, -50, 40);
+        row = new TableRow(5, 50, 0);
         patterntable.put(6, row);
         
         /*  

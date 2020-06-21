@@ -12,12 +12,9 @@ import communication.messageData.patternformation.JoinPattern;
 import communication.messageData.patternformation.JoinPatternRequest;
 import communication.messageData.patternformation.PositionAcquired;
 import communication.messageData.patternformation.PositionData;
-import configs.Settings;
 import helper.Utility;
-import java.util.HashMap;
 import robot.datastructures.ChildMap;
 import robot.datastructures.PatternTable;
-import robot.datastructures.Point;
 
 /**
  *
@@ -31,11 +28,10 @@ public class PatternJoiningRobot extends Robot {
 
     //local variables
     private int myPatternPositionLabel = -1;
-    private int nextPatternLabel = -1;
+    private int joiningLabel = -1;
     private int joiningRobotId = -1;
 
-    Robot receiver;
-
+    //Robot sender;
     public PatternJoiningRobot() {
         super();
         setCurrentState(State.FREE);
@@ -45,6 +41,7 @@ public class PatternJoiningRobot extends Robot {
     public synchronized void processMessage(Message message, int senderId, double bearing, double distance) {
 
         if (getCurrentState() == Robot.State.JOINED) {
+
             if (message.getType() == MessageType.JoinPatternRequest) {
 
                 console.log(String.format("Join Pattern request received from %d",
@@ -52,14 +49,16 @@ public class PatternJoiningRobot extends Robot {
 
                 int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
 
+                Robot sender = message.getSender();
+
                 //See if the pattern join request is for me
                 if (parentLabel == myPatternPositionLabel) {
 
-                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel, getAngle());
-                    double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
+                    double targetBearing = table.getTargetBearingFromParent(joiningLabel, getAngle());
+                    double targetDistance = table.getTargetDistanceFromParent(joiningLabel);
 
                     console.log(String.format("Target Bearing %f and Distance %f for joining id "
-                            + "%d", targetBearing, targetDistance, nextPatternLabel));
+                            + "%d", targetBearing, targetDistance, joiningLabel));
 
                     //check for any obstacles in positioning the robot
                     boolean joinFeasibility = true;
@@ -70,17 +69,15 @@ public class PatternJoiningRobot extends Robot {
                         //transition the state to navigating
                         setCurrentState(Robot.State.NAVIGATING);
 
-                        receiver = message.getSender();
-
                         //save the joining robot id for future communication
-                        joiningRobotId = receiver.getId();
+                        joiningRobotId = sender.getId();
 
                         //send join ok in response
-                        MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
+                        MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
 
                     } else {
                         //send join reject in response
-                        MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
+                        MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
                     }
                 }
             }
@@ -88,25 +85,34 @@ public class PatternJoiningRobot extends Robot {
 
             if (message.getType() == MessageType.PositionDataReq) {
 
-                receiver = message.getSender();
-                console.log(String.format("Received %s from %d", message.getType(), receiver.getId()));
+                Robot sender = message.getSender();
 
+                console.log(String.format("Received %s from %d", message.getType(), sender.getId()));
+
+                //convert bearing to a positive value measured clockwise
                 if (bearing < 0) {
                     bearing = bearing + 360;
                 }
 
                 //validate the sender if it is the one who was sent join response
-                if (receiver.getId() == joiningRobotId) {
+                if (sender.getId() == joiningRobotId) {
 
                     //calculate the virtual coordinate of the sender in reference to leader robot
-                    PositionData virtualCoordiante = Utility.calculateRobotVirtualCoordinates(table, nextPatternLabel,
+                    PositionData virtualCoordiante = Utility.calculateRobotVirtualCoordinates(table, joiningLabel,
                             bearing, distance);
 
-                    MessageHandler.sendPositionDataMsg(this, receiver, virtualCoordiante);
+                    //send the calculated virtual coordinates to the joining robot
+                    MessageHandler.sendPositionDataMsg(this, sender, virtualCoordiante);
                 }
-            } else if (message.getType() == MessageType.PositionAcquired) {
-                nextPatternLabel = ((PositionAcquired) message.getData()).getLabel();
+            } else if (message.getType() == MessageType.PositionAcquired
+                    && message.getReceiver().getId() == this.getId()) {
+                //get the positioned label
+                joiningLabel = ((PositionAcquired) message.getData()).getLabel();
+                //reset joining robot id field
                 joiningRobotId = -1;
+                //set the position acquired status to true for the pattern label
+                childMap.updateMap(joiningLabel);
+                //transition to Joined state
                 setCurrentState(State.JOINED);
             }
         } else if (getCurrentState() == State.FREE) {
@@ -115,21 +121,23 @@ public class PatternJoiningRobot extends Robot {
                 console.log(String.format("Received JoinPattern message to %d", getId()));
 
                 //Get next pattern label 
-                nextPatternLabel = ((JoinPattern) message.getData()).getNextPatternLabel();
+                joiningLabel = ((JoinPattern) message.getData()).getNextPatternLabel();
 
                 //Pattern label of the parent who send the JoinPatternMessage
                 int senderPatternLabel = ((JoinPattern) message.getData()).getMyPatternLabel();
 
                 //check whether the sender is the parent for the requested joining Label
-                boolean response = table.checkJoinValidity(senderPatternLabel, nextPatternLabel);
+                if (joiningLabel > 0) {
+                    boolean response = table.checkJoinValidity(senderPatternLabel, joiningLabel);
 
-                if (response) {
-                    //if all ok send the join pattern request message
-                    MessageHandler.sendJoinPatternReqMsg(this, senderPatternLabel);
+                    if (response) {
+                        //if all ok send the join pattern request message
+                        MessageHandler.sendJoinPatternReqMsg(this, senderPatternLabel);
 
-                    //change the state to requesting
-                    setCurrentState(State.REQUESTING);
+                        //change the state to requesting
+                        setCurrentState(State.REQUESTING);
 
+                    }
                 }
 
             }
@@ -138,49 +146,38 @@ public class PatternJoiningRobot extends Robot {
             //listens for join pattern request
             if (message.getType() == MessageType.JoinPatternResponse) {
 
-                receiver = message.getSender();
+                Robot sender = message.getSender();
 
                 console.log(String.format("Received joinPatternRes Message"));
 
                 if (message.getReceiver().getId() == this.getId()) {
-                    angularTurn(bearing);
+                    //turn in the closest angle
+                    if (bearing > 180) {
+                        bearing = 360 - 180;
+                    }
 
-                    console.log(String.format("Head set to Leader Robot"));
+                    angularTurn(bearing);
 
                     setCurrentState(State.JOININGPATTERN);
 
-                    MessageHandler.sendPositionDataReqMsg(this, receiver);
+                    MessageHandler.sendPositionDataReqMsg(this, sender);
                 }
             }
-        } else if (getCurrentState() == State.ESCAPE) {
-            System.out.println("escape");
-            moveStop();
-
-            //set the heading reverse
-            angularTurn(180);
-
-            //move away from the ir range of the sender
-            moveForwardDistance(Settings.IR_MAX_DISTANCE);
-
-            setCurrentState(State.FREE);
-
         } else if (getCurrentState() == State.JOININGPATTERN) {
 
-            receiver = message.getSender();
+            Robot sender = message.getSender();
 
             if (message.getType() == MessageType.PositionData
                     && message.getReceiver().getId() == this.getId()) {
 
                 PositionData data = (PositionData) message.getData();
 
-                double moveDist = table.getTargetDistance(nextPatternLabel, data);
+                double moveDist = table.getTargetDistance(joiningLabel, data);
 
-                double turnAngle = table.getTargetRotation(nextPatternLabel,
+                double turnAngle = table.getTargetRotation(joiningLabel,
                         getAngle(), data);
 
-//                double dist = Utility.distanceBetweenTwoPoints(new Point(this.getCenterX(), this.getCenterY()),
-//                new Point(550, 300));
-                boolean isPositioned = table.positionValidation(nextPatternLabel, data);
+                boolean isPositioned = table.positionValidation(joiningLabel, data);
 
                 if (!isPositioned) {
                     console.log(String.format("X %f Y %f", data.getX(), data.getY()));
@@ -188,16 +185,19 @@ public class PatternJoiningRobot extends Robot {
 
                     angularTurn(turnAngle);
                     moveForwardDistance((int) moveDist);
-                    MessageHandler.sendPositionDataReqMsg(this, receiver);
+                    MessageHandler.sendPositionDataReqMsg(this, sender);
                 } else {
-                    myPatternPositionLabel = nextPatternLabel;
+                    myPatternPositionLabel = joiningLabel;
                     joiningRobotId = -1;
-                    MessageHandler.sendPositionAcquiredMsg(this, receiver, nextPatternLabel);
-                    angularTurn(-(getAngle() % 360));
-                    
-                    //create the child label from the pattern table for this parent
+                    MessageHandler.sendPositionAcquiredMsg(this, sender, joiningLabel);
+
+                    double turn = getAngle() % 360;
+
+                    angularTurn(-turn);
+
+                    //create the child map from the pattern table for this parent
                     childMap = table.getChildMapForParent(myPatternPositionLabel);
-                    
+
                     setCurrentState(State.JOINED);
                 }
             }
@@ -208,13 +208,11 @@ public class PatternJoiningRobot extends Robot {
     public void loop() {
         if (getCurrentState() == Robot.State.JOINED) {
 
-            nextPatternLabel = childMap.getNextPatternLabel();
+            joiningLabel = childMap.getNextPatternLabel();
 
             console.log(String.format("JoinBroadcast for label %d", myPatternPositionLabel));
 
-            MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
-
-        } else if (getCurrentState() == State.NAVIGATING) {
+            MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, joiningLabel);
 
         } else if (getCurrentState() == State.REQUESTING) {
             moveStop();

@@ -113,7 +113,8 @@ public class PatternLeaderRobot extends Robot {
                     //send the calculated virtual coordinates to the joining robot
                     MessageHandler.sendPositionDataMsg(this, sender, virtualCoordiante);
                 }
-            } else if (message.getType() == MessageType.PositionAcquired) {
+            } else if (message.getType() == MessageType.PositionAcquired && 
+                    message.getReceiver().getId() == this.getId()) {
                 //get the positioned label
                 nextPatternLabel = ((PositionAcquired) message.getData()).getLabel();
                 //reset joining robot id field
