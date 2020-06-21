@@ -1,6 +1,6 @@
 
-
 import communication.Message;
+import communication.MessageHandler;
 import communication.MessageType;
 import robot.*;
 import swarm.Swarm;
@@ -11,7 +11,6 @@ import view.Simulator;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Mahendra
@@ -24,8 +23,7 @@ public class TestPatternFormation {
             @Override
             public void create() {
                 join(new PatternLeaderRobot(500, 300));
-
-                for (int i = 0; i < 2; i++) {
+                for (int i = 0; i < 6; i++) {
                     join(new PatternJoiningRobot());
                 }
             }

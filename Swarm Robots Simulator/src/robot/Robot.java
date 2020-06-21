@@ -55,10 +55,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         //States for pattern formation
         JOINED,
         NAVIGATING,
+        WAITING,
         JOININGPATTERN,
         REQUESTING,
         FREE,
-        ESCAPE
+        ESCAPE,
+        UPDATING
     }
 
     private State currentState;
@@ -338,12 +340,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             int randomAngle = Utility.randomInRange(-30, 30);
             moveStop();
             angularTurn(randomAngle);
-        }
-    }
-
-    public void clearMessageBufferOut() {
-        for (IRSensor iRSensor : iRSensors) {
-            iRSensor.setBroadcastMsg(null);
         }
     }
 

@@ -11,19 +11,19 @@ import communication.Data;
  */
 public class PositionData implements Data{
 
-    private double targetBearing;
-    private double targetDistance;
+    private double X_Coordinate;
+    private double Y_Coordinate;
 
-    public PositionData(double bearing, double distance) {
-        this.targetBearing = bearing;
-        this.targetDistance = distance;
+    public PositionData(double x_co, double y_co) {
+        this.X_Coordinate = x_co;
+        this.Y_Coordinate = y_co;
     }
 
-    public double getTargetBearing() {
-        return this.targetBearing;
+    public double getX() {
+        return this.X_Coordinate;
     }
 
-    public double getTargetDistance() {
-        return targetDistance;
+    public double getY() {
+        return this.Y_Coordinate;
     }
 }

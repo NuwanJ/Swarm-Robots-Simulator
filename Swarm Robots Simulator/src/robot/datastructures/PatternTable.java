@@ -6,6 +6,7 @@
 package robot.datastructures;
 
 import communication.Data;
+import communication.messageData.patternformation.PositionData;
 import configs.Settings;
 import helper.Utility;
 import java.util.HashMap;
@@ -34,28 +35,100 @@ public class PatternTable implements Data {
     }
 
     public void createPatternTable() {
-        TableRow row = new TableRow(0, 10, 0);
+        TableRow row = new TableRow(0, 50, 0);
         patterntable.put(1, row);
 
-        row = new TableRow(1, 10, 0);
+        row = new TableRow(0, -50, 0);
         patterntable.put(2, row);
 
-        row = new TableRow(2, 10, 0);
+        row = new TableRow(1, 50, 0);
         patterntable.put(3, row);
 
-        row = new TableRow(3, 10, 0);
+        row = new TableRow(2, -50, 0);
         patterntable.put(4, row);
 
-        row = new TableRow(4, 10, 0);
+        row = new TableRow(4, -50, 0);
         patterntable.put(5, row);
 
-        row = new TableRow(5, 10, 0);
+        row = new TableRow(3, 50, 0);
         patterntable.put(6, row);
+        
+//                row = new TableRow(5, 50, 0);
+//        patterntable.put(6, row);
         /*  
            for (Map.Entry<Integer,TableRow> entry : patterntable.entrySet()) { 
                 System.out.println("Key = " + entry.getKey() + ", Value = " + ((TableRow)entry.getValue()).getParentLabel());
            }
          */
+    }
+
+    public double getJoinLabelX(int joiningLabel) {
+        TableRow row = patterntable.get(joiningLabel);
+        return row.getXCoordinate();
+    }
+
+    public double getJoinLabelY(int joiningLabel) {
+        TableRow row = patterntable.get(joiningLabel);
+        return row.getYCoordinate();
+    }
+
+    public boolean positionValidation(int joiningLabel, PositionData myCoordinate) {
+        boolean status = false;
+
+        double target_x = getJoinLabelX(joiningLabel);
+        double target_y = getJoinLabelY(joiningLabel);
+
+        double my_x = myCoordinate.getX();
+        double my_y = myCoordinate.getY();
+        
+        double x_upper_bound = target_x + Settings.DISTANCE_ERROR_THRESHOLD;
+        double x_lower_bound = target_x - Settings.DISTANCE_ERROR_THRESHOLD;
+                
+        double y_upper_bound = target_y + Settings.DISTANCE_ERROR_THRESHOLD;
+        double y_lower_bound = target_y - Settings.DISTANCE_ERROR_THRESHOLD;
+        
+        if(my_x >= x_lower_bound && my_x <= x_upper_bound){
+            if(my_y >= y_lower_bound && my_y <= y_upper_bound){
+                status = true;
+            }
+        }
+        return status;
+    }
+
+    public double getTargetDistance(int joiningLabel,
+            PositionData myCoordinate) {
+
+        double target_x = getJoinLabelX(joiningLabel);
+        double target_y = getJoinLabelY(joiningLabel);
+
+        double my_x = myCoordinate.getX();
+        double my_y = myCoordinate.getY();
+
+        return Utility.distanceBetweenTwoPoints(new Point(my_x, my_y),
+                new Point(target_x, target_y));
+    }
+
+    public double getTargetRotation(int joiningLabel, double currHeading,
+            PositionData myCoordinate) {
+        double turningAngle = 0;
+
+        double target_x = getJoinLabelX(joiningLabel);
+        double target_y = getJoinLabelY(joiningLabel);
+
+        double my_x = myCoordinate.getX();
+        double my_y = myCoordinate.getY();
+
+        double bearing = Utility.calculateBearing(new Point(my_x, my_y),
+                new Point(target_x, target_y), currHeading);
+
+        //get the angle + (clockwise) - (counterclockwise)
+        if (bearing > 180) {
+            turningAngle = bearing - 360;
+        }else{
+            turningAngle = bearing;
+        }
+
+        return turningAngle;
     }
 
     public boolean checkJoinValidity(int parentLabel, int requestedPatternLabel) {
@@ -83,20 +156,17 @@ public class PatternTable implements Data {
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
 
-        double angle = Utility.calculateBearing(new Point(0.0, 0.0),
+        double bearing = Utility.calculateBearing(new Point(0.0, 0.0),
                 new Point(x, y), heading);
 
-        if (y < 0) {
-            angle = angle + 180;
-        }
-        return angle;
+        return bearing;
     }
 
-    public double getDistancetoTargetFromJoiningRobot(int joinLabel, 
+    public double getDistancetoTargetFromJoiningRobot(int joinLabel,
             double bearing, double distance) {
-        
+
         TableRow row = patterntable.get(joinLabel);
-        
+
         //get the x,y coordinates of the pattern label measured from leader robot(0,0)
         double x_target = row.getXCoordinate();
         double y_target = row.getYCoordinate();
@@ -112,7 +182,7 @@ public class PatternTable implements Data {
         return targetDistance;
     }
 
-    public double getBearingtoTargetFromJoiningRobot(int joinLabel, double bearing, double distance) {
+    public double getHeadingtoTargetFromJoiningRobot(int joinLabel, double bearing, double distance) {
 
         //get perpendicular distance from leader robot to navigation path of the joining robot
         double dist_y = getPerpendicDistToNavPath(joinLabel, bearing, distance);

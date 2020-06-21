@@ -83,7 +83,7 @@ public class Utility {
         double dx = x2 - x1;
         double dy = y2 - y1;
 
-        double toDegrees = Math.toDegrees(Math.atan2(dy,dx));
+        double toDegrees = Math.toDegrees(Math.atan2(dy, dx));
 
         return toDegrees;
     }
@@ -149,16 +149,16 @@ public class Utility {
                 target.getX(), target.getY());
 
         // set robot orientation to angle measured clockwise from north direction 
-        double orientation = heading;
+        double orientation = heading % 360;
 
         if (slope > 0) {
             if (ref.getY() < target.getY()) {
                 minBearing = orientation - (90 - slope);
             } else if (ref.getY() > target.getY()) {
                 minBearing = orientation - (270 - slope);
-            }else if(target.getY() == 0){ //slope 180
+            } else if (target.getY() == 0) { //slope 180
                 minBearing = orientation - 270;
-            }else if(target.getX() == 0){ //slope 90
+            } else if (target.getX() == 0) { //slope 90
                 minBearing = orientation;
             }
         } else if (slope <= 0) {
@@ -166,9 +166,9 @@ public class Utility {
                 minBearing = orientation - (270 - slope);
             } else if (ref.getY() > target.getY()) {
                 minBearing = orientation - (90 - slope);
-            }else if(target.getY() == 0){ //slope 0
+            } else if (target.getY() == 0) { //slope 0
                 minBearing = orientation - 90;
-            }else if(target.getX() == 0){ //slope -90
+            } else if (target.getX() == 0) { //slope -90
                 minBearing = orientation - 180;
             }
         }
@@ -178,7 +178,7 @@ public class Utility {
         } else {
             bearing = -minBearing;
         }
-        
+
         return bearing;
     }
 
@@ -233,8 +233,34 @@ public class Utility {
     }
 
     //---------------------------------pattern formation functions------------------------------------------------------------
-    public static PositionData calculateTargetPositionParams(PatternTable patternTable,
-            double bearing, double distance, int joiningLabel, double parentHeading) {
+    public static PositionData calculateRobotVirtualCoordinates(PatternTable patternTable, int joiningLabel, double bearing, double distance) {
+
+        int quadrant = (int) bearing / 90;
+
+        double remainderAngle = bearing % 90;
+
+        double angle = -1.0;
+
+        if (quadrant == 0) {
+            angle = 90 - remainderAngle;
+        } else if (quadrant == 1) {
+            angle = 360 - remainderAngle;
+        } else if (quadrant == 2) {
+            angle = 180 + remainderAngle;
+        } else if (quadrant == 3) {
+            angle = 180 - remainderAngle;
+        }
+
+        //get the x,y coordinates of the joining robot measured from leader robot(0,0)
+        double x_Co = distance * Math.cos(Math.toRadians(angle));
+        double y_Co = distance * Math.sin(Math.toRadians(angle));
+
+        return new PositionData(x_Co, y_Co);
+    }
+
+    /*
+    public static void calculateTargetPosition(PatternTable patternTable,
+            int joiningLabel) {
 
         //Amount of heading deviation needed for the joining robot
         double joinRobotHeadingDeviation = 0;
@@ -261,17 +287,15 @@ public class Utility {
                 joinRobotHeadingDeviation = roatation;
             }
         } else {
-            // double beta = patternTable.getTargetBearing(joiningLabel, bearing, distance);
-//            if (alpha < 180) {
-//                joinRobotHeadingDeviation = -beta;
-//            } else {
-//                joinRobotHeadingDeviation = beta;
-//            }
+            double beta = patternTable.getHeadingtoTargetFromJoiningRobot(joiningLabel, bearing, distance);
+            if (alpha < 180) {
+                joinRobotHeadingDeviation = -beta;
+            } else {
+                joinRobotHeadingDeviation = beta;
+            }
         }
-
-        return new PositionData(joinRobotHeadingDeviation, targetDistance);
     }
-
+     */
     public static double distanceBetweenTwoPoints(Point a, Point b) {
         double x_diff_squared = Math.pow(Math.abs(a.getX() - b.getX()), 2);
         double y_diff_squared = Math.pow(Math.abs(a.getY() - b.getY()), 2);
@@ -300,7 +324,6 @@ public class Utility {
     public static void main(String[] args) {
         //bearing should be 180
         System.out.println(calculateBearing(new Point(0, 0), new Point(-10, 0), 45));
-        
 
 //       System.out.println(getSlope(0, 0, 0, -10));
 //        System.out.println(getSlope(0, 0, 0, 10));

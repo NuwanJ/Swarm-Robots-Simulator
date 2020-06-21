@@ -93,10 +93,10 @@ public class MessageHandler {
     }
 
     public static void sendPositionDataMsg(Robot sender, Robot receiver, PositionData data) {
-        Message positionData = new Message(MessageType.PositionData, sender, receiver);
-        positionData.setData(data);
-        sender.console.log(String.format("Sending PositionData to %d", receiver.getId()));
-        sender.broadcastMessage(positionData);
+        Message positionDataMsg = new Message(MessageType.PositionData, sender, receiver);
+        positionDataMsg.setData(data);
+        sender.console.log(String.format("Sending PositionData %d",receiver.getId()));
+        sender.broadcastMessage(positionDataMsg);
     }
 
     public static void sendJoinPatternResMsg(Robot sender, Robot receiver, boolean status) {

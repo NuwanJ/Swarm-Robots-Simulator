@@ -17,6 +17,8 @@ import view.Simulator;
  *
  * @author Tharuka
  */
+
+/*
 public class Aggregation_Working {
 
     public static void main(String[] args) {
@@ -371,3 +373,4 @@ public class Aggregation_Working {
         simulator.start();
     }
 }
+*/

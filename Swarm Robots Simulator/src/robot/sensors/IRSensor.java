@@ -120,6 +120,13 @@ public class IRSensor extends Arc2D.Double {
         }
     }
 
+    public void clearMessageBufferOut(Robot sender) {
+        ArrayList<IRSensor> irSensors = sender.getiRSensors();
+        for (IRSensor iRSensor : irSensors) {
+            iRSensor.setBroadcastMsg(null);
+        }
+    }
+
     // msg receiving thread
     private class IRSensorThread extends Thread {
 
@@ -156,8 +163,13 @@ public class IRSensor extends Arc2D.Double {
                             //}
 
                             if (recieveMsg != null) {
+
                                 bearing = Utility.calculateBearing(robot, r);
                                 double distance = Utility.calculateDistance(robot, r);
+                                if (msg.getReceiver() != null && 
+                                        msg.getReceiver().getId() == robot.getId()) {
+                                    clearMessageBufferOut(r);
+                                }
                                 robot.processMessage(msg, id, bearing, distance);
 
                             }

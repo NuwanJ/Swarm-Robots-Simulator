@@ -8,6 +8,7 @@ package robot;
 import communication.Message;
 import communication.MessageHandler;
 import communication.MessageType;
+import communication.messageData.patternformation.PositionAcquired;
 import communication.messageData.patternformation.JoinPatternRequest;
 import communication.messageData.patternformation.PositionData;
 import configs.Settings;
@@ -31,102 +32,97 @@ public class PatternLeaderRobot extends Robot {
     public int nextPatternLabel = -1;
     public int joiningRobotId = -1;
 
+    Robot receiver;
+
     public PatternLeaderRobot(double x, double y) {
         super(x, y, 0);
         setCurrentState(State.JOINED);
+        //Set initial parameters for leader robot
+        currentHeading = angle;
+        nextPatternLabel = 1;
+        myPatternPositionLabel = 0;
     }
 
     @Override
     public synchronized void processMessage(Message message, int senderId, double bearing, double distance) {
 
         if (getCurrentState() == Robot.State.JOINED) {
+
             if (message.getType() == MessageType.JoinPatternRequest) {
+
                 console.log(String.format("Join Pattern request received from %d",
                         message.getSender().getId()));
 
-                //This is done to clear the message buffer 
-                //can be removed in the real implementation 
-                clearMessageBufferOut();
-
                 int parentLabel = ((JoinPatternRequest) message.getData()).getParentLabel();
 
+                //See if the pattern join request is for me
                 if (parentLabel == myPatternPositionLabel) {
-                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel,getAngle());
+
+                    double targetBearing = table.getTargetBearingFromParent(nextPatternLabel, getAngle());
                     double targetDistance = table.getTargetDistanceFromParent(nextPatternLabel);
 
                     console.log(String.format("Target Bearing %f and Distance %f for joining id "
                             + "%d", targetBearing, targetDistance, nextPatternLabel));
 
                     //check for any obstacles in positioning the robot
-                    boolean joinFeasibility = true; //joinFeasibility = Utility.checkJoinFeasibility(childMap,
-                    //bearing, targetBearing);
-                    if (joinFeasibility) {
+                    boolean joinFeasibility = true;
 
+                    //joinFeasibility = Utility.checkJoinFeasibility(childMap, bearing, targetBearing);
+                    //if it is possible to position the robot
+                    if (joinFeasibility) {
+                        //transition the state to navigating
                         setCurrentState(Robot.State.NAVIGATING);
 
-                        Robot sender = message.getSender();
+                        receiver = message.getSender();
 
-                        joiningRobotId = sender.getId();
+                        //save the joining robot id for future communication
+                        joiningRobotId = receiver.getId();
 
-                        MessageHandler.sendJoinPatternResMsg(this, sender, joinFeasibility);
+                        //send join ok in response
+                        MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
 
+                    } else {
+                        //send join reject in response
+                        MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
                     }
                 }
-                //clearMessageBufferOut();
-
-            }
+            } 
         } else if (getCurrentState() == Robot.State.NAVIGATING) {
+
             if (message.getType() == MessageType.PositionDataReq) {
 
-                Robot sender = message.getSender();
+                receiver = message.getSender();
+                console.log(String.format("Received %s from %d", message.getType(), receiver.getId()));
 
-                console.log(String.format("Received %s from %d", message.getType(), sender.getId()));
-
-                if (sender.getId() == joiningRobotId) {
-
-                    double bearing_lower_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
-                            - Settings.BEARING_ERROR_THRESHOLD;
-                    double bearing_upper_bound = table.getTargetBearingFromParent(nextPatternLabel,getAngle())
-                            + Settings.BEARING_ERROR_THRESHOLD;
-                    double distance_lower_bound = table.getTargetDistanceFromParent(nextPatternLabel)
-                            - Settings.DISTANCE_ERROR_THRESHOLD;
-                    double distance_upper_bound = table.getTargetDistanceFromParent(nextPatternLabel)
-                            + Settings.DISTANCE_ERROR_THRESHOLD;
-                    
-                    //get the bearing as the angle measured clockwise from robot's heading
-                    /*
-                    if (bearing < 0) {
-                        bearing = 360 + bearing;
-                    }
-                    */
-                    if (bearing > bearing_upper_bound || bearing < bearing_lower_bound) {
-                        if (distance > distance_upper_bound || distance < distance_lower_bound) {
-                            PositionData data = Utility.calculateTargetPositionParams(table,
-                                    bearing, distance, nextPatternLabel,getAngle());
-
-                            MessageHandler.sendPositionDataMsg(this, sender, data);
-
-                        } else {
-                            nextPatternLabel++;
-                            joiningRobotId = -1;
-                            MessageHandler.sendPositionAcquiredMsg(this, sender, nextPatternLabel - 1);
-                        }
-                    }
-
+                if (bearing < 0) {
+                    bearing = bearing + 360;
                 }
+
+                //validate the sender if it is the one who was sent join response
+                if (receiver.getId() == joiningRobotId) {
+
+                    //calculate the virtual coordinate of the sender in reference to leader robot
+                    PositionData virtualCoordiante = Utility.calculateRobotVirtualCoordinates(table, nextPatternLabel,
+                            bearing, distance);
+
+                    MessageHandler.sendPositionDataMsg(this, receiver, virtualCoordiante);
+                }
+            } else if (message.getType() == MessageType.PositionAcquired) {
+                nextPatternLabel++;
+                joiningRobotId = -1;
             }
         }
+
     }
 
     @Override
     public void loop() {
         if (getCurrentState() == Robot.State.JOINED) {
-            currentHeading = angle;
-            nextPatternLabel = 1;
-            myPatternPositionLabel = 0;
+
             console.log(String.format("Sending JoinBroadcast Message from %d", this.getId()));
+
+            //Sending join broadcast message to free robots 
             MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
-        } else if (getCurrentState() == Robot.State.NAVIGATING) {
 
         }
     }
