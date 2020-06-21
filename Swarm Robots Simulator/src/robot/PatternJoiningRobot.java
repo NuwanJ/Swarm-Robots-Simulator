@@ -84,12 +84,7 @@ public class PatternJoiningRobot extends Robot {
                         MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
                     }
                 }
-            } else if (message.getType() == MessageType.PositionAcquired) {
-                nextPatternLabel = ((PositionAcquired) message.getData()).getLabel();
-                MessageHandler.sendPositionAcquiredMsg(this, null, nextPatternLabel);
-                nextPatternLabel++;
-                joiningRobotId = -1;
-            }
+            } 
         } else if (getCurrentState() == Robot.State.NAVIGATING) {
 
             if (message.getType() == MessageType.PositionDataReq) {
@@ -111,8 +106,9 @@ public class PatternJoiningRobot extends Robot {
                     MessageHandler.sendPositionDataMsg(this, receiver, virtualCoordiante);
                 }
             } else if (message.getType() == MessageType.PositionAcquired) {
-                nextPatternLabel++;
+                nextPatternLabel = ((PositionAcquired)message.getData()).getLabel();
                 joiningRobotId = -1;
+                setCurrentState(State.JOINED);
             }
         } else if (getCurrentState() == State.FREE) {
             if (message.getType() == MessageType.JoinPattern) {
@@ -195,16 +191,13 @@ public class PatternJoiningRobot extends Robot {
                     moveForwardDistance((int) moveDist);
                     MessageHandler.sendPositionDataReqMsg(this, receiver);
                 } else {
-                    MessageHandler.sendPositionAcquiredMsg(this, receiver, nextPatternLabel);
                     myPatternPositionLabel = nextPatternLabel;
                     joiningRobotId = -1;
                     nextPatternLabel++;
+                    MessageHandler.sendPositionAcquiredMsg(this, receiver, nextPatternLabel);
                     angularTurn(-(getAngle() % 360));
                     setCurrentState(State.JOINED);
                 }
-                //setCurrentState(State.ADJUSTING);
-
-                //MessageHandler.sendPositionAcquiredMsg(this, sender, nextPatternLabel);
             }
         }
     }
@@ -212,8 +205,7 @@ public class PatternJoiningRobot extends Robot {
     @Override
     public void loop() {
         if (getCurrentState() == Robot.State.JOINED) {
-            console.log(String.format("Sending JoinBroadcast Message from %d"
-                    + " label %d", this.getId(), myPatternPositionLabel));
+            console.log(String.format("JoinBroadcast for label %d", myPatternPositionLabel));
             MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
         } else if (getCurrentState() == State.NAVIGATING) {
 

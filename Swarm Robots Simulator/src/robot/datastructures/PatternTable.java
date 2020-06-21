@@ -46,15 +46,13 @@ public class PatternTable implements Data {
 
         row = new TableRow(2, -50, 0);
         patterntable.put(4, row);
-
-        row = new TableRow(4, -50, 0);
-        patterntable.put(5, row);
-
-        row = new TableRow(3, 50, 0);
-        patterntable.put(6, row);
-        
-//                row = new TableRow(5, 50, 0);
+//
+//        row = new TableRow(4, 50, 0);
+//        patterntable.put(5, row);
+//
+//        row = new TableRow(5, 50, 0);
 //        patterntable.put(6, row);
+//        
         /*  
            for (Map.Entry<Integer,TableRow> entry : patterntable.entrySet()) { 
                 System.out.println("Key = " + entry.getKey() + ", Value = " + ((TableRow)entry.getValue()).getParentLabel());

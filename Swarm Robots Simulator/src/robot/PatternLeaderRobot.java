@@ -86,7 +86,7 @@ public class PatternLeaderRobot extends Robot {
                         MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
                     }
                 }
-            } 
+            }
         } else if (getCurrentState() == Robot.State.NAVIGATING) {
 
             if (message.getType() == MessageType.PositionDataReq) {
@@ -108,8 +108,9 @@ public class PatternLeaderRobot extends Robot {
                     MessageHandler.sendPositionDataMsg(this, receiver, virtualCoordiante);
                 }
             } else if (message.getType() == MessageType.PositionAcquired) {
-                nextPatternLabel++;
+                nextPatternLabel = ((PositionAcquired) message.getData()).getLabel();
                 joiningRobotId = -1;
+                setCurrentState(State.JOINED);
             }
         }
 
@@ -119,7 +120,7 @@ public class PatternLeaderRobot extends Robot {
     public void loop() {
         if (getCurrentState() == Robot.State.JOINED) {
 
-            console.log(String.format("Sending JoinBroadcast Message from %d", this.getId()));
+            console.log(String.format("JoinBroadcast for label %d", nextPatternLabel));
 
             //Sending join broadcast message to free robots 
             MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
