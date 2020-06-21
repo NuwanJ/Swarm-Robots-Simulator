@@ -15,6 +15,7 @@ import communication.messageData.patternformation.PositionData;
 import configs.Settings;
 import helper.Utility;
 import java.util.HashMap;
+import robot.datastructures.ChildMap;
 import robot.datastructures.PatternTable;
 import robot.datastructures.Point;
 
@@ -25,15 +26,13 @@ import robot.datastructures.Point;
 public class PatternJoiningRobot extends Robot {
 
     //local data structures
-    HashMap<Integer, Double> childMap = new HashMap<Integer, Double>();
-    PatternTable table = new PatternTable();
+    private PatternTable table = new PatternTable();
+    private ChildMap childMap;
 
     //local variables
-    public int myPatternPositionLabel = -1;
-    public int nextPatternLabel = -1;
-    public int joiningRobotId = -1;
-
-    double moveDist = -1;
+    private int myPatternPositionLabel = -1;
+    private int nextPatternLabel = -1;
+    private int joiningRobotId = -1;
 
     Robot receiver;
 
@@ -84,7 +83,7 @@ public class PatternJoiningRobot extends Robot {
                         MessageHandler.sendJoinPatternResMsg(this, receiver, joinFeasibility);
                     }
                 }
-            } 
+            }
         } else if (getCurrentState() == Robot.State.NAVIGATING) {
 
             if (message.getType() == MessageType.PositionDataReq) {
@@ -106,7 +105,7 @@ public class PatternJoiningRobot extends Robot {
                     MessageHandler.sendPositionDataMsg(this, receiver, virtualCoordiante);
                 }
             } else if (message.getType() == MessageType.PositionAcquired) {
-                nextPatternLabel = ((PositionAcquired)message.getData()).getLabel();
+                nextPatternLabel = ((PositionAcquired) message.getData()).getLabel();
                 joiningRobotId = -1;
                 setCurrentState(State.JOINED);
             }
@@ -193,9 +192,12 @@ public class PatternJoiningRobot extends Robot {
                 } else {
                     myPatternPositionLabel = nextPatternLabel;
                     joiningRobotId = -1;
-                    nextPatternLabel++;
                     MessageHandler.sendPositionAcquiredMsg(this, receiver, nextPatternLabel);
                     angularTurn(-(getAngle() % 360));
+                    
+                    //create the child label from the pattern table for this parent
+                    childMap = table.getChildMapForParent(myPatternPositionLabel);
+                    
                     setCurrentState(State.JOINED);
                 }
             }
@@ -205,8 +207,13 @@ public class PatternJoiningRobot extends Robot {
     @Override
     public void loop() {
         if (getCurrentState() == Robot.State.JOINED) {
+
+            nextPatternLabel = childMap.getNextPatternLabel();
+
             console.log(String.format("JoinBroadcast for label %d", myPatternPositionLabel));
+
             MessageHandler.sendJoinBroadcastMsg(this, myPatternPositionLabel, nextPatternLabel);
+
         } else if (getCurrentState() == State.NAVIGATING) {
 
         } else if (getCurrentState() == State.REQUESTING) {

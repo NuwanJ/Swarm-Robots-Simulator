@@ -23,7 +23,7 @@ public class TestPatternFormation {
             @Override
             public void create() {
                 join(new PatternLeaderRobot(500, 300));
-                for (int i = 0; i < 6; i++) {
+                for (int i = 0; i < 5; i++) {
                     join(new PatternJoiningRobot());
                 }
             }

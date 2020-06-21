@@ -10,7 +10,10 @@ import java.util.Hashtable;
 /**
  *
  * @author Mahendra, Nadun, Tharuka
+ * xDistance - x coordinate of a pattern label measured from parentLabel (0,0)
+ * yDistance - y coordinate of a pattern label measured from parentLabel (0,0)
  */
+
 public class TableRow {
     private int parentLabel;
     private double xDistance;

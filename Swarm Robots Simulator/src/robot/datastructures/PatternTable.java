@@ -10,9 +10,7 @@ import communication.messageData.patternformation.PositionData;
 import configs.Settings;
 import helper.Utility;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-import sun.awt.image.BufferedImageGraphicsConfig;
 
 /**
  *
@@ -35,24 +33,24 @@ public class PatternTable implements Data {
     }
 
     public void createPatternTable() {
-        TableRow row = new TableRow(0, 50, 0);
+        TableRow row = new TableRow(0, 50, 40);
         patterntable.put(1, row);
 
-        row = new TableRow(0, -50, 0);
+        row = new TableRow(0, -50, 40);
         patterntable.put(2, row);
 
-        row = new TableRow(1, 50, 0);
+        row = new TableRow(1, 50, 40);
         patterntable.put(3, row);
 
-        row = new TableRow(2, -50, 0);
+        row = new TableRow(2, -50, 40);
         patterntable.put(4, row);
-//
-//        row = new TableRow(4, 50, 0);
-//        patterntable.put(5, row);
-//
-//        row = new TableRow(5, 50, 0);
-//        patterntable.put(6, row);
-//        
+
+        row = new TableRow(3, 50, 40);
+        patterntable.put(5, row);
+
+        row = new TableRow(4, -50, 40);
+        patterntable.put(6, row);
+        
         /*  
            for (Map.Entry<Integer,TableRow> entry : patterntable.entrySet()) { 
                 System.out.println("Key = " + entry.getKey() + ", Value = " + ((TableRow)entry.getValue()).getParentLabel());
@@ -60,44 +58,61 @@ public class PatternTable implements Data {
          */
     }
 
-    public double getJoinLabelX(int joiningLabel) {
-        TableRow row = patterntable.get(joiningLabel);
+    public ChildMap getChildMapForParent(int parentLabel) {
+        HashMap<Integer, ChildInfo> childMap = new HashMap<Integer, ChildInfo>();
+
+        for (Map.Entry<Integer, TableRow> entry : patterntable.entrySet()) {
+            int childLabel = entry.getKey();
+            TableRow info = (TableRow) entry.getValue();
+            if (info.getParentLabel() == parentLabel) {
+                childMap.put(childLabel, new ChildInfo(info.getXCoordinate(), 
+                        info.getYCoordinate(), false));
+                 //System.out.println("Parent :"+ parentLabel + "child "+ childLabel);
+            }
+           // System.out.println("Key = " + entry.getKey() + ", Value = " + ((TableRow) entry.getValue()).getParentLabel());
+        }
+
+        return new ChildMap(childMap);
+    }
+
+    public double getJoinLabelX(int childLabel) {
+        TableRow row = patterntable.get(childLabel);
         return row.getXCoordinate();
     }
 
-    public double getJoinLabelY(int joiningLabel) {
-        TableRow row = patterntable.get(joiningLabel);
+    public double getJoinLabelY(int childLabel) {
+        TableRow row = patterntable.get(childLabel);
         return row.getYCoordinate();
     }
 
-    public boolean positionValidation(int joiningLabel, PositionData myCoordinate) {
+    public boolean positionValidation(int childLabel, PositionData myCoordinate) {
         boolean status = false;
 
-        double target_x = getJoinLabelX(joiningLabel);
-        double target_y = getJoinLabelY(joiningLabel);
+        double target_x = getJoinLabelX(childLabel);
+        double target_y = getJoinLabelY(childLabel);
 
         double my_x = myCoordinate.getX();
         double my_y = myCoordinate.getY();
-        
+
         double x_upper_bound = target_x + Settings.DISTANCE_ERROR_THRESHOLD;
         double x_lower_bound = target_x - Settings.DISTANCE_ERROR_THRESHOLD;
-                
+
         double y_upper_bound = target_y + Settings.DISTANCE_ERROR_THRESHOLD;
         double y_lower_bound = target_y - Settings.DISTANCE_ERROR_THRESHOLD;
-        
-        if(my_x >= x_lower_bound && my_x <= x_upper_bound){
-            if(my_y >= y_lower_bound && my_y <= y_upper_bound){
+
+        if (my_x >= x_lower_bound && my_x <= x_upper_bound) {
+            if (my_y >= y_lower_bound && my_y <= y_upper_bound) {
                 status = true;
             }
         }
         return status;
     }
 
-    public double getTargetDistance(int joiningLabel,
+    public double getTargetDistance(int childLabel,
             PositionData myCoordinate) {
 
-        double target_x = getJoinLabelX(joiningLabel);
-        double target_y = getJoinLabelY(joiningLabel);
+        double target_x = getJoinLabelX(childLabel);
+        double target_y = getJoinLabelY(childLabel);
 
         double my_x = myCoordinate.getX();
         double my_y = myCoordinate.getY();
@@ -106,12 +121,12 @@ public class PatternTable implements Data {
                 new Point(target_x, target_y));
     }
 
-    public double getTargetRotation(int joiningLabel, double currHeading,
+    public double getTargetRotation(int childLabel, double currHeading,
             PositionData myCoordinate) {
         double turningAngle = 0;
 
-        double target_x = getJoinLabelX(joiningLabel);
-        double target_y = getJoinLabelY(joiningLabel);
+        double target_x = getJoinLabelX(childLabel);
+        double target_y = getJoinLabelY(childLabel);
 
         double my_x = myCoordinate.getX();
         double my_y = myCoordinate.getY();
@@ -122,7 +137,7 @@ public class PatternTable implements Data {
         //get the angle + (clockwise) - (counterclockwise)
         if (bearing > 180) {
             turningAngle = bearing - 360;
-        }else{
+        } else {
             turningAngle = bearing;
         }
 
@@ -141,15 +156,15 @@ public class PatternTable implements Data {
         return status;
     }
 
-    public double getTargetDistanceFromParent(int joinLabel) {
-        TableRow row = patterntable.get(joinLabel);
+    public double getTargetDistanceFromParent(int childLabel) {
+        TableRow row = patterntable.get(childLabel);
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
         return (Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
     }
 
-    public double getTargetBearingFromParent(int joinLabel, double heading) {
-        TableRow row = patterntable.get(joinLabel);
+    public double getTargetBearingFromParent(int childLabel, double heading) {
+        TableRow row = patterntable.get(childLabel);
 
         double x = row.getXCoordinate();
         double y = row.getYCoordinate();
@@ -160,10 +175,10 @@ public class PatternTable implements Data {
         return bearing;
     }
 
-    public double getDistancetoTargetFromJoiningRobot(int joinLabel,
+    public double getDistancetoTargetFromJoiningRobot(int childLabel,
             double bearing, double distance) {
 
-        TableRow row = patterntable.get(joinLabel);
+        TableRow row = patterntable.get(childLabel);
 
         //get the x,y coordinates of the pattern label measured from leader robot(0,0)
         double x_target = row.getXCoordinate();
@@ -180,10 +195,10 @@ public class PatternTable implements Data {
         return targetDistance;
     }
 
-    public double getHeadingtoTargetFromJoiningRobot(int joinLabel, double bearing, double distance) {
+    public double getHeadingtoTargetFromJoiningRobot(int childLabel, double bearing, double distance) {
 
         //get perpendicular distance from leader robot to navigation path of the joining robot
-        double dist_y = getPerpendicDistToNavPath(joinLabel, bearing, distance);
+        double dist_y = getPerpendicDistToNavPath(childLabel, bearing, distance);
 
         //get the amount of deviation angle needed for the joining robot to go to the target location 
         double headingDeviation = Math.toDegrees(Math.asin(dist_y / distance));
@@ -191,8 +206,8 @@ public class PatternTable implements Data {
         return headingDeviation;
     }
 
-    public double getPerpendicDistToNavPath(int joinLabel, double bearing, double distance) {
-        TableRow row = patterntable.get(joinLabel);
+    public double getPerpendicDistToNavPath(int childLabel, double bearing, double distance) {
+        TableRow row = patterntable.get(childLabel);
 
         //get the x,y coordinates of the pattern label measured from leader robot(0,0)
         double x_target = row.getXCoordinate();
@@ -212,4 +227,10 @@ public class PatternTable implements Data {
 
         return distToNavPath;
     }
+    /*
+    public static void main(String[] args) {
+        PatternTable table = new PatternTable();
+        table.getChildMapForParent(2);
+    }
+    */
 }
