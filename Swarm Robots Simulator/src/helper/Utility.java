@@ -129,10 +129,10 @@ public class Utility {
                 bearing = 90 - Math.abs(slope) + 180;
             }
         }
-
+        
         bearing -= orientation;
-
-        if (bearing < 0) {
+        
+        if(bearing < 0) {
             bearing = 360 - Math.abs(bearing);
         }
 
