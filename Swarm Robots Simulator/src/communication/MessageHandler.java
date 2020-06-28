@@ -86,32 +86,36 @@ public class MessageHandler {
     }
 
     public static void sendJoinPatternReqMsg(Robot robot, int parentLabel) {
-        Message join = new Message(MessageType.JoinPatternRequest, robot);
-        join.setData(new JoinPatternRequest(parentLabel, robot.currentHeading));
-        robot.console.log(String.format("Sending joinPatternReq Message from %d", robot.getId()));
-        robot.broadcastMessage(join);
+        Message joinReq = new Message(MessageType.JoinPatternRequest, robot);
+        joinReq.setData(new JoinPatternRequest(parentLabel, robot.currentHeading));
+        robot.console.log(String.format("Sending JoinPatternReq Message from %d", robot.getId()));
+        robot.broadcastMessage(joinReq);
     }
 
     public static void sendPositionDataMsg(Robot sender, Robot receiver, PositionData data) {
-        Message positionData = new Message(MessageType.PositionData, sender, receiver);
-        positionData.setData(data);
-        sender.broadcastMessage(positionData);
+        Message positionDataMsg = new Message(MessageType.PositionData, sender, receiver);
+        positionDataMsg.setData(data);
+        sender.console.log(String.format("Sending PositionData %d",receiver.getId()));
+        sender.broadcastMessage(positionDataMsg);
     }
 
     public static void sendJoinPatternResMsg(Robot sender, Robot receiver, boolean status) {
         Message joinResponse = new Message(MessageType.JoinPatternResponse, sender, receiver);
         joinResponse.setData(new JoinPatternResponse(status));
+        sender.console.log(String.format("Sending join response to %d", receiver.getId()));
         sender.broadcastMessage(joinResponse);
     }
 
-    public static void sendPositionDataReqMsg(Robot sender) {
-        Message positionReq = new Message(MessageType.PositionAcquired, sender);
+    public static void sendPositionDataReqMsg(Robot sender, Robot receiver) {
+        Message positionReq = new Message(MessageType.PositionDataReq, sender, receiver);
+        sender.console.log(String.format("Sending PositionDataReq to %d", receiver.getId()));
         sender.broadcastMessage(positionReq);
     }
 
-    public static void sendPositionAcquiredMsg(Robot sender, int label) {
-        Message positionAcq = new Message(MessageType.PositionAcquired, sender);
+    public static void sendPositionAcquiredMsg(Robot sender, Robot receiver, int label) {
+        Message positionAcq = new Message(MessageType.PositionAcquired, sender, receiver);
         positionAcq.setData(new PositionAcquired(label));
+        sender.console.log(String.format("Sending PositionAcquired to %d", receiver.getId()));
         sender.broadcastMessage(positionAcq);
     }
 

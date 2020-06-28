@@ -29,12 +29,12 @@ public class Settings {
     public final static int IR_MAX_RANGE = 20;
     
     public final static double BEARING_ERROR_THRESHOLD = 2.5;
-    public final static double DISTANCE_ERROR_THRESHOLD = 5;
+    public final static double DISTANCE_ERROR_THRESHOLD = 2;
     
     public final static boolean VISIBLE_SHARP = true;
     public final static boolean VISIBLE_IR = true;
     
-    public final static boolean CONSOLE_LOGGER = true;
+    public final static boolean CONSOLE_LOGGER = false;
     
     public final static Color FIELD_COLOR = new Color(240, 240, 240);
     

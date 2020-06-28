@@ -46,7 +46,7 @@ public class Console extends javax.swing.JFrame {
     }
 
     public void log(String message) {
-        loggerArea.append(String.format("Robot:{%d}- ", id) + message + "\n");
+        loggerArea.append(String.format("{%s} Robot:{%d}- ", java.time.LocalTime.now(),id) + message + "\n");
     }
 
     /**

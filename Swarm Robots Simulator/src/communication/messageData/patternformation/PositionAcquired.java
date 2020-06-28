@@ -19,7 +19,7 @@ public class PositionAcquired implements Data {
         this.label = label;
     }
 
-    public double getLabel() {
+    public int getLabel() {
         return this.label;
     }
 

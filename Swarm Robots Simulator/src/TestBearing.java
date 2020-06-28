@@ -38,6 +38,7 @@ public class TestBearing {
                                     if (state == 0) {
                                         state = 1;
                                         bearing = b;
+                                        System.out.println(bearing + "\n");
                                         DistanceData data = (DistanceData) message.getData();
                                         dist = data.getDistance();
                                         moveStop();

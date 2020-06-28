@@ -55,13 +55,15 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         //States for pattern formation
         JOINED,
         NAVIGATING,
+        WAITING,
         JOININGPATTERN,
         REQUESTING,
         FREE,
-        ESCAPE
+        ESCAPE,
+        UPDATING
     }
 
-    private State currentState = State.FREE;
+    private State currentState;
     public double currentHeading;
     public boolean isLeader;
 
@@ -75,10 +77,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
         this.angle = angle;
-
-        if (isLeader) {
-            currentState = State.JOINED;
-        }
 
         try {
             image = ImageIO.read(new File("images/robo_icon.png"));
@@ -105,40 +103,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
 //        wheelThread = new Thread();
 //        wheelThread.start();
-    }
-
-    public Robot(double x, double y, double angle, boolean isLeader) {
-
-        super(x, y, 2 * Settings.ROBOT_RADIUS, 2 * Settings.ROBOT_RADIUS);
-        this.angle = angle;
-
-        if (isLeader) {
-            currentState = State.JOINED;
-        }
-
-        try {
-            image = ImageIO.read(new File("images/robo_icon.png"));
-        } catch (IOException ex) {
-            Logger.getLogger(Field.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        sharp = new SharpSensor(this);
-        iRSensors = new ArrayList<>();
-
-        int n = Settings.NUM_OF_IR_SENSORS;
-        for (int i = 0; i < n; i++) {
-            IRSensor irSensor = new IRSensor(i, this, i * 360 / n);
-            iRSensors.add(irSensor);
-        }
-
-        ledStript = new LedStript(this);
-
-        this.id = nextId;
-
-        nextId++;
-
-        this.console = new Console(id);
-        this.console.setVisible(Settings.CONSOLE_LOGGER);
     }
 
     public Robot(double x, double y) {
@@ -376,12 +340,6 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             int randomAngle = Utility.randomInRange(-30, 30);
             moveStop();
             angularTurn(randomAngle);
-        }
-    }
-
-    public void clearMessageBufferOut() {
-        for (IRSensor iRSensor : iRSensors) {
-            iRSensor.setBroadcastMsg(null);
         }
     }
 
