@@ -18,7 +18,7 @@ public class Settings {
     public final static int OBJECT_WIDTH = 20;
     
     public final static int FEILD_WIDTH = 1000;
-    public final static int FEILD_HEIGHT = 600;
+    public final static int FEILD_HEIGHT = 900;
     
     public final static int SHARP_MAX_DISTANCE = 100;
     public final static int SHARP_MAX_RANGE = 15;
@@ -32,6 +32,6 @@ public class Settings {
     public final static boolean VISIBLE_IR = true;
     public final static boolean VISIBLE_IR_INTERSECTION = true;
     
-    public final static boolean CONSOLE_LOGGER = true;
+    public final static boolean CONSOLE_LOGGER = false;
     
 }

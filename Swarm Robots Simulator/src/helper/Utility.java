@@ -15,7 +15,7 @@ import java.util.Random;
  * @author Nadun
  */
 public class Utility {
-    
+
     public static AlphaComposite alphaCompositeHidden = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0);
     public static AlphaComposite alphaCompositeVisible = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f);
 
@@ -50,10 +50,10 @@ public class Utility {
     }
 
     /**
-     * 
+     *
      * @param min
      * @param max
-     * @return 
+     * @return
      */
     public static int randomInRange(int min, int max) {
 
@@ -62,67 +62,76 @@ public class Utility {
         }
         return RANDOM.nextInt((max - min) + 1) + min;
     }
-    
+
     public static double getSlope(double x1, double y1, double x2, double y2) {
         // using long to avoid possible overflows when multiplying
         double dx = x1 - x2;
         double dy = y1 - y2;
-        
-        double toDegrees = Math.toDegrees(Math.atan(dy/dx));
+
+        double toDegrees = Math.toDegrees(Math.atan(dy / dx));
 
         return toDegrees;
     }
-    
+
     //---------------------------------aggregation functions------------------------------------------------------------
-     public static double getMax(double[] inputArray){ 
-        double pMax = inputArray[0];        
-        for(int i=1;i < inputArray.length;i++){ 
-            if(inputArray[i] > pMax){ 
-                pMax = inputArray[i];                
-            } 
-        } 
-        return pMax; 
-    }    
-    
-     public static int getMaxProbSendersId(double[] inputArray, double pMax){ 
-         int maxId = 0;
-          for(int i=1;i < inputArray.length;i++){ 
-              if(inputArray[i] == pMax) {
-                  maxId = i;
-              }
-          }
-          return maxId;
-     }
-     
-    
-    public static double getJoiningProb(int clusterSize) {
-        double joiningProb;
-        double o_max = 80;
-        double robot_diameter = 40;
-        double o_des = robot_diameter/4;
-        double v = 86;
-        double deltaT = 0.1;
-        double arenaArea = 600000;
-        double r_m = (1.20*o_des*Math.pow(clusterSize, 0.48))/2;
-        
-        if(clusterSize == 1) {
-            joiningProb = (2*o_max*v*deltaT)/arenaArea;
+    public static double getMax(double[] inputArray) {
+        double pMax = inputArray[0];
+        for (int i = 1; i < inputArray.length; i++) {
+            if (inputArray[i] > pMax) {
+                pMax = inputArray[i];
+            }
+        }
+        return pMax;
+    }
+
+    public static int getMaxProbSendersId(double[] inputArray, double pMax) {
+        int maxId = 0;
+        for (int i = 1; i < inputArray.length; i++) {
+            if (inputArray[i] == pMax) {
+                maxId = i;
+            }
+        }
+        return maxId;
+    }
+
+//    public static double getJoiningProb(int clusterSize) {
+//        double joiningProb;
+//        double o_max = 80;
+//        double robot_diameter = 40;
+//        double o_des = robot_diameter/4;
+//        double v = 86;
+//        double deltaT = 0.1;
+//        double arenaArea = 600000;
+//        double r_m = (1.20*o_des*Math.pow(clusterSize, 0.48))/2;
+//        
+//        if(clusterSize == 1) {
+//            joiningProb = (2*o_max*v*deltaT)/arenaArea;
+//        } else {
+//            joiningProb = (2*(o_max + r_m - (o_des/2))*v*deltaT)/arenaArea;
+//        }
+//        return joiningProb;
+//    } 
+    public static double getJoiningProb(int noOfRobots, int clusterSize) {
+
+        double joiningProb = 0;
+        if (noOfRobots < 4) {
+            joiningProb = 0.8;
         } else {
-            joiningProb = (2*(o_max + r_m - (o_des/2))*v*deltaT)/arenaArea;
+            joiningProb = (double) clusterSize / noOfRobots;
         }
         return joiningProb;
-    } 
-     
+    }
+
     public static double getLeavingProb(int clusterSize) {
         double leavingProb;
         double shrinkProb = 0.9; //use testing and adjust the value
-        if(clusterSize < 6) {
+        if (clusterSize < 6) {
             leavingProb = clusterSize * shrinkProb;
         } else {
-            leavingProb = Math.PI* (1.20*Math.pow(clusterSize, 0.48) - 1) * shrinkProb;
+            leavingProb = Math.PI * (1.20 * Math.pow(clusterSize, 0.48) - 1) * shrinkProb;
         }
         return leavingProb;
     }
-    
-   //------------------------------------------------------------------------------------------------------------------- 
+
+    //------------------------------------------------------------------------------------------------------------------- 
 }

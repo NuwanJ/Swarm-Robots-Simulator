@@ -15,13 +15,13 @@ import communication.Data;
 public class ClusterUpdateData implements Data {
 
     private int clusterId;
-    private int newClusterSize;  
-    private int receiverId;
+    private int newClusterSize;   
+    private long currentTime;
 
-    public ClusterUpdateData(int clusterId, int newClusterSize, int receiverId) {   
+    public ClusterUpdateData(int clusterId, int newClusterSize, long currentTime) {   
         this.clusterId = clusterId;
-        this.newClusterSize = newClusterSize;
-        this.receiverId = receiverId;
+        this.newClusterSize = newClusterSize;       
+        this.currentTime = currentTime;
     } 
 
     public int getClusterID() {
@@ -31,8 +31,8 @@ public class ClusterUpdateData implements Data {
     public int getNewClusterSize() {
         return this.newClusterSize;
     }
-
-    public int getReceiverId() {
-        return this.receiverId;
+      
+    public long getCurrentTime() {
+        return this.currentTime;
     }
 }

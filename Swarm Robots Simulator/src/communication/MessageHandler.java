@@ -42,25 +42,33 @@ public class MessageHandler {
         robot.broadcastMessage(joingMsg);
     }
 
-    public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize, HashMap<Integer, Boolean> clusterMembers) {
-        for (Map.Entry member : clusterMembers.entrySet()) {
-            robot.console.log(String.format("Sending Cluster Update Msg for member:{%d} in cluster:(%d)", member.getKey(), clusterId));
-            Message clusterUpdateMsg = new Message(MessageType.Update, robot);
-            clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize, (int) member.getKey()));
-            robot.broadcastMessage(clusterUpdateMsg);
-        }
-
+//    public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize, HashMap<Integer, Boolean> clusterMembers, long currentTime) {
+//        for (Map.Entry member : clusterMembers.entrySet()) {
+//            robot.console.log(String.format("Sending Cluster Update Msg for member:{%d} in cluster:(%d)", member.getKey(), clusterId));
+//            Message clusterUpdateMsg = new Message(MessageType.Update, robot);
+//            clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize, (int) member.getKey(), currentTime));
+//            long startedTime = System.currentTimeMillis();
+//            while ((System.currentTimeMillis() - startedTime) < 400) {
+//                robot.broadcastMessage(clusterUpdateMsg);
+//            }
+//        }
+//    }
+    public static void sendClusterUpdateMsg(Robot robot, int clusterId, int newClusterSize, long currentTime) {
+        robot.console.log(String.format("Sending Cluster Update Msg to cluster:(%d)", clusterId));
+        Message clusterUpdateMsg = new Message(MessageType.Update, robot);
+        clusterUpdateMsg.setData(new ClusterUpdateData(clusterId, newClusterSize, currentTime));
+        robot.broadcastMessage(clusterUpdateMsg);
     }
 
     public static void sendLeaveMsg(Robot robot, int clusterId) {
-        robot.console.log(String.format("Sending Cluster Disperse Message from cluster:( %d )", clusterId));
+        robot.console.log(String.format("Sending Cluster Disperse Message of cluster:( %d )", clusterId));
         Message leaveMsg = new Message(MessageType.Leave, robot);
         leaveMsg.setData(new LeaveData(clusterId));
         robot.broadcastMessage(leaveMsg);
     }
 
     public static void sendInfoMsg(Robot robot, int receiver, int clusterId, int clusterSize) {
-        //robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
+        robot.console.log(String.format("Sending Info Message to robot:( %d )", receiver));
         Message infoMsg = new Message(MessageType.Info, robot);
         infoMsg.setData(new InfoData(receiver, clusterId, clusterSize));
         robot.broadcastMessage(infoMsg);
@@ -69,8 +77,28 @@ public class MessageHandler {
     public static void sendPulseFBMsg(Robot robot, int clusterId, int receiverId, double joiningProb, int clusterSize) {
         robot.console.log(String.format("Sending Pulse Feedback Message to robot:( %d )", receiverId));
         Message pulseFBMsg = new Message(MessageType.PulseFeedback, robot);
-        pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), receiverId, 0.8, clusterSize));
+        pulseFBMsg.setData(new PulseFBData(clusterId, robot.getId(), receiverId, joiningProb, clusterSize));
         robot.broadcastMessage(pulseFBMsg);
+    }
+
+    public static void sendNullMsg(Robot robot) {
+        Message emptyMsg = new Message(MessageType.Dummy, robot);
+        emptyMsg.setData(null);
+        robot.broadcastMessage(emptyMsg);
+    }
+
+    public static void sendPulseCheck(Robot robot, int receiverId, boolean checkFlag) {
+        robot.console.log(String.format("Sending Pulse Check Message to robot:( %d )", receiverId));
+        Message pulseCheckMsg = new Message(MessageType.PulseCheck, robot);
+        pulseCheckMsg.setData(new CheckPulseData(receiverId, checkFlag));
+        robot.broadcastMessage(pulseCheckMsg);
+    }
+
+    public static void sendGoAwayAck(Robot robot, int receiverId) {
+        robot.console.log(String.format("Sending Go Away Ack Message to robot:( %d )", receiverId));
+        Message goAwayAckMsg = new Message(MessageType.GoAwayAck, robot);
+        goAwayAckMsg.setData(new GoAwayAckData(receiverId));
+        robot.broadcastMessage(goAwayAckMsg);
     }
 
 }

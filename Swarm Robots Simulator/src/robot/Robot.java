@@ -47,13 +47,30 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
     private BufferedImage image;
     private int id;
     public Console console;
+   
 
     public enum State {
-
+        TRANSITION,
         SEARCHING,
         INCLUSTER,
         AGGREGATE
     }
+    
+    public State state = State.SEARCHING;
+    
+    public void changeStateTo(State state) {
+        this.state = state; 
+    }
+    
+    public boolean isMyState(State checkingState) {
+        if(this.state.equals(checkingState)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
     public boolean rotationOff = false;
 
     private Color ledColor;
@@ -87,7 +104,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
         this.console = new Console(id);
         this.console.setVisible(Settings.CONSOLE_LOGGER);
-       
+
 //        wheelThread = new Thread();
 //        wheelThread.start();
     }
@@ -100,14 +117,14 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         setX(x);
         setY(y);
     }
-    
+
     public Robot() {
         this(0, 0);
 
         int x = Utility.randomInRange(20, Settings.FEILD_WIDTH - 5 * Settings.ROBOT_RADIUS);
         int y = Utility.randomInRange(20, Settings.FEILD_HEIGHT - 5 * Settings.ROBOT_RADIUS);
         this.angle = Utility.randomInRange(-360, 360);
-        
+
         setX(x);
         setY(y);
     }
@@ -397,6 +414,12 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
         }
     }
 
+    public void clearMessageBufferOut() {
+        for (IRSensor iRSensor : iRSensors) {
+            iRSensor.setBroadcastMsg(null);
+        }
+    }
+
     @Override
     public void broadcastMessage(Message message) {
         for (IRSensor iRSensor : iRSensors) {
@@ -436,9 +459,9 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
 
     @Override
     public synchronized void processMessage(Message message, int sensorId) {
-//        Robot sender = message.getSender();
-//        MessageType type = message.getType();
-//        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
+        Robot sender = message.getSender();
+        MessageType type = message.getType();
+        console.log(String.format("Received %s Msg from %d", type, sender.getId()));
     }
 
     @Override
@@ -493,7 +516,7 @@ public class Robot extends Ellipse2D.Double implements BasicBehaviors, RobotBrai
             while (!wheelStop) {
 
                 moveForwardDistance(10);
-                int randomAngle = Utility.randomInRange(0, 3);
+                int randomAngle = Utility.randomInRange(-3, 3);
                 turnRightAngle(randomAngle);
 
                 try {
